@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import SecurityIcon from '@mui/icons-material/Security';
 import { useNavigate } from 'react-router-dom';
+import OrderTrackingPanel from '../components/orders/OrderTrackingPanel';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -136,18 +137,9 @@ function Dashboard() {
           </Paper>
         </Grid>
         
-        {/* Recent Activity */}
+        {/* Order Tracking Panel */}
         <Grid item xs={12}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Recent Activity
-            </Typography>
-            <Box sx={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="body1" color="text.secondary">
-                Activity data will be displayed here
-              </Typography>
-            </Box>
-          </Paper>
+          <OrderTrackingPanel />
         </Grid>
         
         {/* Performance Chart */}
