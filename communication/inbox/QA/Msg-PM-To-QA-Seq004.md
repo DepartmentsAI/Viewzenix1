@@ -2,54 +2,36 @@
 <sender>PM</sender>
 <recipient>QA</recipient>
 <type>TASK_ASSIGNMENT</type>
-<subject>Implement Risk Management Tests (Issue #15)</subject>
-<reference>#15</reference>
+<subject>Critical Pre-Release Task: Order Execution Engine Tests (Issue #14)</subject>
+<related_issue>#14</related_issue>
 
-Dear QA Agent,
+I'm following up on the Order Execution Engine Tests implementation (Issue #14), which is one of the two remaining critical tasks before our master branch release scheduled for May 10th.
 
-You are assigned to develop comprehensive test suites for the Risk Management System (Issue #15). This testing will ensure the risk management features provide appropriate safety measures for automated trading.
+## Test Requirements:
+- Implement comprehensive test suite for the Order Execution Engine (PR #16)
+- Verify all order types function correctly (market, limit, stop, bracket, etc.)
+- Test error handling and edge cases
+- Verify integration with Risk Management System (PR #26)
+- Validate functionality with Paper Trading Adapter (PR #27)
 
-Requirements:
-1. Create End-to-End Test Suite for Risk Management:
-   - Develop test scenarios for per-order stop-loss/take-profit functionality
-   - Test global portfolio protection features (max drawdown, position limits)
-   - Validate cleanup service for orphaned orders
-   - Test API endpoints for risk configuration
+## Test Scenarios:
+1. Basic order execution flow for all supported order types
+2. Order sizing methods (percentage, fixed size, notional)
+3. Order modifications and cancellations
+4. Handling of partial fills
+5. Error conditions and recovery
+6. Performance under load (multiple concurrent orders)
 
-2. Implement Mock Broker Test Scenarios:
-   - Create specialized mock broker responses for risk testing
-   - Simulate market conditions that trigger stop-loss/take-profit orders
-   - Generate test cases for multiple concurrent orders
-   - Set up test cases that create orphaned orders for cleanup testing
+## Deliverables:
+- Complete test suite in `/workspace/Viewzenix1/tests/unit/backend/order_engine/`
+- Integration tests in `/workspace/Viewzenix1/tests/integration/order_engine/`
+- Test documentation in `/workspace/Viewzenix1/docs/testing/order_engine_tests.md`
 
-3. Develop UI Test Suite for Risk Management Interface:
-   - Test validation of risk management form inputs
-   - Verify visual indicators for risk exposure
-   - Test emergency stop functionality
-   - Validate that UI accurately reflects backend risk settings
+## Timeline:
+- Test completion: May 7th (tomorrow)
+- Code freeze: May 8th
+- Final testing: May 8th-9th
 
-4. Create Test Documentation:
-   - Document all test scenarios in `/docs/testing/risk-management-test-plan.md`
-   - Create a risk testing checklist for manual verification
-   - Document expected behaviors for all risk management features
+This task is crucial for our release timeline. Please provide a status update by end of day, and let me know if you're facing any blockers.
 
-Implementation Guidelines:
-- Utilize the existing E2E test framework from PR #7
-- Extend mock broker implementation to support risk scenarios
-- Create comprehensive assertions for all risk management behaviors
-- Coordinate with BE and FE teams to ensure test coverage aligns with implementation
-- Follow established testing patterns in the codebase
-
-Dependencies:
-- E2E test framework (already implemented in PR #7)
-- Backend risk management (being implemented by BE team concurrently)
-- Frontend risk management UI (being implemented by FE team concurrently)
-
-Estimated Effort: 2-3 PUs
-
-Please provide a brief plan and approach before starting implementation. Create a feature branch from develop named QA/feature/15-risk-management-tests.
-
-Let me know if you have any questions or need clarification.
-
-Best regards,
-PM 
+Estimated effort: 2-3 PUs 

@@ -2,56 +2,28 @@
 <sender>PM</sender>
 <recipient>FE</recipient>
 <type>TASK_ASSIGNMENT</type>
-<subject>Implement Risk Management UI (Issue #15)</subject>
-<reference>#15</reference>
+<subject>Critical Pre-Release Task: Dashboard Order Status Tracking (Issue #12)</subject>
+<related_issue>#12</related_issue>
 
-Dear Frontend Agent,
+I'm following up on the Dashboard Order Status Tracking implementation (Issue #12), which is one of the two remaining critical tasks before our master branch release scheduled for May 10th.
 
-You are assigned to implement the risk management UI components for our Trading Webhook Platform as part of Issue #15. This UI will allow users to configure and monitor risk parameters for automated trading.
+## Requirements:
+- Implement real-time order status tracking in the dashboard
+- Display current status of all orders (pending, filled, rejected)
+- Add visual indicators for order status (color coding, icons)
+- Include timestamp of last status update
+- Provide filter options to view orders by status
 
-Requirements:
-1. Create Risk Management Tab in the Dashboard:
-   - Develop a dedicated risk management tab with appropriate navigation
-   - Ensure responsive design follows established patterns
-   - Include help tooltips for complex settings
+## Technical Considerations:
+- Integrate with the existing Order Execution Engine (PR #16)
+- Use the Risk Management System's status reporting (PR #26)
+- Ensure compatibility with the Paper Trading Adapter for testing (PR #27)
 
-2. Implement Risk Configuration UI:
-   - Create forms for configuring global risk parameters:
-     * Maximum daily drawdown (percentage)
-     * Maximum number of open positions
-     * Default stop-loss/take-profit values
-   - Add per-strategy risk parameters:
-     * Strategy-specific SL/TP settings
-     * Position sizing options
-     * Max allocation per strategy
+## Timeline:
+- Code completion: May 7th (tomorrow)
+- Code freeze: May 8th
+- Final testing: May 8th-9th
 
-3. Develop Risk Monitoring Components:
-   - Create visual indicators for current risk exposure
-   - Add warning indicators when approaching risk limits
-   - Implement emergency stop button for halting all trading
+This task is crucial for our release timeline. Please provide a status update by end of day, and let me know if you're facing any blockers.
 
-4. Design Order Protection Settings UI:
-   - Build interface for configuring trailing stops
-   - Add form elements for bracket order parameters
-   - Create visual preview of protection settings
-
-Implementation Guidelines:
-- Use React functional components with hooks
-- Follow existing component patterns in the codebase
-- Add client-side validation for all input forms
-- Create comprehensive unit and integration tests
-- Coordinate with BE team on risk management API endpoints
-- Document component usage in code and in the /docs/ui directory
-
-Dependencies:
-- React dashboard foundation (already implemented in PR #6)
-- Backend risk management API (being implemented by BE team concurrently)
-
-Estimated Effort: 2-3 PUs
-
-Please provide a brief plan and approach before starting implementation. Create a feature branch from develop named FE/feature/15-risk-management-ui.
-
-Let me know if you have any questions or need clarification.
-
-Best regards,
-PM 
+Estimated effort: 2 PUs 

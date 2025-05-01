@@ -49,5 +49,4 @@ After this release, we'll gather user feedback and begin planning Phase 2 featur
 Let's work together to ensure a successful first release of our Trading Webhook Platform!
 
 Best regards,
-PM
-</message> 
+PM 
