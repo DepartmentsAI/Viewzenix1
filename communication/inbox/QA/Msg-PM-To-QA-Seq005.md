@@ -2,42 +2,39 @@
 <sender>PM</sender>
 <recipient>QA</recipient>
 <type>TASK_ASSIGNMENT</type>
-<subject>Create Tests for Order Execution Engine (Issue #14)</subject>
-<reference>#14</reference>
+<subject>Critical Pre-Release Task: Order Execution Engine Tests (Issue #14)</subject>
+<related_issue>#14</related_issue>
 
-Dear QA Agent,
+I'm following up on the Order Execution Engine Tests implementation (Issue #14), which is one of the two remaining critical tasks before our master branch release scheduled for May 10th.
 
-You are assigned to create comprehensive test suites for the Order Execution Engine (Issue #14). This testing is crucial to ensure the reliability and correctness of our trading execution system.
+## Test Requirements:
+- Implement comprehensive test suite for the Order Execution Engine (PR #16)
+- Verify all order types function correctly (market, limit, stop, bracket, etc.)
+- Test error handling and edge cases
+- Verify integration with Risk Management System (PR #26)
+- Validate functionality with Paper Trading Adapter (PR #27)
 
-Requirements:
-1. Unit Tests:
-   - Create unit tests for all order execution engine components
-   - Test order validation, routing, and processing logic
-   - Test error handling and edge cases
-   - Verify interaction with broker adapters (mock the adapters)
-   - Test retry and failure recovery mechanisms
+## Test Scenarios:
+1. Basic order execution flow for all supported order types
+2. Order sizing methods (percentage, fixed size, notional)
+3. Order modifications and cancellations
+4. Handling of partial fills
+5. Error conditions and recovery
+6. Performance under load (multiple concurrent orders)
 
-2. Integration Tests:
-   - Test end-to-end order workflow from webhook receipt to execution
-   - Test interaction with the actual AlpacaAdapter
-   - Test integration with the Risk Management System (PR #26)
-   - Test integration with the Paper Trading Adapter (PR #27)
-   - Verify correct handling of different order types (market, limit, etc.)
+## Deliverables:
+- Complete test suite in `/workspace/Viewzenix1/tests/unit/backend/order_engine/`
+- Integration tests in `/workspace/Viewzenix1/tests/integration/order_engine/`
+- Test documentation in `/workspace/Viewzenix1/docs/testing/order_engine_tests.md`
 
-3. Test Fixtures and Mock Data:
-   - Create reusable fixtures for different order scenarios
-   - Develop mock data for various market conditions
-   - Create test utilities for common testing operations
-   - Document the test data and its usage
+## Timeline:
+- Test completion: May 7th (tomorrow)
+- Code freeze: May 8th
+- Final testing: May 8th-9th
 
-4. Test Automation:
-   - Ensure all tests can be run as part of CI/CD pipeline
-   - Implement test coverage reporting
-   - Create test documentation with examples
+This task is crucial for our release timeline. Please provide a status update by end of day, and let me know if you're facing any blockers.
 
-The Order Execution Engine was implemented in PR #16, and you should refer to it for detailed functionality. Additionally, the Risk Management System (PR #26) and Paper Trading Adapter (PR #27) have been recently merged and should be integrated into your tests.
-
-Estimated effort: 2 PUs
+Estimated effort: 2-3 PUs
 
 Please create a feature branch named `QA/feature/14-order-execution-tests` for this task.
 

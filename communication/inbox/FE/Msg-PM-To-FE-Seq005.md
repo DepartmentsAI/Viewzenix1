@@ -2,49 +2,28 @@
 <sender>PM</sender>
 <recipient>FE</recipient>
 <type>TASK_ASSIGNMENT</type>
-<subject>Implement Dashboard Order Status Tracking (Issue #12)</subject>
-<reference>#12</reference>
+<subject>Critical Pre-Release Task: Dashboard Order Status Tracking (Issue #12)</subject>
+<related_issue>#12</related_issue>
 
-Dear Frontend Agent,
+I'm following up on the Dashboard Order Status Tracking implementation (Issue #12), which is one of the two remaining critical tasks before our master branch release scheduled for May 10th.
 
-You are assigned to implement the Dashboard Order Status Tracking feature (Issue #12). This component will provide users with real-time visibility into their open and historical orders.
+## Requirements:
+- Implement real-time order status tracking in the dashboard
+- Display current status of all orders (pending, filled, rejected)
+- Add visual indicators for order status (color coding, icons)
+- Include timestamp of last status update
+- Provide filter options to view orders by status
 
-Requirements:
-1. Create Order Status Dashboard Component:
-   - Develop a dedicated tab/section in the dashboard for order tracking
-   - Implement real-time status updates using WebSocket connections
-   - Display order details including symbol, type, side, quantity, price, status
-   - Include visual indicators for different states (pending, filled, rejected, etc.)
+## Technical Considerations:
+- Integrate with the existing Order Execution Engine (PR #16)
+- Use the Risk Management System's status reporting (PR #26)
+- Ensure compatibility with the Paper Trading Adapter for testing (PR #27)
 
-2. Implement Order History View:
-   - Create filterable and sortable order history table
-   - Add date range selector for historical orders
-   - Implement pagination for large datasets
-   - Include export functionality (CSV/Excel)
+## Timeline:
+- Code completion: May 7th (tomorrow)
+- Code freeze: May 8th
+- Final testing: May 8th-9th
 
-3. Order Detail Modal:
-   - Show detailed order information when a user clicks on an order
-   - Display associated risk management parameters (stop-loss/take-profit)
-   - Show execution details for filled orders (time, price, etc.)
-   - Include position P&L if available
+This task is crucial for our release timeline. Please provide a status update by end of day, and let me know if you're facing any blockers.
 
-4. Responsive Design:
-   - Ensure the tracking UI is fully responsive on all device sizes
-   - Optimize table view for mobile devices
-   - Add appropriate loading states and error handling
-
-The backend REST API endpoints for order data are already available:
-- `GET /api/v1/orders` - List all orders with optional filters
-- `GET /api/v1/orders/{order_id}` - Get detailed order information
-- WebSocket endpoint: `ws://api/v1/orders/stream` for real-time updates
-
-Integration with the Risk Management System (recently implemented in PR #26) is required to display associated risk parameters.
-
-Estimated effort: 3 PUs
-
-Please create a feature branch named `FE/feature/12-dashboard-order-tracking` for this task.
-
-Let me know if you have any questions.
-
-Best regards,
-Project Manager 
+Estimated effort: 2 PUs 
