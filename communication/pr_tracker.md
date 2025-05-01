@@ -10,3 +10,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 8   | BE/feature/2-flask-webhook-api | #2 | Merged | BE | PM, QA | 2025-05-01 | 
 | 9   | INT/feature/4-alpaca-adapter | #4 | Merged | INT | PM | 2025-05-01 |
 | 16  | BE/feature/10-order-execution-engine | #10 | Open | BE | PM, INT | 2025-05-02 |
+| 26  | BE/feature/15-risk-management | #15 | Open | BE | PM, QA, INT | 2025-05-03 |
