@@ -1,0 +1,151 @@
+{
+  "component": "webhook_system",
+  "date": "2025-05-08",
+  "tester": "QA Team",
+  "planned": 25,
+  "executed": 20,
+  "passed": 18,
+  "notes": "2 test cases blocked by external broker API service issues",
+  "issues": [
+    {
+      "id": "VZ-123",
+      "description": "Webhook validation fails when symbols contain special characters",
+      "component": "Webhook System",
+      "severity": "Medium",
+      "assignee": "BE Team",
+      "status": "Open"
+    },
+    {
+      "id": "VZ-124",
+      "description": "Race condition in concurrent webhook processing",
+      "component": "Webhook System",
+      "severity": "High",
+      "assignee": "BE Team",
+      "status": "Open"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "WH-001",
+      "name": "Valid webhook reception - market buy order",
+      "status": "PASS",
+      "duration_ms": 230
+    },
+    {
+      "id": "WH-002",
+      "name": "Valid webhook reception - market sell order",
+      "status": "PASS",
+      "duration_ms": 215
+    },
+    {
+      "id": "WH-003",
+      "name": "Valid webhook reception - limit buy order",
+      "status": "PASS",
+      "duration_ms": 245
+    },
+    {
+      "id": "WH-004",
+      "name": "Valid webhook reception - limit sell order",
+      "status": "PASS",
+      "duration_ms": 238
+    },
+    {
+      "id": "WH-005",
+      "name": "Valid webhook reception - stop buy order",
+      "status": "PASS",
+      "duration_ms": 242
+    },
+    {
+      "id": "WH-006",
+      "name": "Valid webhook reception - stop sell order",
+      "status": "PASS",
+      "duration_ms": 251
+    },
+    {
+      "id": "WH-007",
+      "name": "Invalid webhook - missing required fields",
+      "status": "PASS",
+      "duration_ms": 182
+    },
+    {
+      "id": "WH-008",
+      "name": "Invalid webhook - malformed JSON",
+      "status": "PASS",
+      "duration_ms": 170
+    },
+    {
+      "id": "WH-009",
+      "name": "Invalid webhook - unknown action type",
+      "status": "PASS",
+      "duration_ms": 175
+    },
+    {
+      "id": "WH-010",
+      "name": "Valid webhook with unusual symbol formats",
+      "status": "FAIL",
+      "duration_ms": 218,
+      "error": "Webhook validation failed for symbol 'BTC/USD'"
+    },
+    {
+      "id": "WH-011",
+      "name": "Concurrent webhook submission - high volume",
+      "status": "FAIL",
+      "duration_ms": 1542,
+      "error": "Race condition detected when processing multiple concurrent webhooks"
+    },
+    {
+      "id": "WH-012",
+      "name": "Webhook with maximum allowed payload size",
+      "status": "PASS",
+      "duration_ms": 312
+    },
+    {
+      "id": "WH-013",
+      "name": "Webhook with valid authentication",
+      "status": "PASS",
+      "duration_ms": 230
+    },
+    {
+      "id": "WH-014",
+      "name": "Webhook with invalid authentication",
+      "status": "PASS",
+      "duration_ms": 180
+    },
+    {
+      "id": "WH-015",
+      "name": "Webhook reception during high system load",
+      "status": "PASS",
+      "duration_ms": 550
+    },
+    {
+      "id": "WH-016",
+      "name": "Webhook with very large quantity values",
+      "status": "PASS",
+      "duration_ms": 235
+    },
+    {
+      "id": "WH-017",
+      "name": "Webhook with very small price increments",
+      "status": "PASS",
+      "duration_ms": 228
+    },
+    {
+      "id": "WH-018",
+      "name": "Webhook retry after connection failure",
+      "status": "PASS",
+      "duration_ms": 780
+    },
+    {
+      "id": "WH-019",
+      "name": "Webhook with different time zones in timestamp",
+      "status": "PASS",
+      "duration_ms": 225
+    },
+    {
+      "id": "WH-020",
+      "name": "Webhook with future execution time",
+      "status": "PASS",
+      "duration_ms": 230
+    }
+  ]
+} 
