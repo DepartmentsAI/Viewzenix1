@@ -9,6 +9,9 @@ import logging
 from flask import Blueprint, request, jsonify, current_app
 from jsonschema import validate, ValidationError
 
+from src.backend.services.order_engine import OrderEngine
+from src.backend.services.risk_manager import RiskManager
+
 # Create blueprint
 webhook_bp = Blueprint('webhook', __name__)
 
@@ -38,10 +41,33 @@ TRADINGVIEW_SCHEMA = {
         "strategy_order_contracts": {"type": "number"},
         "strategy_order_price": {"type": "number"},
         "strategy_order_comment": {"type": "string"},
-        "time": {"type": "number"}
+        "time": {"type": "number"},
+        "stop_loss": {
+            "type": "object",
+            "properties": {
+                "price": {"type": "number"},
+                "percent": {"type": "number", "minimum": 0, "maximum": 1}
+            },
+            "additionalProperties": False
+        },
+        "take_profit": {
+            "type": "object",
+            "properties": {
+                "price": {"type": "number"},
+                "percent": {"type": "number", "minimum": 0, "maximum": 1}
+            },
+            "additionalProperties": False
+        },
+        "use_risk_management": {"type": "boolean"}
     },
     "additionalProperties": False
 }
+
+# Create an instance of the OrderEngine
+order_engine = OrderEngine()
+
+# Create an instance of the RiskManager
+risk_manager = RiskManager(order_engine=order_engine)
 
 @webhook_bp.route('/webhook', methods=['POST'])
 def receive_webhook():
@@ -80,22 +106,38 @@ def receive_webhook():
             "details": str(e)
         }), 400
     
-    # Process the webhook (in a real implementation, you would call a service here)
+    # Process the webhook
     try:
-        # Log successful webhook receipt
-        logger.info(f"Valid webhook received for symbol: {payload['symbol']}")
+        # Determine whether to use risk management
+        use_risk_management = payload.get('use_risk_management', True)  # Default to True
         
-        # Here you would queue the job for processing
-        # For now, we'll just return a success response
-        return jsonify({
-            "status": "success",
-            "message": f"Webhook received for {payload['symbol']}",
-            "trade_type": f"{payload['strategy_order_id']} {payload['strategy_order_action']}"
-        }), 200
+        if use_risk_management:
+            # Process with risk management
+            logger.info("Processing webhook with risk management")
+            result = risk_manager.process_order_with_risk_management(payload)
+        else:
+            # Process directly with OrderEngine
+            logger.info("Processing webhook without risk management")
+            result = order_engine.process_webhook_data(payload)
+        
+        # Log the result
+        logger.info(f"Webhook processed: {result}")
+        
+        # Return the result
+        if result.get('status') == 'success':
+            return jsonify(result), 200
+        elif result.get('status') == 'rejected' or result.get('status') == 'warning':
+            return jsonify(result), 200  # Still return 200 for warnings/rejections
+        else:
+            return jsonify(result), 400  # Return 400 for errors
     
     except Exception as e:
         logger.error(f"Error processing webhook: {str(e)}")
-        return jsonify({"error": "Error processing webhook"}), 500
+        return jsonify({
+            "status": "error",
+            "error": "Error processing webhook",
+            "details": str(e)
+        }), 500
 
 @webhook_bp.route('/webhook/status', methods=['GET'])
 def webhook_status():
@@ -108,5 +150,10 @@ def webhook_status():
     return jsonify({
         "status": "active",
         "service": "TradingView Webhook Receiver",
-        "version": "1.0.0"
+        "version": "1.1.0",
+        "features": {
+            "risk_management": True,
+            "stop_loss": True,
+            "take_profit": True
+        }
     }), 200 
