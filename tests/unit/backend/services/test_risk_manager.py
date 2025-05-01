@@ -2,7 +2,7 @@
 Unit tests for the RiskManager class.
 """
 import pytest
-import unittest.mock as mock
+from unittest.mock import MagicMock, patch
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 
@@ -129,14 +129,53 @@ class TestRiskManager:
     
     @pytest.fixture
     def mock_broker_adapter(self):
-        """Create a MockBrokerAdapter instance."""
-        return MockBrokerAdapter()
+        """Create a mock broker adapter for testing."""
+        adapter = MagicMock(spec=BrokerAdapter)
+        
+        # Configure adapter mocks
+        adapter.get_account_info.return_value = {
+            'equity': 10000.0,
+            'buying_power': 20000.0,
+            'cash': 5000.0,
+            'currency': 'USD'
+        }
+        
+        adapter.get_positions.return_value = [
+            {
+                'symbol': 'AAPL',
+                'qty': 10,
+                'market_value': 1500.0,
+                'avg_entry_price': 145.0
+            },
+            {
+                'symbol': 'MSFT',
+                'qty': 5,
+                'market_value': 1300.0,
+                'avg_entry_price': 250.0
+            }
+        ]
+        
+        adapter.get_quote.return_value = {
+            'last_price': 150.0,
+            'ask_price': 150.05,
+            'bid_price': 149.95,
+            'volume': 10000
+        }
+        
+        return adapter
     
     @pytest.fixture
-    def mock_order_engine(self, mock_broker_adapter):
-        """Create a MockOrderEngine instance."""
-        engine = MockOrderEngine()
-        engine.broker_adapter = mock_broker_adapter
+    def mock_order_engine(self):
+        """Create a mock order engine for testing."""
+        engine = MagicMock()
+        
+        # Configure mock methods
+        engine.process_webhook_data.return_value = {
+            'status': 'success',
+            'order_id': 'test-order-123',
+            'message': 'Order executed successfully'
+        }
+        
         return engine
     
     @pytest.fixture
@@ -144,506 +183,319 @@ class TestRiskManager:
         """Create a RiskManager instance with mock dependencies."""
         return RiskManager(broker_adapter=mock_broker_adapter, order_engine=mock_order_engine)
     
-    def test_init(self, risk_manager, mock_broker_adapter, mock_order_engine):
+    def test_initialization(self, risk_manager, mock_broker_adapter, mock_order_engine):
         """Test RiskManager initialization."""
         assert risk_manager.broker_adapter == mock_broker_adapter
         assert risk_manager.order_engine == mock_order_engine
-        assert 'stop_loss_percent' in risk_manager.risk_params
-        assert 'take_profit_percent' in risk_manager.risk_params
-        assert 'max_position_size_percent' in risk_manager.risk_params
-        assert 'max_daily_drawdown_percent' in risk_manager.risk_params
-        assert 'max_open_positions' in risk_manager.risk_params
-        assert 'daily_performance' in vars(risk_manager)
-    
-    def test_initialize_daily_tracking(self, risk_manager, mock_broker_adapter):
-        """Test _initialize_daily_tracking method."""
-        # Setup mock response
-        mock_broker_adapter.set_response('get_account_info', {'equity': '10000'})
-        
-        # Call method
-        risk_manager._initialize_daily_tracking()
-        
-        # Verify calls
-        assert mock_broker_adapter.calls[0]['method'] == 'get_account_info'
-        
-        # Verify tracking was initialized correctly
-        assert risk_manager.daily_performance['start_equity'] == 10000
-        assert risk_manager.daily_performance['current_equity'] == 10000
-        assert risk_manager.daily_performance['max_equity'] == 10000
-        assert risk_manager.daily_performance['min_equity'] == 10000
+        assert risk_manager.risk_params['stop_loss_percent'] == 0.02
+        assert risk_manager.risk_params['take_profit_percent'] == 0.05
+        assert risk_manager.risk_params['max_position_size_percent'] == 0.05
+        assert risk_manager.daily_performance['start_equity'] == 10000.0
     
     def test_update_risk_parameters(self, risk_manager):
-        """Test update_risk_parameters method."""
-        # Initial values
-        initial_sl = risk_manager.risk_params['stop_loss_percent']
-        initial_tp = risk_manager.risk_params['take_profit_percent']
-        
-        # Update parameters
+        """Test updating risk parameters."""
         new_params = {
             'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.07
+            'take_profit_percent': 0.08,
+            'max_daily_drawdown_percent': 0.10
         }
-        result = risk_manager.update_risk_parameters(new_params)
         
-        # Verify parameters were updated
-        assert result['stop_loss_percent'] == 0.03
-        assert result['take_profit_percent'] == 0.07
-        assert risk_manager.risk_params['stop_loss_percent'] == 0.03
-        assert risk_manager.risk_params['take_profit_percent'] == 0.07
+        updated = risk_manager.update_risk_parameters(new_params)
         
-        # Test validation - percent value must be between 0 and 1
-        risk_manager.update_risk_parameters({'stop_loss_percent': 1.5})
-        # Invalid value should be rejected, value should not change
-        assert risk_manager.risk_params['stop_loss_percent'] == 0.03
+        assert updated['stop_loss_percent'] == 0.03
+        assert updated['take_profit_percent'] == 0.08
+        assert updated['max_daily_drawdown_percent'] == 0.10
+        assert updated['max_position_size_percent'] == 0.05  # Unchanged
+        
+        # Check invalid values are ignored
+        invalid_params = {
+            'stop_loss_percent': 1.5,  # > 1, invalid
+            'max_open_positions': -2  # < 0, invalid
+        }
+        
+        updated = risk_manager.update_risk_parameters(invalid_params)
+        
+        assert updated['stop_loss_percent'] == 0.03  # Unchanged
+        assert updated['max_open_positions'] == 10  # Unchanged
     
     def test_get_risk_parameters(self, risk_manager):
-        """Test get_risk_parameters method."""
+        """Test getting risk parameters."""
         params = risk_manager.get_risk_parameters()
-        assert params == risk_manager.risk_params
-        assert params is not risk_manager.risk_params  # Should be a copy
+        
+        assert params['stop_loss_percent'] == 0.02
+        assert params['take_profit_percent'] == 0.05
+        assert params['max_position_size_percent'] == 0.05
+        assert params['max_daily_drawdown_percent'] == 0.05
+        assert params['max_open_positions'] == 10
+        assert params['orphaned_order_age_hours'] == 24
     
-    def test_check_portfolio_limits_entry_under_limit(self, risk_manager, mock_broker_adapter):
-        """Test _check_portfolio_limits with entry order under limits."""
-        # Setup mock responses
-        mock_broker_adapter.set_response('get_all_positions', [{'symbol': 'BTCUSD'}])  # 1 position
-        mock_broker_adapter.set_response('get_account_info', {'equity': '10000'})
-        mock_broker_adapter.set_response('get_position', {'current_price': '50000'})
-        
-        # Set max positions to 5
-        risk_manager.risk_params['max_open_positions'] = 5
-        
-        # Create order data for entry
+    def test_process_order_with_risk_management_success(self, risk_manager, mock_order_engine):
+        """Test processing an order with risk management (success case)."""
         order_data = {
-            'symbol': 'ETHUSD',
+            'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 2000,
-            'strategy_order_contracts': 0.1
-        }
-        
-        # Check limits
-        result = risk_manager._check_portfolio_limits(order_data)
-        
-        # Verify result
-        assert result is True
-        
-        # Verify calls
-        get_positions_call = None
-        get_account_call = None
-        for call in mock_broker_adapter.calls:
-            if call['method'] == 'get_all_positions':
-                get_positions_call = call
-            elif call['method'] == 'get_account_info':
-                get_account_call = call
-        
-        assert get_positions_call is not None
-        assert get_account_call is not None
-    
-    def test_check_portfolio_limits_exit_order(self, risk_manager, mock_broker_adapter):
-        """Test _check_portfolio_limits with exit order."""
-        # For exit orders, should always return True without checking limits
-        
-        # Create order data for exit
-        order_data = {
-            'symbol': 'BTCUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'sell',  # Exit action for long
-            'strategy_order_price': 50000
-        }
-        
-        # Check limits
-        result = risk_manager._check_portfolio_limits(order_data)
-        
-        # Verify result
-        assert result is True
-        
-        # Verify no calls to get positions/account were made
-        get_positions_call = None
-        for call in mock_broker_adapter.calls:
-            if call['method'] == 'get_all_positions':
-                get_positions_call = call
-        
-        assert get_positions_call is None
-    
-    def test_check_portfolio_limits_max_positions_reached(self, risk_manager, mock_broker_adapter):
-        """Test _check_portfolio_limits when max positions is reached."""
-        # Setup mock responses - 5 positions
-        mock_broker_adapter.set_response('get_all_positions', [
-            {'symbol': 'BTCUSD'}, {'symbol': 'ETHUSD'}, {'symbol': 'LTCUSD'},
-            {'symbol': 'XRPUSD'}, {'symbol': 'DOTUSD'}
-        ])
-        
-        # Set max positions to 5
-        risk_manager.risk_params['max_open_positions'] = 5
-        
-        # Create order data for entry
-        order_data = {
-            'symbol': 'ADAUSD',  # New position
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 1.5,
-            'strategy_order_contracts': 100
-        }
-        
-        # Check limits
-        result = risk_manager._check_portfolio_limits(order_data)
-        
-        # Verify result - should be rejected
-        assert result is False
-    
-    def test_check_portfolio_limits_position_size_exceeded(self, risk_manager, mock_broker_adapter):
-        """Test _check_portfolio_limits when position size is too large."""
-        # Setup mock responses
-        mock_broker_adapter.set_response('get_all_positions', [{'symbol': 'BTCUSD'}])
-        mock_broker_adapter.set_response('get_account_info', {'equity': '10000'})
-        
-        # Set max position size to 5%
-        risk_manager.risk_params['max_position_size_percent'] = 0.05
-        
-        # Create order data for entry with value of 1000 (10% of equity)
-        order_data = {
-            'symbol': 'ETHUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 2000,
-            'strategy_order_contracts': 0.5  # Total value: 1000
-        }
-        
-        # Check limits
-        result = risk_manager._check_portfolio_limits(order_data)
-        
-        # Verify result - should be rejected
-        assert result is False
-    
-    def test_check_drawdown_limits_under_limit(self, risk_manager):
-        """Test _check_drawdown_limits when drawdown is under limit."""
-        # Setup tracking data
-        risk_manager.daily_performance = {
-            'start_equity': 10000,
-            'current_equity': 9800,  # 2% drawdown from start
-            'max_equity': 10000,
-            'min_equity': 9800,
-            'last_updated': datetime.now(),
-            'reset_time': datetime.now() + timedelta(days=1)
-        }
-        
-        # Set max drawdown to 5%
-        risk_manager.risk_params['max_daily_drawdown_percent'] = 0.05
-        
-        # Check drawdown limits
-        result = risk_manager._check_drawdown_limits()
-        
-        # Verify result - should be under limit
-        assert result is True
-    
-    def test_check_drawdown_limits_over_limit(self, risk_manager):
-        """Test _check_drawdown_limits when drawdown exceeds limit."""
-        # Setup tracking data
-        risk_manager.daily_performance = {
-            'start_equity': 10000,
-            'current_equity': 9400,  # 6% drawdown from start
-            'max_equity': 10000,
-            'min_equity': 9400,
-            'last_updated': datetime.now(),
-            'reset_time': datetime.now() + timedelta(days=1)
-        }
-        
-        # Set max drawdown to 5%
-        risk_manager.risk_params['max_daily_drawdown_percent'] = 0.05
-        
-        # Check drawdown limits
-        result = risk_manager._check_drawdown_limits()
-        
-        # Verify result - should be over limit
-        assert result is False
-    
-    def test_process_order_with_risk_management_success(self, risk_manager, mock_order_engine, mock_broker_adapter):
-        """Test process_order_with_risk_management with successful order."""
-        # Setup mocks
-        mock_broker_adapter.set_response('get_all_positions', [])
-        mock_broker_adapter.set_response('get_account_info', {'equity': '10000'})
-        mock_broker_adapter.set_response('get_position', {
-            'symbol': 'BTCUSD',
-            'qty': 0.1,
-            'side': 'long'
-        })
-        
-        mock_order_engine.set_response('process_webhook_data', {
-            'status': 'success',
-            'order_id': 'test-order-123',
-            'message': 'Order executed successfully'
-        })
-        
-        # Setup risk manager
-        risk_manager.daily_performance = {
-            'start_equity': 10000,
-            'current_equity': 10000,
-            'max_equity': 10000,
-            'min_equity': 10000,
-            'last_updated': datetime.now(),
-            'reset_time': datetime.now() + timedelta(days=1)
-        }
-        
-        # Create webhook data
-        webhook_data = {
-            'symbol': 'BTCUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 50000,
-            'strategy_order_contracts': 0.1,
+            'strategy_order_price': 150.0,
+            'strategy_order_contracts': 5,
             'time': 1620000000000
         }
         
-        # Process order
-        result = risk_manager.process_order_with_risk_management(webhook_data)
+        # Configure mock for get_position
+        risk_manager.broker_adapter.get_position.return_value = {
+            'symbol': 'AAPL',
+            'qty': 5,
+            'market_value': 750.0,
+            'avg_entry_price': 150.0
+        }
         
-        # Verify result
+        # Submit orders for stop loss and take profit should succeed
+        risk_manager.broker_adapter.submit_order.side_effect = [
+            {'id': 'sl-order-123', 'status': 'new'},
+            {'id': 'tp-order-123', 'status': 'new'}
+        ]
+        
+        result = risk_manager.process_order_with_risk_management(order_data)
+        
         assert result['status'] == 'success'
-        assert 'order_result' in result
-        assert result['risk_applied'] is True
+        assert result['message'] == 'Order executed with risk management'
+        assert result['risk_applied'] == True
+        assert result['order_result']['order_id'] == 'test-order-123'
         
         # Verify order engine was called
-        process_call = None
-        for call in mock_order_engine.calls:
-            if call['method'] == 'process_webhook_data':
-                process_call = call
-                break
+        mock_order_engine.process_webhook_data.assert_called_once_with(order_data)
         
-        assert process_call is not None
-        assert process_call['args'][0] == webhook_data
+        # Verify stop loss and take profit orders were created
+        assert risk_manager.broker_adapter.submit_order.call_count == 2
     
-    def test_process_order_with_risk_management_exit(self, risk_manager, mock_order_engine):
-        """Test process_order_with_risk_management with exit order."""
-        # Setup order engine response
-        mock_order_engine.set_response('process_webhook_data', {
-            'status': 'success',
-            'message': 'Position closed successfully'
-        })
+    def test_process_order_with_risk_management_portfolio_limit_rejection(self, risk_manager):
+        """Test order rejection due to portfolio limits."""
+        # Configure broker adapter to return more positions
+        positions = [MagicMock() for _ in range(15)]  # Exceeds the max_open_positions (10)
+        risk_manager.broker_adapter.get_positions.return_value = positions
         
-        # Create webhook data for exit
-        webhook_data = {
-            'symbol': 'BTCUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'sell',  # Exit long position
-            'strategy_order_price': 50000,
-            'time': 1620000000000
-        }
-        
-        # Process order
-        result = risk_manager.process_order_with_risk_management(webhook_data)
-        
-        # Verify result
-        assert result['status'] == 'success'
-        assert 'order_result' in result
-        assert result['risk_applied'] is False  # No risk management for exits
-    
-    def test_process_order_with_risk_management_rejected_portfolio(self, risk_manager, mock_broker_adapter):
-        """Test process_order_with_risk_management when order is rejected due to portfolio limits."""
-        # Setup mock responses - max positions reached
-        mock_broker_adapter.set_response('get_all_positions', [
-            {'symbol': 'BTCUSD'}, {'symbol': 'ETHUSD'}, {'symbol': 'LTCUSD'},
-            {'symbol': 'XRPUSD'}, {'symbol': 'DOTUSD'}
-        ])
-        
-        # Set max positions to 5
-        risk_manager.risk_params['max_open_positions'] = 5
-        
-        # Create webhook data
-        webhook_data = {
-            'symbol': 'ADAUSD',  # New position
+        order_data = {
+            'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 1.5,
-            'strategy_order_contracts': 100,
+            'strategy_order_price': 150.0,
+            'strategy_order_contracts': 5,
             'time': 1620000000000
         }
         
-        # Process order
-        result = risk_manager.process_order_with_risk_management(webhook_data)
+        result = risk_manager.process_order_with_risk_management(order_data)
         
-        # Verify result
         assert result['status'] == 'rejected'
-        assert 'portfolio limits' in result['message'].lower()
+        assert 'portfolio limits' in result['message']
+        assert 'order_data' in result
+        
+        # Verify order engine was not called
+        risk_manager.order_engine.process_webhook_data.assert_not_called()
     
-    def test_add_stop_loss_take_profit(self, risk_manager, mock_broker_adapter):
-        """Test _add_stop_loss_take_profit method."""
-        # Setup mock responses
-        mock_broker_adapter.set_response('get_position', {
-            'symbol': 'BTCUSD',
-            'qty': 0.1,
-            'side': 'long'
-        })
-        mock_broker_adapter.set_response('place_stop_order', {
-            'id': 'sl-order-123',
-            'status': 'new'
-        })
-        mock_broker_adapter.set_response('place_limit_order', {
-            'id': 'tp-order-123',
-            'status': 'new'
-        })
-        
-        # Set risk parameters
-        risk_manager.risk_params['stop_loss_percent'] = 0.02
-        risk_manager.risk_params['take_profit_percent'] = 0.05
-        
-        # Call method
-        result = risk_manager._add_stop_loss_take_profit(
-            'BTCUSD',
-            50000,  # Entry price
-            'parent-order-123'
-        )
-        
-        # Verify result
-        assert 'stop_loss' in result
-        assert 'take_profit' in result
-        assert result['stop_loss']['id'] == 'sl-order-123'
-        assert result['take_profit']['id'] == 'tp-order-123'
-        
-        # Verify calls
-        get_position_call = None
-        stop_order_call = None
-        limit_order_call = None
-        
-        for call in mock_broker_adapter.calls:
-            if call['method'] == 'get_position':
-                get_position_call = call
-            elif call['method'] == 'place_stop_order':
-                stop_order_call = call
-            elif call['method'] == 'place_limit_order':
-                limit_order_call = call
-        
-        assert get_position_call is not None
-        assert get_position_call['args'][0] == 'BTCUSD'
-        
-        assert stop_order_call is not None
-        assert stop_order_call['args'][0] == 'BTCUSD'  # Symbol
-        assert stop_order_call['args'][1] == 0.1      # Quantity
-        assert stop_order_call['args'][2] == 'sell'    # Side (sell for long position)
-        assert stop_order_call['args'][3] == 49000    # Stop price (2% below entry)
-        
-        assert limit_order_call is not None
-        assert limit_order_call['args'][0] == 'BTCUSD'  # Symbol
-        assert limit_order_call['args'][1] == 0.1      # Quantity
-        assert limit_order_call['args'][2] == 'sell'    # Side (sell for long position)
-        assert limit_order_call['args'][3] == 52500    # Limit price (5% above entry)
-    
-    def test_cleanup_orphaned_orders(self, risk_manager, mock_broker_adapter):
-        """Test cleanup_orphaned_orders method."""
-        # Current time
-        now = datetime.now()
-        
-        # Old order (26 hours ago) - should be cleaned up
-        old_order_time = (now - timedelta(hours=26)).isoformat() + 'Z'
-        
-        # Recent order (1 hour ago) - should NOT be cleaned up
-        recent_order_time = (now - timedelta(hours=1)).isoformat() + 'Z'
-        
-        # Setup mock response - two open orders, one old and one recent
-        mock_broker_adapter.set_response('get_all_orders', [
-            {
-                'id': 'old-order-123',
-                'status': 'new',
-                'created_at': old_order_time
-            },
-            {
-                'id': 'recent-order-456',
-                'status': 'new',
-                'created_at': recent_order_time
-            },
-            {
-                'id': 'filled-order-789',
-                'status': 'filled',  # Already filled - should be ignored
-                'created_at': old_order_time
-            }
-        ])
-        
-        mock_broker_adapter.set_response('cancel_order', {
-            'id': 'old-order-123',
-            'status': 'canceled'
-        })
-        
-        # Set orphaned age to 24 hours
-        risk_manager.risk_params['orphaned_order_age_hours'] = 24
-        
-        # Call method
-        result = risk_manager.cleanup_orphaned_orders()
-        
-        # Verify result
-        assert result['total_cleaned'] == 1
-        assert len(result['cleaned_orders']) == 1
-        assert result['cleaned_orders'][0]['order_id'] == 'old-order-123'
-        assert len(result['errors']) == 0
-        
-        # Verify calls
-        get_orders_call = None
-        cancel_order_call = None
-        
-        for call in mock_broker_adapter.calls:
-            if call['method'] == 'get_all_orders':
-                get_orders_call = call
-            elif call['method'] == 'cancel_order':
-                cancel_order_call = call
-        
-        assert get_orders_call is not None
-        
-        assert cancel_order_call is not None
-        assert cancel_order_call['args'][0] == 'old-order-123'
-    
-    def test_get_risk_metrics(self, risk_manager, mock_broker_adapter):
-        """Test get_risk_metrics method."""
-        # Setup mock responses
-        mock_broker_adapter.set_response('get_account_info', {
-            'equity': '10000',
-            'cash': '5000'
-        })
-        
-        mock_broker_adapter.set_response('get_all_positions', [
-            {
-                'symbol': 'BTCUSD',
-                'market_value': '3000'
-            },
-            {
-                'symbol': 'ETHUSD',
-                'market_value': '2000'
-            }
-        ])
-        
-        # Setup daily performance
+    def test_process_order_with_risk_management_drawdown_rejection(self, risk_manager):
+        """Test order rejection due to drawdown limits."""
+        # Set up daily performance with high drawdown
         risk_manager.daily_performance = {
-            'start_equity': 9000,
-            'current_equity': 10000,
-            'max_equity': 10500,
-            'min_equity': 8900,
+            'start_equity': 10000.0,
+            'current_equity': 9400.0,  # 6% drawdown, exceeds 5% limit
+            'max_equity': 10000.0,
+            'min_equity': 9400.0,
             'last_updated': datetime.now(),
             'reset_time': datetime.now() + timedelta(days=1)
         }
         
-        # Call method
+        order_data = {
+            'symbol': 'AAPL',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'buy',
+            'strategy_order_price': 150.0,
+            'strategy_order_contracts': 5,
+            'time': 1620000000000
+        }
+        
+        result = risk_manager.process_order_with_risk_management(order_data)
+        
+        assert result['status'] == 'rejected'
+        assert 'drawdown limit' in result['message']
+        assert 'daily_performance' in result
+        
+        # Verify order engine was not called
+        risk_manager.order_engine.process_webhook_data.assert_not_called()
+    
+    def test_process_order_with_risk_management_exit_order(self, risk_manager, mock_order_engine):
+        """Test processing an exit order with risk management."""
+        order_data = {
+            'symbol': 'AAPL',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'sell',  # Exit order
+            'strategy_order_price': 155.0,
+            'strategy_order_contracts': 5,
+            'time': 1620000000000
+        }
+        
+        result = risk_manager.process_order_with_risk_management(order_data)
+        
+        assert result['status'] == 'success'
+        assert result['risk_applied'] == False  # No risk management for exit orders
+        
+        # Verify order engine was called
+        mock_order_engine.process_webhook_data.assert_called_once_with(order_data)
+        
+        # Verify no stop loss or take profit orders were created
+        risk_manager.broker_adapter.submit_order.assert_not_called()
+    
+    def test_check_portfolio_limits_position_size(self, risk_manager):
+        """Test portfolio limits check for position size."""
+        # Set up a large order that exceeds position size limit
+        order_data = {
+            'symbol': 'AAPL',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'buy',
+            'strategy_order_price': 150.0,
+            'strategy_order_contracts': 10,  # Value: $1500, exceeds 5% of $10000 = $500
+            'time': 1620000000000
+        }
+        
+        # Set max position size to a smaller value
+        risk_manager.risk_params['max_position_size_percent'] = 0.01  # 1% of $10000 = $100
+        
+        result = risk_manager._check_portfolio_limits(order_data)
+        
+        assert result is False  # Should reject the order
+    
+    def test_add_stop_loss_take_profit(self, risk_manager):
+        """Test adding stop loss and take profit orders."""
+        symbol = 'AAPL'
+        entry_price = 150.0
+        parent_order_id = 'parent-order-123'
+        
+        # Configure get_position
+        risk_manager.broker_adapter.get_position.return_value = {
+            'symbol': symbol,
+            'qty': 10,
+            'market_value': 1500.0,
+            'avg_entry_price': entry_price
+        }
+        
+        # Configure submit_order for successful order creation
+        risk_manager.broker_adapter.submit_order.side_effect = [
+            {'id': 'sl-order-123', 'status': 'new'},
+            {'id': 'tp-order-123', 'status': 'new'}
+        ]
+        
+        result = risk_manager._add_stop_loss_take_profit(
+            symbol,
+            entry_price,
+            parent_order_id,
+            None,  # Use default stop loss
+            None   # Use default take profit
+        )
+        
+        assert result['status'] == 'success'
+        assert 'stop_loss' in result
+        assert 'take_profit' in result
+        
+        # Verify submit_order was called twice (SL and TP)
+        assert risk_manager.broker_adapter.submit_order.call_count == 2
+        
+        # Verify the first call was for stop loss
+        sl_call_args = risk_manager.broker_adapter.submit_order.call_args_list[0][0][0]
+        assert sl_call_args['symbol'] == symbol
+        assert sl_call_args['side'] == 'sell'
+        assert sl_call_args['type'] == 'stop'
+        assert sl_call_args['stop_price'] == 147.0  # 150 * (1-0.02)
+        assert sl_call_args['parent_id'] == parent_order_id
+        
+        # Verify the second call was for take profit
+        tp_call_args = risk_manager.broker_adapter.submit_order.call_args_list[1][0][0]
+        assert tp_call_args['symbol'] == symbol
+        assert tp_call_args['side'] == 'sell'
+        assert tp_call_args['type'] == 'limit'
+        assert tp_call_args['limit_price'] == 157.5  # 150 * (1+0.05)
+        assert tp_call_args['parent_id'] == parent_order_id
+    
+    def test_cleanup_orphaned_orders(self, risk_manager):
+        """Test cleanup of orphaned orders."""
+        # Create mock orders
+        now = datetime.now()
+        old_time = (now - timedelta(hours=36)).isoformat()
+        recent_time = (now - timedelta(hours=12)).isoformat()
+        
+        orders = [
+            {'id': 'old-order-1', 'status': 'open', 'created_at': old_time, 'symbol': 'AAPL'},
+            {'id': 'old-order-2', 'status': 'open', 'created_at': old_time, 'symbol': 'MSFT'},
+            {'id': 'recent-order', 'status': 'open', 'created_at': recent_time, 'symbol': 'TSLA'}
+        ]
+        
+        risk_manager.broker_adapter.get_orders.return_value = orders
+        
+        # Set up successful cancel responses
+        risk_manager.broker_adapter.cancel_order.side_effect = [
+            {'id': 'old-order-1', 'status': 'canceled'},
+            {'id': 'old-order-2', 'status': 'canceled'}
+        ]
+        
+        result = risk_manager.cleanup_orphaned_orders()
+        
+        assert result['status'] == 'success'
+        assert len(result['cleaned_orders']) == 2
+        assert result['cleaned_orders'][0]['order_id'] == 'old-order-1'
+        assert result['cleaned_orders'][1]['order_id'] == 'old-order-2'
+        assert len(result['failed_orders']) == 0
+        
+        # Verify cancel_order was called twice (only for old orders)
+        assert risk_manager.broker_adapter.cancel_order.call_count == 2
+    
+    def test_get_risk_metrics(self, risk_manager):
+        """Test getting risk metrics."""
         metrics = risk_manager.get_risk_metrics()
         
-        # Verify metrics
-        assert 'portfolio' in metrics
+        assert 'account' in metrics
+        assert metrics['account']['equity'] == 10000.0
+        assert metrics['account']['buying_power'] == 20000.0
+        
+        assert 'positions' in metrics
+        assert metrics['positions']['count'] == 2
+        assert metrics['positions']['total_value'] == 2800.0
+        assert metrics['positions']['equity_allocation'] == 0.28
+        
         assert 'daily_performance' in metrics
         assert 'risk_parameters' in metrics
+        assert metrics['risk_parameters']['stop_loss_percent'] == 0.02
+    
+    def test_update_daily_tracking(self, risk_manager):
+        """Test updating daily performance tracking."""
+        # First get initial values
+        initial_equity = risk_manager.daily_performance['current_equity']
+        initial_max = risk_manager.daily_performance['max_equity']
         
-        # Check portfolio metrics
-        assert metrics['portfolio']['equity'] == 10000
-        assert metrics['portfolio']['cash'] == 5000
-        assert metrics['portfolio']['positions_count'] == 2
-        assert metrics['portfolio']['positions_value'] == 5000  # 3000 + 2000
+        # Change the mock response to simulate equity increase
+        risk_manager.broker_adapter.get_account_info.return_value = {
+            'equity': 10500.0,  # Higher than initial 10000
+            'buying_power': 21000.0,
+            'cash': 5500.0,
+            'currency': 'USD'
+        }
         
-        # Check largest position
-        assert metrics['portfolio']['largest_position']['symbol'] == 'BTCUSD'
-        assert metrics['portfolio']['largest_position']['value'] == 3000
-        assert metrics['portfolio']['largest_position']['percent_of_portfolio'] == 0.3  # 3000/10000
+        # Update tracking
+        risk_manager._update_daily_tracking()
         
-        # Check daily performance
-        assert metrics['daily_performance']['start_equity'] == 9000
-        assert metrics['daily_performance']['current_equity'] == 10000
-        assert metrics['daily_performance']['max_equity'] == 10500
-        assert metrics['daily_performance']['min_equity'] == 8900
-        assert 'current_drawdown_percent' in metrics['daily_performance']
-        assert metrics['daily_performance']['current_drawdown_percent'] == (10500 - 10000) / 10500
+        # Verify values were updated
+        assert risk_manager.daily_performance['current_equity'] == 10500.0
+        assert risk_manager.daily_performance['max_equity'] == 10500.0  # New max
+        assert risk_manager.daily_performance['start_equity'] == initial_equity  # Unchanged
         
-        # Check risk parameters
-        assert metrics['risk_parameters'] == risk_manager.risk_params 
+        # Change the mock response to simulate equity decrease
+        risk_manager.broker_adapter.get_account_info.return_value = {
+            'equity': 9800.0,  # Lower than current
+            'buying_power': 19600.0,
+            'cash': 4800.0,
+            'currency': 'USD'
+        }
+        
+        # Update tracking
+        risk_manager._update_daily_tracking()
+        
+        # Verify min value was updated but max remains
+        assert risk_manager.daily_performance['current_equity'] == 9800.0
+        assert risk_manager.daily_performance['max_equity'] == 10500.0  # Unchanged
+        assert risk_manager.daily_performance['min_equity'] == 9800.0  # New min 

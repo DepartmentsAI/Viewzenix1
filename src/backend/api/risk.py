@@ -202,5 +202,6 @@ def process_webhook_with_risk():
         logger.exception("Error processing webhook with risk management: %s", str(e))
         return jsonify({
             "status": "error",
-            "message": f"Error processing webhook with risk management: {str(e)}"
+            "message": "Error processing webhook with risk management",
+            "details": str(e)
         }), 500 

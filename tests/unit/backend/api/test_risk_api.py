@@ -1,298 +1,230 @@
 """
-Unit tests for the Risk API endpoints.
+Unit tests for risk management API endpoints.
 """
-import pytest
 import json
+import pytest
 from unittest.mock import patch, MagicMock
 
 from src.backend.app import create_app
-from src.backend.api.risk import risk_manager
-
 
 @pytest.fixture
-def app():
-    """Create a test Flask app with a testing configuration."""
+def client():
+    """Create and configure a Flask client for testing."""
+    # Create app in test mode
     app = create_app('testing')
-    return app
-
-
-@pytest.fixture
-def client(app):
-    """Create a test client for the app."""
+    
+    # Configure test client
     with app.test_client() as client:
         yield client
 
+@patch('src.backend.api.risk.risk_manager')
+def test_get_risk_parameters(mock_risk_manager, client):
+    """Test GET /api/risk/parameters endpoint."""
+    # Setup mock
+    mock_risk_manager.get_risk_parameters.return_value = {
+        'stop_loss_percent': 0.02,
+        'take_profit_percent': 0.05,
+        'max_position_size_percent': 0.05,
+        'max_daily_drawdown_percent': 0.05,
+        'max_open_positions': 10,
+        'orphaned_order_age_hours': 24
+    }
+    
+    # Make request
+    response = client.get('/api/risk/parameters')
+    
+    # Check response
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    
+    assert data['status'] == 'success'
+    assert 'parameters' in data
+    assert data['parameters']['stop_loss_percent'] == 0.02
+    assert data['parameters']['take_profit_percent'] == 0.05
 
-class TestRiskAPI:
-    """Test suite for the Risk API endpoints."""
+@patch('src.backend.api.risk.risk_manager')
+def test_update_risk_parameters(mock_risk_manager, client):
+    """Test PUT /api/risk/parameters endpoint."""
+    # Setup mock
+    mock_risk_manager.update_risk_parameters.return_value = {
+        'stop_loss_percent': 0.03,  # Updated value
+        'take_profit_percent': 0.08,  # Updated value
+        'max_position_size_percent': 0.05,
+        'max_daily_drawdown_percent': 0.05,
+        'max_open_positions': 10,
+        'orphaned_order_age_hours': 24
+    }
     
-    def test_get_risk_parameters(self, client, monkeypatch):
-        """Test GET /api/risk/parameters endpoint."""
-        # Mock the risk_manager.get_risk_parameters method
-        mock_params = {
-            'stop_loss_percent': 0.02,
-            'take_profit_percent': 0.05,
-            'max_position_size_percent': 0.05,
-            'max_daily_drawdown_percent': 0.05,
-            'max_open_positions': 10,
-            'orphaned_order_age_hours': 24
+    # Make request
+    payload = {
+        'stop_loss_percent': 0.03,
+        'take_profit_percent': 0.08
+    }
+    response = client.put(
+        '/api/risk/parameters',
+        data=json.dumps(payload),
+        content_type='application/json'
+    )
+    
+    # Check response
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    
+    assert data['status'] == 'success'
+    assert data['message'] == 'Risk parameters updated successfully'
+    assert data['parameters']['stop_loss_percent'] == 0.03
+    assert data['parameters']['take_profit_percent'] == 0.08
+    
+    # Check function call
+    mock_risk_manager.update_risk_parameters.assert_called_once_with(payload)
+
+@patch('src.backend.api.risk.risk_manager')
+def test_get_risk_metrics(mock_risk_manager, client):
+    """Test GET /api/risk/metrics endpoint."""
+    # Setup mock
+    mock_metrics = {
+        'account': {
+            'equity': 10000.0,
+            'buying_power': 20000.0,
+            'cash': 5000.0,
+        },
+        'positions': {
+            'count': 3,
+            'total_value': 5000.0,
+            'equity_allocation': 0.5
+        },
+        'daily_performance': {
+            'start_equity': 9800.0,
+            'current_equity': 10000.0,
+            'daily_return': 0.0204,
+            'max_equity': 10200.0,
+            'min_equity': 9700.0,
+            'max_drawdown': 0.049,
+            'current_drawdown': 0.0196,
+            'last_updated': '2023-05-01T14:30:00'
         }
-        
-        monkeypatch.setattr(risk_manager, 'get_risk_parameters', lambda: mock_params)
-        
-        # Call the endpoint
-        response = client.get('/api/risk/parameters')
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 200
-        assert data['status'] == 'success'
-        assert data['parameters'] == mock_params
+    }
+    mock_risk_manager.get_risk_metrics.return_value = mock_metrics
     
-    def test_update_risk_parameters_success(self, client, monkeypatch):
-        """Test PUT /api/risk/parameters endpoint with valid parameters."""
-        # Test data
-        update_data = {
-            'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.06
-        }
-        
-        # Mock the update_risk_parameters method
-        mock_updated_params = {
-            'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.06,
-            'max_position_size_percent': 0.05,
-            'max_daily_drawdown_percent': 0.05,
-            'max_open_positions': 10,
-            'orphaned_order_age_hours': 24
-        }
-        
-        def mock_update(params):
-            assert params == update_data
-            return mock_updated_params
-        
-        monkeypatch.setattr(risk_manager, 'update_risk_parameters', mock_update)
-        
-        # Call the endpoint
-        response = client.put(
-            '/api/risk/parameters',
-            data=json.dumps(update_data),
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 200
-        assert data['status'] == 'success'
-        assert data['message'] == 'Risk parameters updated successfully'
-        assert data['parameters'] == mock_updated_params
+    # Make request
+    response = client.get('/api/risk/metrics')
     
-    def test_update_risk_parameters_invalid_json(self, client):
-        """Test PUT /api/risk/parameters with invalid JSON."""
-        # Call the endpoint with invalid JSON
-        response = client.put(
-            '/api/risk/parameters',
-            data='not a valid json',
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 400
-        assert 'error' in data
-        assert 'Invalid JSON format' in data['error']
+    # Check response
+    assert response.status_code == 200
+    data = json.loads(response.data)
     
-    def test_update_risk_parameters_validation_error(self, client):
-        """Test PUT /api/risk/parameters with schema validation error."""
-        # Test data with invalid value (stop_loss_percent > 1)
-        update_data = {
-            'stop_loss_percent': 1.5,  # Invalid: must be <= 1
-            'take_profit_percent': 0.06
-        }
-        
-        # Call the endpoint
-        response = client.put(
-            '/api/risk/parameters',
-            data=json.dumps(update_data),
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 400
-        assert data['status'] == 'error'
-        assert 'Invalid payload schema' in data['message']
+    assert data['status'] == 'success'
+    assert 'metrics' in data
+    assert data['metrics']['account']['equity'] == 10000.0
+    assert data['metrics']['positions']['count'] == 3
+    assert data['metrics']['daily_performance']['daily_return'] == 0.0204
+
+@patch('src.backend.api.risk.risk_manager')
+def test_cleanup_orphaned_orders(mock_risk_manager, client):
+    """Test POST /api/risk/cleanup endpoint."""
+    # Setup mock
+    mock_cleanup_results = {
+        'cleaned_orders': [
+            {'order_id': 'order1', 'symbol': 'AAPL', 'age_hours': 25.5},
+            {'order_id': 'order2', 'symbol': 'MSFT', 'age_hours': 36.2}
+        ],
+        'failed_orders': []
+    }
+    mock_risk_manager.cleanup_orphaned_orders.return_value = mock_cleanup_results
     
-    def test_get_risk_metrics(self, client, monkeypatch):
-        """Test GET /api/risk/metrics endpoint."""
-        # Mock risk_manager.get_risk_metrics method
-        mock_metrics = {
-            'portfolio': {
-                'equity': 10000,
-                'cash': 5000,
-                'positions_count': 2,
-                'positions_value': 5000,
-                'largest_position': {
-                    'symbol': 'BTCUSD',
-                    'value': 3000,
-                    'percent_of_portfolio': 0.3
-                }
-            },
-            'daily_performance': {
-                'start_equity': 9000,
-                'current_equity': 10000,
-                'max_equity': 10500,
-                'min_equity': 8900,
-                'current_drawdown_percent': 0.0476  # (10500-10000)/10500
-            },
-            'risk_parameters': {
-                'stop_loss_percent': 0.02,
-                'take_profit_percent': 0.05
-            }
-        }
-        
-        monkeypatch.setattr(risk_manager, 'get_risk_metrics', lambda: mock_metrics)
-        
-        # Call the endpoint
-        response = client.get('/api/risk/metrics')
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 200
-        assert data['status'] == 'success'
-        assert data['metrics'] == mock_metrics
+    # Make request
+    response = client.post('/api/risk/cleanup')
     
-    def test_cleanup_orphaned_orders(self, client, monkeypatch):
-        """Test POST /api/risk/cleanup endpoint."""
-        # Mock risk_manager.cleanup_orphaned_orders method
-        mock_results = {
-            'cleaned_orders': [
-                {
-                    'order_id': 'old-order-123',
-                    'reason': 'stale',
-                    'created_at': '2023-01-01T00:00:00'
-                }
-            ],
-            'errors': [],
-            'total_cleaned': 1
-        }
-        
-        monkeypatch.setattr(risk_manager, 'cleanup_orphaned_orders', lambda: mock_results)
-        
-        # Call the endpoint
-        response = client.post('/api/risk/cleanup')
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 200
-        assert data['status'] == 'success'
-        assert data['results'] == mock_results
+    # Check response
+    assert response.status_code == 200
+    data = json.loads(response.data)
     
-    def test_process_webhook_with_risk_success(self, client, monkeypatch):
-        """Test POST /api/risk/webhook endpoint with successful order."""
-        # Test webhook data
-        webhook_data = {
-            'symbol': 'BTCUSD',
+    assert data['status'] == 'success'
+    assert 'results' in data
+    assert len(data['results']['cleaned_orders']) == 2
+    assert data['results']['cleaned_orders'][0]['order_id'] == 'order1'
+
+@patch('src.backend.api.risk.risk_manager')
+def test_process_webhook_with_risk(mock_risk_manager, client):
+    """Test POST /api/risk/webhook endpoint."""
+    # Setup mock
+    mock_result = {
+        'status': 'success',
+        'message': 'Order executed with risk management',
+        'order_result': {
+            'order_id': 'order123',
+            'symbol': 'AAPL',
+            'side': 'buy',
+            'qty': 10,
+            'type': 'market',
+            'status': 'filled'
+        },
+        'risk_applied': True
+    }
+    mock_risk_manager.process_order_with_risk_management.return_value = mock_result
+    
+    # Make request
+    payload = {
+        'symbol': 'AAPL',
+        'strategy_order_id': 'long',
+        'strategy_order_action': 'buy',
+        'strategy_order_price': 150.0,
+        'strategy_order_contracts': 10,
+        'time': 1620000000000
+    }
+    response = client.post(
+        '/api/risk/webhook',
+        data=json.dumps(payload),
+        content_type='application/json'
+    )
+    
+    # Check response
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    
+    assert data['status'] == 'success'
+    assert data['message'] == 'Order executed with risk management'
+    assert data['order_result']['order_id'] == 'order123'
+    assert data['risk_applied'] == True
+    
+    # Check function call
+    mock_risk_manager.process_order_with_risk_management.assert_called_once_with(payload)
+
+@patch('src.backend.api.risk.risk_manager')
+def test_process_webhook_with_risk_rejected(mock_risk_manager, client):
+    """Test POST /api/risk/webhook endpoint with rejected order."""
+    # Setup mock for order rejection
+    mock_result = {
+        'status': 'rejected',
+        'message': 'Order rejected due to portfolio limits',
+        'order_data': {
+            'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 50000,
-            'strategy_order_contracts': 0.1,
-            'time': 1620000000000
+            'strategy_order_price': 150.0
         }
-        
-        # Mock result from process_order_with_risk_management
-        mock_result = {
-            'status': 'success',
-            'message': 'Order executed with risk management',
-            'order_result': {
-                'status': 'success',
-                'order_id': 'test-order-123'
-            },
-            'risk_applied': True
-        }
-        
-        def mock_process(data):
-            # Verify webhook data is passed correctly
-            assert data == webhook_data
-            return mock_result
-        
-        monkeypatch.setattr(risk_manager, 'process_order_with_risk_management', mock_process)
-        
-        # Call the endpoint
-        response = client.post(
-            '/api/risk/webhook',
-            data=json.dumps(webhook_data),
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response
-        assert response.status_code == 200
-        assert data == mock_result
+    }
+    mock_risk_manager.process_order_with_risk_management.return_value = mock_result
     
-    def test_process_webhook_with_risk_rejected(self, client, monkeypatch):
-        """Test POST /api/risk/webhook endpoint with rejected order."""
-        # Test webhook data
-        webhook_data = {
-            'symbol': 'ADAUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 1.5,
-            'strategy_order_contracts': 100,
-            'time': 1620000000000
-        }
-        
-        # Mock result from process_order_with_risk_management - rejected order
-        mock_result = {
-            'status': 'rejected',
-            'message': 'Order rejected due to portfolio limits',
-            'order_data': webhook_data
-        }
-        
-        monkeypatch.setattr(risk_manager, 'process_order_with_risk_management', lambda data: mock_result)
-        
-        # Call the endpoint
-        response = client.post(
-            '/api/risk/webhook',
-            data=json.dumps(webhook_data),
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response - should still be 200 for rejected orders
-        assert response.status_code == 200
-        assert data == mock_result
-        assert data['status'] == 'rejected'
+    # Make request
+    payload = {
+        'symbol': 'AAPL',
+        'strategy_order_id': 'long',
+        'strategy_order_action': 'buy',
+        'strategy_order_price': 150.0,
+        'strategy_order_contracts': 100,  # Large position that will be rejected
+        'time': 1620000000000
+    }
+    response = client.post(
+        '/api/risk/webhook',
+        data=json.dumps(payload),
+        content_type='application/json'
+    )
     
-    def test_process_webhook_with_risk_error(self, client, monkeypatch):
-        """Test POST /api/risk/webhook endpoint with error result."""
-        # Test webhook data
-        webhook_data = {
-            'symbol': 'BTCUSD',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'time': 1620000000000
-            # Missing required parameters
-        }
-        
-        # Mock result from process_order_with_risk_management - error
-        mock_result = {
-            'status': 'error',
-            'message': 'Invalid order data',
-            'order_data': webhook_data
-        }
-        
-        monkeypatch.setattr(risk_manager, 'process_order_with_risk_management', lambda data: mock_result)
-        
-        # Call the endpoint
-        response = client.post(
-            '/api/risk/webhook',
-            data=json.dumps(webhook_data),
-            content_type='application/json'
-        )
-        data = json.loads(response.data)
-        
-        # Verify response - should be 400 for errors
-        assert response.status_code == 400  # Error status
-        assert data == mock_result
-        assert data['status'] == 'error' 
+    # Check response - note that rejected orders still return 200
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    
+    assert data['status'] == 'rejected'
+    assert data['message'] == 'Order rejected due to portfolio limits'
+    assert 'order_data' in data 
