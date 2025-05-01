@@ -22,6 +22,37 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-07-01: Proceed with Final Pre-Release Testing and Risk Management Integration
+
+**Date:** 2025-05-07
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, QA
+**Context:** 
+With the completion of the two critical pre-release tasks (Dashboard Order Status Tracking and Order Execution Engine Tests), we need to determine the next steps for finalizing the v1.0.0 release scheduled for May 10th.
+
+**Decision:** 
+1. Proceed with the code freeze on May 8th as scheduled
+2. Prioritize merging the enhanced Risk Management System (PR #40) after resolving merge conflicts
+3. Execute the comprehensive testing plan outlined in FINAL_TEST_PLAN.md from May 8-9
+4. Prepare for the master branch merge on May 10th
+
+**Rationale:**
+1. All critical pre-release tasks are now complete (PR #36 for Issue #12 and PR #37 for Issue #14)
+2. The enhanced Risk Management System will provide additional safety features for the platform
+3. The QA team's comprehensive tests will ensure system stability and reliability
+4. We have sufficient time to resolve any issues discovered during testing
+
+**Implications:**
+- BE team must resolve merge conflicts in PR #40 by May 8th
+- All teams will participate in the final testing phase
+- No new features will be accepted after the code freeze
+- Focus will shift to bug fixes and documentation refinement
+
+**Status:** Implemented
+**Related Issues:** #12, #14, #15
+
+---
+
 ## DEC-2025-05-02-01: Prioritize Risk Management System Before Master Branch Release
 
 **Date:** 2025-05-02
@@ -81,4 +112,62 @@ We need to establish the initial project structure and technology stack for the 
 - All features must be tested through our standardized testing framework
 
 **Status:** Implemented
-**Related Issues:** N/A (Initial setup) 
+**Related Issues:** N/A (Initial setup)
+
+---
+
+## DEC-2025-05-01: Initial Project Setup
+
+**Decision**: Implement the Trading Webhook Platform with Flask backend, React frontend, and Alpaca API integration.
+
+**Context**: Need to create a broker-agnostic trading platform that can receive TradingView alerts and execute trades through various brokers.
+
+**Options Considered**:
+1. Node.js + Express for backend
+2. Flask for backend
+3. Django for backend
+
+**Decision**: Flask was chosen due to its simplicity, flexibility, and strong ecosystem for API development.
+
+**Impact**:
+- BE team will implement Flask API endpoints
+- FE team will create React dashboard
+- INT team will focus on Alpaca API integration
+- QA team will develop testing framework
+
+**Participants**: PM, BE, FE, INT, QA
+
+## DEC-2025-05-06: Release Management Process
+
+**Decision**: Proceed with May 10th release with one critical task pending (Order Execution Engine Tests).
+
+**Context**: 
+- Dashboard Order Status Tracking (Issue #12) completed and merged (PR #36)
+- Order Execution Engine Tests (Issue #14) still in progress
+- Code freeze scheduled for May 8th
+
+**Options Considered**:
+1. Delay release by 2-3 days
+2. Proceed with release but increase testing resources
+3. Reduce scope by removing some test coverage
+
+**Decision**: Proceed with original timeline but increase urgency and resources for QA team to complete testing.
+
+**Rationale**:
+- Core functionality is complete and working
+- Dashboard monitoring now fully implemented
+- Only test coverage for order execution is pending
+- A testing delay doesn't justify postponing the entire release
+
+**Impact**:
+- QA team must complete Issue #14 by May 7th (high priority)
+- All teams should prepare for final testing phase
+- Release documentation has been prepared
+- Deployment checklist created for May 10th release
+
+**Participants**: PM, BE, FE, INT, QA
+
+**Related Artifacts**:
+- PR #36 (Dashboard Order Status Tracking)
+- `/workspace/Viewzenix1/docs/requirements/RELEASE_NOTES.md`
+- `/workspace/Viewzenix1/docs/requirements/DEPLOYMENT_CHECKLIST.md` 

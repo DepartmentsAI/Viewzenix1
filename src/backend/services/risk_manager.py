@@ -703,4 +703,4 @@ class RiskManager:
         """
         # Update metrics before returning
         self._update_risk_metrics()
-        return self._get_risk_metrics_dict() 
+        return self._get_risk_metrics_dict()

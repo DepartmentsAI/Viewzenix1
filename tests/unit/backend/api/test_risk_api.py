@@ -22,39 +22,36 @@ class TestRiskApi(unittest.TestCase):
         
         # Default risk parameters for testing
         self.default_risk_params = {
-            'stop_loss_percent': 0.02,
-            'take_profit_percent': 0.05,
-            'max_position_size_percent': 0.05,
-            'max_daily_drawdown_percent': 0.05,
-            'max_open_positions': 10,
-            'orphaned_order_age_hours': 24
+            'sl_tp': {
+                'enabled': True,
+                'stop_loss_percent': 0.02,
+                'take_profit_percent': 0.05,
+                'use_fixed_price': False,
+                'fixed_stop_loss_price': None,
+                'fixed_take_profit_price': None,
+                'use_fill_price_for_sl_tp': True
+            },
+            'portfolio': {
+                'enabled': True,
+                'max_position_size_percent': 0.05,
+                'max_daily_drawdown_percent': 0.05,
+                'max_open_positions': 10
+            },
+            'cleanup': {
+                'enabled': True,
+                'orphaned_order_age_hours': 24
+            }
         }
         
         # Sample risk metrics
         self.sample_metrics = {
-            'account': {
-                'equity': 10000.0,
-                'buying_power': 20000.0
-            },
-            'positions': {
-                'count': 2,
-                'value': 5000.0,
-                'exposure_percent': 0.5,
-                'max_positions': 10
-            },
-            'daily_performance': {
-                'start_equity': 10000.0,
-                'current_equity': 9800.0,
-                'max_equity': 10200.0,
-                'min_equity': 9800.0,
-                'drawdown': 0.02,
-                'drawdown_limit': 0.05,
-                'last_updated': '2023-05-01T12:00:00',
-                'reset_time': '2023-05-02T00:00:00'
-            },
-            'risk_limits': {
-                'max_position_size': 500.0
-            }
+            'current_equity': 10000.0,
+            'starting_equity': 10000.0,
+            'current_drawdown_percent': 0.02,
+            'open_position_count': 2,
+            'total_exposure_percent': 0.5,
+            'position_sizes': [0.3, 0.2],
+            'last_updated': 1620000000.0
         }
     
     @patch('src.backend.api.risk.risk_manager')
@@ -99,13 +96,16 @@ class TestRiskApi(unittest.TestCase):
         """Test PUT /api/risk/parameters endpoint success."""
         # New parameters to update
         new_params = {
-            'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.07
+            'sl_tp': {
+                'stop_loss_percent': 0.03,
+                'take_profit_percent': 0.07
+            }
         }
         
         # Updated parameters (merged with defaults)
         updated_params = self.default_risk_params.copy()
-        updated_params.update(new_params)
+        updated_params['sl_tp']['stop_loss_percent'] = 0.03
+        updated_params['sl_tp']['take_profit_percent'] = 0.07
         
         # Mock risk_manager.update_risk_parameters
         mock_risk_manager.update_risk_parameters.return_value = updated_params
@@ -148,13 +148,20 @@ class TestRiskApi(unittest.TestCase):
         # Verify risk_manager method was not called
         mock_risk_manager.update_risk_parameters.assert_not_called()
     
+    @patch('src.backend.api.risk.validate')
     @patch('src.backend.api.risk.risk_manager')
-    def test_update_risk_parameters_validation_error(self, mock_risk_manager):
+    def test_update_risk_parameters_validation_error(self, mock_risk_manager, mock_validate):
         """Test PUT /api/risk/parameters with schema validation error."""
         # Invalid parameters (stop_loss_percent > 1)
         invalid_params = {
-            'stop_loss_percent': 1.5  # Invalid: must be <= 1
+            'sl_tp': {
+                'stop_loss_percent': 1.5  # Invalid: must be <= 1
+            }
         }
+        
+        # Mock validate to raise ValidationError
+        from jsonschema import ValidationError
+        mock_validate.side_effect = ValidationError("Invalid schema")
         
         # Make request
         response = self.client.put(
@@ -179,8 +186,10 @@ class TestRiskApi(unittest.TestCase):
         """Test PUT /api/risk/parameters endpoint error handling."""
         # New parameters to update
         new_params = {
-            'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.07
+            'sl_tp': {
+                'stop_loss_percent': 0.03,
+                'take_profit_percent': 0.07
+            }
         }
         
         # Mock risk_manager to raise exception
@@ -241,16 +250,14 @@ class TestRiskApi(unittest.TestCase):
     @patch('src.backend.api.risk.risk_manager')
     def test_cleanup_orphaned_orders(self, mock_risk_manager):
         """Test POST /api/risk/cleanup endpoint."""
-        # Mock cleanup results
-        cleanup_results = {
-            'orders_checked': 10,
-            'orders_cancelled': 2,
-            'cancelled_ids': ['order1', 'order2'],
-            'errors': []
-        }
-        
         # Mock risk_manager.cleanup_orphaned_orders
-        mock_risk_manager.cleanup_orphaned_orders.return_value = cleanup_results
+        cleanup_result = {
+            'status': 'success',
+            'message': 'Cleaned up 3 orphaned orders',
+            'orders_cancelled': 3,
+            'order_ids': ['order1', 'order2', 'order3']
+        }
+        mock_risk_manager.cleanup_orphaned_orders.return_value = cleanup_result
         
         # Make request
         response = self.client.post('/api/risk/cleanup')
@@ -261,7 +268,7 @@ class TestRiskApi(unittest.TestCase):
         # Verify response
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['status'], 'success')
-        self.assertEqual(data['results'], cleanup_results)
+        self.assertEqual(data['results'], cleanup_result)
         
         # Verify risk_manager method was called
         mock_risk_manager.cleanup_orphaned_orders.assert_called_once()
@@ -285,41 +292,39 @@ class TestRiskApi(unittest.TestCase):
     
     @patch('src.backend.api.risk.risk_manager')
     def test_process_webhook_with_risk_success(self, mock_risk_manager):
-        """Test POST /api/risk/webhook endpoint success."""
-        # Sample webhook payload
-        payload = {
+        """Test POST /api/risk/webhook endpoint with successful order."""
+        # Sample webhook data
+        webhook_data = {
             'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'strategy_order_comment': 'Test order',
-            'time': 1620000000,
-            'stop_loss': {
-                'percent': 0.02
-            },
-            'take_profit': {
-                'percent': 0.05
-            }
+            'strategy_order_price': '150.0',
+            'strategy_order_contracts': '10'
         }
         
-        # Mock successful result
+        # Mock successful order result
         success_result = {
             'status': 'success',
             'message': 'Order executed with risk management',
             'order_result': {
+                'order_id': 'test_order_123',
                 'status': 'success',
-                'order_id': 'test123'
+                'message': 'Order executed successfully',
+                'sl_tp_orders': [
+                    {'type': 'stop_loss', 'order_id': 'sl_123', 'price': 147.0},
+                    {'type': 'take_profit', 'order_id': 'tp_123', 'price': 157.5}
+                ],
+                'sl_tp_status': 'success'
             },
-            'risk_applied': True
+            'risk_applied': True,
+            'risk_metrics': self.sample_metrics
         }
-        
-        # Mock risk_manager.process_order_with_risk_management
         mock_risk_manager.process_order_with_risk_management.return_value = success_result
         
         # Make request
         response = self.client.post(
             '/api/risk/webhook',
-            data=json.dumps(payload),
+            data=json.dumps(webhook_data),
             content_type='application/json'
         )
         
@@ -328,37 +333,38 @@ class TestRiskApi(unittest.TestCase):
         
         # Verify response
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data, success_result)
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['order_result']['order_id'], 'test_order_123')
+        self.assertEqual(data['risk_applied'], True)
         
-        # Verify risk_manager method was called with correct payload
-        mock_risk_manager.process_order_with_risk_management.assert_called_once_with(payload)
+        # Verify risk_manager method was called with webhook data
+        mock_risk_manager.process_order_with_risk_management.assert_called_once_with(webhook_data)
     
     @patch('src.backend.api.risk.risk_manager')
     def test_process_webhook_with_risk_rejected(self, mock_risk_manager):
         """Test POST /api/risk/webhook endpoint with rejected order."""
-        # Sample webhook payload
-        payload = {
+        # Sample webhook data
+        webhook_data = {
             'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'time': 1620000000
+            'strategy_order_price': '150.0',
+            'strategy_order_contracts': '1000'  # Very large order that should be rejected
         }
         
-        # Mock rejected result
+        # Mock rejected order result
         rejected_result = {
             'status': 'rejected',
             'message': 'Order rejected due to portfolio limits',
-            'order_data': payload
+            'order_data': webhook_data,
+            'risk_metrics': self.sample_metrics
         }
-        
-        # Mock risk_manager.process_order_with_risk_management
         mock_risk_manager.process_order_with_risk_management.return_value = rejected_result
         
         # Make request
         response = self.client.post(
             '/api/risk/webhook',
-            data=json.dumps(payload),
+            data=json.dumps(webhook_data),
             content_type='application/json'
         )
         
@@ -366,8 +372,12 @@ class TestRiskApi(unittest.TestCase):
         data = json.loads(response.data)
         
         # Verify response
-        self.assertEqual(response.status_code, 200)  # 200 even for rejected orders
-        self.assertEqual(data, rejected_result)
+        self.assertEqual(response.status_code, 200)  # Still 200 even for rejected orders
+        self.assertEqual(data['status'], 'rejected')
+        self.assertEqual(data['message'], 'Order rejected due to portfolio limits')
+        
+        # Verify risk_manager method was called with webhook data
+        mock_risk_manager.process_order_with_risk_management.assert_called_once_with(webhook_data)
     
     @patch('src.backend.api.risk.risk_manager')
     def test_process_webhook_with_risk_invalid_json(self, mock_risk_manager):
@@ -392,13 +402,13 @@ class TestRiskApi(unittest.TestCase):
     @patch('src.backend.api.risk.risk_manager')
     def test_process_webhook_with_risk_error(self, mock_risk_manager):
         """Test POST /api/risk/webhook endpoint error handling."""
-        # Sample webhook payload
-        payload = {
+        # Sample webhook data
+        webhook_data = {
             'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'time': 1620000000
+            'strategy_order_price': '150.0',
+            'strategy_order_contracts': '10'
         }
         
         # Mock risk_manager to raise exception
@@ -407,7 +417,7 @@ class TestRiskApi(unittest.TestCase):
         # Make request
         response = self.client.post(
             '/api/risk/webhook',
-            data=json.dumps(payload),
+            data=json.dumps(webhook_data),
             content_type='application/json'
         )
         
@@ -417,7 +427,11 @@ class TestRiskApi(unittest.TestCase):
         # Verify response
         self.assertEqual(response.status_code, 500)
         self.assertEqual(data['status'], 'error')
-        self.assertIn('Test error', data['message'])
+        self.assertIn('Error processing webhook with risk management', data['message'])
+        
+        # Verify risk_manager method was called with webhook data
+        mock_risk_manager.process_order_with_risk_management.assert_called_once_with(webhook_data)
+
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

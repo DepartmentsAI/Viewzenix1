@@ -1,6 +1,111 @@
-# Order Execution Engine
+# Backend Services
 
-The Order Execution Engine is responsible for processing trade requests from TradingView alerts and executing orders through the appropriate broker adapter.
+This directory contains the core service modules for the Viewzenix1 trading platform backend.
+
+## OrderEngine
+
+The OrderEngine service (`order_engine.py`) is responsible for processing trading webhook data, validating orders, and routing them to the appropriate broker adapter. It provides:
+
+- Webhook data processing and validation
+- Order type detection (market, limit)
+- Order execution via broker adapters
+- Error handling and retry logic
+- Transaction logging
+
+### Usage
+
+```python
+from src.backend.services.order_engine import OrderEngine
+from src.integration.adapters.alpaca_adapter import AlpacaAdapter
+
+# Create an OrderEngine with a specific broker adapter
+adapter = AlpacaAdapter(use_paper=True)
+engine = OrderEngine(broker_adapter=adapter)
+
+# Process a webhook payload
+result = engine.process_webhook_data({
+    "symbol": "BTCUSD",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_price": 50000,
+    "strategy_order_contracts": 0.1,
+    "time": 1620000000000
+})
+
+print(result)
+# {
+#   "status": "success",
+#   "order_id": "order_123",
+#   "message": "Order executed successfully"
+# }
+```
+
+## RiskManager
+
+The RiskManager service (`risk_manager.py`) implements risk management features to protect user funds during automated trading. It integrates with the OrderEngine to provide:
+
+- Stop-loss and take-profit order management
+- Portfolio protection (position limits, drawdown limits)
+- Position sizing rules
+- Orphaned order cleanup
+
+### Usage
+
+```python
+from src.backend.services.risk_manager import RiskManager
+from src.backend.services.order_engine import OrderEngine
+
+# Create a RiskManager (will use OrderEngine internally)
+risk_manager = RiskManager()
+
+# Or create with specific engines/adapters
+engine = OrderEngine()
+risk_manager = RiskManager(order_engine=engine)
+
+# Process an order with risk management
+result = risk_manager.process_order_with_risk_management({
+    "symbol": "BTCUSD",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_price": 50000,
+    "strategy_order_contracts": 0.1,
+    "time": 1620000000000,
+    "stop_loss": {
+        "percent": 0.02  # 2% stop loss
+    },
+    "take_profit": {
+        "percent": 0.05  # 5% take profit
+    }
+})
+
+# Get current risk metrics
+metrics = risk_manager.get_risk_metrics()
+
+# Update risk parameters
+new_params = {
+    "stop_loss_percent": 0.03,
+    "max_daily_drawdown_percent": 0.08
+}
+updated_params = risk_manager.update_risk_parameters(new_params)
+
+# Clean up orphaned orders
+cleanup_result = risk_manager.cleanup_orphaned_orders()
+```
+
+### Risk Parameters
+
+The RiskManager is configurable through the following parameters:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `stop_loss_percent` | Default percentage-based stop loss | 2% (0.02) |
+| `take_profit_percent` | Default percentage-based take profit | 5% (0.05) |
+| `max_position_size_percent` | Maximum position size as percentage of equity | 5% (0.05) |
+| `max_daily_drawdown_percent` | Maximum allowed daily drawdown | 5% (0.05) |
+| `max_open_positions` | Maximum number of open positions | 10 |
+| `orphaned_order_age_hours` | Hours after which an order is considered orphaned | 24 |
+
+For more details on the risk management implementation, see the architecture documentation at `/docs/architecture/risk_management.md`.
 
 ## Features
 

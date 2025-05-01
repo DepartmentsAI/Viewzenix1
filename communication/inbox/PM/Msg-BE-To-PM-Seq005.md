@@ -37,10 +37,13 @@ This PR implements a comprehensive risk management system for the trading platfo
 
 The implementation integrates with the existing OrderEngine and broker adapter systems while maintaining separation of concerns. All functionality is thoroughly tested with unit tests.
 
+Documentation:
+- Added comprehensive risk management architecture documentation
+
 Required reviewers:
 - PM
 - QA
 - INT
 
 Estimated review time: 1-2 PUs
-</message> 
+</message>

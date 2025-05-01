@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The Risk Management System provides safety features for automated trading by implementing stop-loss and take-profit functionality, portfolio protection mechanisms, and orphaned order cleanup. It integrates with the existing OrderEngine to add risk-aware order processing while maintaining separation of concerns.
+The Risk Management System is a critical safety component of the Trading Webhook Platform designed to protect user funds during automated trading. It provides configurable risk parameters, stop-loss/take-profit functionality, portfolio protection mechanisms, and cleanup services for orphaned orders.
 
 ## 2. Key Components
 
@@ -20,11 +20,13 @@ The `RiskManager` class is the core service that implements risk management func
 
 The Risk API exposes RESTful endpoints for interaction with the Risk Management System:
 
-- `GET /api/risk/parameters`: Retrieve current risk parameters
-- `PUT /api/risk/parameters`: Update risk parameters
-- `GET /api/risk/metrics`: Get current risk metrics (exposure, drawdown, etc.)
-- `POST /api/risk/cleanup`: Trigger manual cleanup of orphaned orders
-- `POST /api/risk/webhook`: Process a webhook with risk management applied
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/risk/parameters` | GET | Get current risk parameters |
+| `/api/risk/parameters` | PUT | Update risk parameters |
+| `/api/risk/metrics` | GET | Get current risk metrics |
+| `/api/risk/cleanup` | POST | Trigger cleanup of orphaned orders |
+| `/api/risk/webhook` | POST | Process a webhook with risk management applied |
 
 ### 2.3 Integration with OrderEngine
 
@@ -33,6 +35,7 @@ The Risk Management System integrates with the existing OrderEngine:
 - RiskManager uses OrderEngine for order execution
 - Enhanced webhook processing with risk management features
 - Clean separation of concerns between order execution and risk management
+- Integrates with Broker Adapter to execute stop-loss/take-profit orders and retrieve account information
 
 ## 3. Risk Parameters
 
@@ -73,18 +76,29 @@ The following risk parameters can be configured:
 4. Orphaned orders are cancelled via broker adapter
 5. Response includes cleanup results
 
-## 5. Security Considerations
+## 5. Risk Monitoring
+
+The system provides comprehensive risk metrics, including:
+
+- Current equity and buying power
+- Position count and total value
+- Equity allocation percentage
+- Daily performance tracking
+- Current and maximum daily drawdown
+
+## 6. Security Considerations
 
 - All risk parameters are validated against defined schemas
 - Percentage values are bounded (0-100%)
 - Count values have minimum thresholds
 - Error handling with proper logging is implemented throughout
 - API responses never expose broker credentials
+- API endpoints require proper authentication and authorization
 
-## 6. Future Enhancements
+## 7. Future Enhancements
 
 - **Advanced Position Sizing**: Kelly criterion and other risk-adjusted sizing methods
 - **Time-Based Risk Controls**: Trading hour restrictions and circuit breakers
 - **Strategy-Level Risk Parameters**: Custom risk settings per trading strategy
 - **Volatility-Adjusted Risk**: Dynamic risk adjustments based on market volatility
-- **Risk Dashboard**: Visual monitoring of risk metrics 
+- **Risk Dashboard**: Visual monitoring of risk metrics
