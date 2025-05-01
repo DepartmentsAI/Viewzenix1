@@ -19,3 +19,6 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 40  | BE/feature/15-risk-management-system | #15 | Merged | BE | PM | 2025-05-07 |
 | 44  | FE/communication/release-readiness-confirmation | N/A | Merged | FE | PM | 2025-05-07 |
 | 45  | QA/test/final-testing-prep | #14 | Merged | QA | PM | 2025-05-07 |
+| 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | Open | INT | PM | 2025-05-08 |
+| 55  | FE/docs/ui-documentation | N/A | Closed | FE | - | 2025-05-08 |
+| 56  | FE/docs/ui-documentation-and-messages | N/A | Merged | FE | PM | 2025-05-08 |
