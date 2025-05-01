@@ -24,12 +24,14 @@ The Trading Webhook Platform v1.0.0 is a broker-agnostic trade execution system 
 - Global portfolio circuit breaker
 - Broker restriction enforcement
 - Order cleanup service
+- Backend API for risk parameter configuration
 
 ### Dashboard
 - Real-time order status monitoring 
 - Advanced configuration panel
 - Order history and visualization
 - Filter and search capabilities
+- Comprehensive UI documentation
 
 ### Testing & Integration
 - Comprehensive test suite
@@ -49,14 +51,23 @@ The Trading Webhook Platform v1.0.0 is a broker-agnostic trade execution system 
 | #27 | Paper Trading Adapter | Testing and simulation capabilities |
 | #30 | Risk Management Tests | Validation of safety features |
 | #36 | Dashboard Order Status Tracking | Real-time order monitoring |
+| #40 | Enhanced Risk Management System | Improved backend risk controls |
+| #44 | Frontend Release Readiness | UI stability improvements |
+| #45 | Final Testing Preparation | Testing plan and execution checklist |
+| #56 | Dashboard UI Documentation | Comprehensive UI documentation |
+
+## Feature Scope Notes
+
+- **Risk Management UI**: The backend Risk Management system is fully functional, but the dedicated Risk Management UI has been deferred to a post-release update. Risk parameters can be configured through configuration files in this release.
 
 ## Future Enhancements (v1.1+)
 
-1. Multi-tenant workspaces
-2. AI analytics for trade performance
-3. Live WebSocket broker feed
-4. Additional broker adapters (IBKR, Binance)
-5. Auto-generated TradingView alert builders
+1. Risk Management UI (scheduled for next release)
+2. Multi-tenant workspaces
+3. AI analytics for trade performance
+4. Live WebSocket broker feed
+5. Additional broker adapters (IBKR, Binance)
+6. Auto-generated TradingView alert builders
 
 ## Installation & Deployment
 
@@ -66,4 +77,5 @@ The platform is deployed on Fly.io with private networking. Only whitelisted IPs
 
 - Currently supports Alpaca broker only
 - Limited to equity and crypto assets (forex planned for v1.1)
-- Global SL/TP requires manual configuration 
+- Global SL/TP requires manual configuration
+- Risk Management configuration requires editing config files (UI planned for v1.1)

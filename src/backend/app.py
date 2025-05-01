@@ -6,6 +6,7 @@ and registers all blueprints and extensions.
 """
 import os
 import logging
+from logging.handlers import RotatingFileHandler
 from flask import Flask
 
 from src.backend.api.webhook import webhook_bp
@@ -40,26 +41,42 @@ def create_app(config_name=None):
     return app
 
 def configure_logging(app):
-    """Configure application logging."""
-    log_level = app.config.get('LOG_LEVEL', 'INFO')
+    """
+    Configure application logging.
     
-    # Configure basic logging
-    logging.basicConfig(
-        level=getattr(logging, log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    Args:
+        app: Flask application instance
+    """
+    # Create logs directory if it doesn't exist
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    
+    # Configure formatter
+    formatter = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(module)s: %(message)s'
     )
     
-    # Add file handler if configured
-    log_file = app.config.get('LOG_FILE')
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        app.logger.addHandler(file_handler)
+    # Configure file handler
+    file_handler = RotatingFileHandler(
+        'logs/app.log',
+        maxBytes=10485760,  # 10MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
     
-    app.logger.info('Logging configured')
+    # Configure stdout handler
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    stream_handler.setFormatter(formatter)
+    
+    # Add handlers to app logger
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.INFO)
+    
+    # Set root logger level
+    logging.getLogger().setLevel(logging.INFO)
 
 def register_blueprints(app):
     """Register Flask blueprints."""
