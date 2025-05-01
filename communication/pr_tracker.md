@@ -11,5 +11,5 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 9   | INT/feature/4-alpaca-adapter | #4 | Merged | INT | PM | 2025-05-01 |
 | 16  | BE/feature/10-order-execution-engine | #10 | Merged | BE | PM, INT | 2025-05-02 |
 | 26  | BE/feature/15-risk-management | #15 | Merged | BE | PM, QA, INT | 2025-05-03 |
-| 27  | INT/feature/13-paper-trading-adapter | #13 | Open | INT | PM | 2025-05-03 |
-| 30  | QA/feature/15-risk-management-tests | #15 | Open | QA | PM | 2025-05-03 |
+| 27  | INT/feature/13-paper-trading-adapter | #13 | Merged | INT | PM | 2025-05-03 |
+| 30  | QA/feature/15-risk-management-tests | #15 | Merged | QA | PM | 2025-05-03 |
