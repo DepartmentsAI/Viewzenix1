@@ -78,4 +78,4 @@ The platform is deployed on Fly.io with private networking. Only whitelisted IPs
 - Currently supports Alpaca broker only
 - Limited to equity and crypto assets (forex planned for v1.1)
 - Global SL/TP requires manual configuration
-- Risk Management configuration requires editing config files (UI planned for v1.1) 
+- Risk Management configuration requires editing config files (UI planned for v1.1)
