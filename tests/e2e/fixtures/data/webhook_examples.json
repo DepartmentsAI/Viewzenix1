@@ -1,0 +1,70 @@
+{
+  "long_entry": {
+    "symbol": "BTCUSD",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_contracts": 0.05,
+    "strategy_order_price": 64340.15,
+    "strategy_order_comment": "Breakout",
+    "time": 1713746400000
+  },
+  "long_exit": {
+    "symbol": "BTCUSD",
+    "strategy_order_id": "long",
+    "strategy_order_action": "sell",
+    "strategy_order_contracts": 0.05,
+    "strategy_order_price": 65000.00,
+    "strategy_order_comment": "Take Profit",
+    "time": 1713746500000
+  },
+  "short_entry": {
+    "symbol": "ETHUSD",
+    "strategy_order_id": "sell",
+    "strategy_order_action": "sell",
+    "strategy_order_contracts": 0.2,
+    "strategy_order_price": 3500.00,
+    "strategy_order_comment": "Breakdown",
+    "time": 1713746600000
+  },
+  "short_exit": {
+    "symbol": "ETHUSD",
+    "strategy_order_id": "sell",
+    "strategy_order_action": "buy",
+    "strategy_order_contracts": 0.2,
+    "strategy_order_price": 3400.00,
+    "strategy_order_comment": "Take Profit",
+    "time": 1713746700000
+  },
+  "limit_order": {
+    "symbol": "AMZN",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_contracts": 5,
+    "strategy_order_price": 3200.00,
+    "strategy_order_comment": "Limit Entry",
+    "time": 1713746800000
+  },
+  "bracket_order": {
+    "symbol": "MSFT",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_contracts": 10,
+    "strategy_order_price": 280.00,
+    "strategy_order_comment": "Bracket with SL/TP",
+    "time": 1713746900000
+  },
+  "invalid_schema": {
+    "symbol": "BTCUSD",
+    "strategy_order_price": 64340.15,
+    "time": 1713747000000
+  },
+  "unsupported_symbol": {
+    "symbol": "UNSUPPORTED",
+    "strategy_order_id": "long",
+    "strategy_order_action": "buy",
+    "strategy_order_contracts": 0.05,
+    "strategy_order_price": 100.00,
+    "strategy_order_comment": "Test",
+    "time": 1713747100000
+  }
+} 
