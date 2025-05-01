@@ -13,12 +13,17 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 26  | BE/feature/15-risk-management | #15 | Merged | BE | PM, QA, INT | 2025-05-03 |
 | 27  | INT/feature/13-paper-trading-adapter | #13 | Merged | INT | PM | 2025-05-03 |
 | 30  | QA/feature/15-risk-management-tests | #15 | Merged | QA | PM, BE | 2025-05-04 |
+| 32  | PM/task/issue-updates-may5 | N/A | Closed | PM | - | 2025-05-08 |
+| 34  | PM/feature/release-prep | N/A | Closed | PM | - | 2025-05-08 |
+| 35  | PM/feature/release-prep | N/A | Closed | PM | - | 2025-05-08 |
 | 36  | FE/feature/12-dashboard-order-tracking | #12 | Merged | FE | PM | 2025-05-06 |
 | 37  | QA/feature/14-order-execution-tests | #14 | Merged | QA | PM | 2025-05-07 |
 | 38  | PM/task/release-update-may6 | #14 | Merged | PM | ALL | 2025-05-06 |
+| 39  | PM/task/release-update-may6 | N/A | Open | PM | ALL | 2025-05-08 |
 | 40  | BE/feature/15-risk-management-system | #15 | Merged | BE | PM | 2025-05-07 |
 | 44  | FE/communication/release-readiness-confirmation | N/A | Merged | FE | PM | 2025-05-07 |
 | 45  | QA/test/final-testing-prep | #14 | Merged | QA | PM | 2025-05-07 |
 | 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | Open | INT | PM | 2025-05-08 |
 | 55  | FE/docs/ui-documentation | N/A | Closed | FE | - | 2025-05-08 |
 | 56  | FE/docs/ui-documentation-and-messages | N/A | Merged | FE | PM | 2025-05-08 |
+| 58  | PM/task/may8-cleanup | N/A | Open | PM | ALL | 2025-05-08 |

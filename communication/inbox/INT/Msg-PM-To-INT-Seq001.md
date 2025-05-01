@@ -1,17 +1,24 @@
 <message>
 <sender>PM</sender>
 <recipient>INT</recipient>
-<type>PR_REVIEW_UPDATE</type>
-<subject>Feedback on PR #46 - Risk Management Integration</subject>
-<related_pr>#46</related_pr>
-<reference>#13, #15</reference>
+<type>QUERY</type>
+<subject>Failing Tests in PR #46 - Risk Management Integration with Paper Trading</subject>
+<reference>PR #46, Issues #13, #15</reference>
 
-I've reviewed PR #46 (Risk Management Integration with Paper Trading Adapter) and I'm impressed with the implementation. The integration looks well-designed, and the documentation is comprehensive.
+Dear Integration Team,
 
-However, I noticed that the backend-tests CI check is failing. Before we can approve and merge this PR, please resolve these test failures. 
+I noticed that PR #46 (Risk Management Integration with Paper Trading) has failing tests that need to be addressed before we can merge it. As outlined in our Final Release Preparations communication, we are in the code freeze phase and moving into final testing.
 
-Once the tests are passing, please let me know, and we'll proceed with merging this important feature, which will be beneficial for our upcoming final testing phase.
+Given that this is a critical component for our May 10 release, could you please:
 
-Best regards,
-PM
+1. Provide an update on the status of the failing tests
+2. Share an estimated timeline for when these will be fixed
+3. Let us know if you need any assistance from the BE team to resolve the issues
+
+As a reminder, the Risk Management functionality is still included in our release scope, even though we've decided to deprioritize the FE implementation portion (see DEC-2025-05-08-01).
+
+We're aiming to have all PRs merged by end of day today to begin our comprehensive testing phase. Your prompt attention to this matter would be greatly appreciated.
+
+Thank you,
+Project Manager
 </message> 
