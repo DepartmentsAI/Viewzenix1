@@ -13,4 +13,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 26  | BE/feature/15-risk-management | #15 | Merged | BE | PM, QA, INT | 2025-05-03 |
 | 27  | INT/feature/13-paper-trading-adapter | #13 | Merged | INT | PM | 2025-05-03 |
 | 30  | QA/feature/15-risk-management-tests | #15 | Open | QA | PM, BE | 2025-05-04 |
-| 36  | FE/feature/12-dashboard-order-tracking | #12 | Open | FE | PM, QA | 2025-05-05 |
+| 36  | FE/feature/12-dashboard-order-tracking | #12 | Merged | FE | PM | 2025-05-06 |
