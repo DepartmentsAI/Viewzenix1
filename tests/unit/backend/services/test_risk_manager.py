@@ -2,398 +2,270 @@
 Unit tests for the RiskManager service.
 """
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, patch
+import json
+import os
 from datetime import datetime, timedelta
 import time
 
 from src.backend.services.risk_manager import RiskManager
-from src.backend.services.order_engine import OrderEngine
+from src.backend.models.risk_models import RiskParameters, RiskMetrics
 from src.integration.adapters.broker_adapter import BrokerAdapter
 
 class TestRiskManager(unittest.TestCase):
-    """
-    Test suite for the RiskManager class.
-    """
-    
+    """Test cases for the RiskManager class."""
+
     def setUp(self):
         """Set up test fixtures."""
-        # Create mocks
-        self.mock_broker = Mock(spec=BrokerAdapter)
-        self.mock_order_engine = Mock(spec=OrderEngine)
+        # Create mock broker adapter
+        self.mock_broker = MagicMock(spec=BrokerAdapter)
         
-        # Mock account info
+        # Set up mock account info
         self.mock_broker.get_account_info.return_value = {
-            'equity': '10000',
-            'buying_power': '20000'
+            'equity': '10000.0',
+            'buying_power': '20000.0',
+            'cash': '10000.0'
         }
         
-        # Mock current price
-        self.mock_broker.get_current_price.return_value = 100.0
-        
-        # Set up RiskManager with mocks
-        self.risk_manager = RiskManager(
-            broker_adapter=self.mock_broker,
-            order_engine=self.mock_order_engine
-        )
-    
-    def test_initialization(self):
-        """Test RiskManager initialization."""
-        # Verify init called get_account_info
-        self.mock_broker.get_account_info.assert_called_once()
-        
-        # Verify default risk parameters
-        params = self.risk_manager.get_risk_parameters()
-        self.assertEqual(params['stop_loss_percent'], 0.02)
-        self.assertEqual(params['take_profit_percent'], 0.05)
-        self.assertEqual(params['max_position_size_percent'], 0.05)
-        self.assertEqual(params['max_daily_drawdown_percent'], 0.05)
-        self.assertEqual(params['max_open_positions'], 10)
-        self.assertEqual(params['orphaned_order_age_hours'], 24)
-    
-    def test_update_risk_parameters(self):
-        """Test updating risk parameters."""
-        # Update parameters
-        new_params = {
-            'stop_loss_percent': 0.03,
-            'take_profit_percent': 0.1,
-            'max_open_positions': 5
-        }
-        
-        updated = self.risk_manager.update_risk_parameters(new_params)
-        
-        # Verify parameters were updated
-        self.assertEqual(updated['stop_loss_percent'], 0.03)
-        self.assertEqual(updated['take_profit_percent'], 0.1)
-        self.assertEqual(updated['max_open_positions'], 5)
-        
-        # Verify unchanged parameters remain default
-        self.assertEqual(updated['max_position_size_percent'], 0.05)
-        self.assertEqual(updated['max_daily_drawdown_percent'], 0.05)
-        self.assertEqual(updated['orphaned_order_age_hours'], 24)
-    
-    def test_update_risk_parameters_invalid_values(self):
-        """Test updating risk parameters with invalid values."""
-        # Update with invalid values
-        new_params = {
-            'stop_loss_percent': 1.5,  # > 1 is invalid
-            'take_profit_percent': -0.1,  # < 0 is invalid
-            'max_open_positions': 0,  # 0 is invalid
-            'unknown_param': 'test'  # Unknown parameter
-        }
-        
-        updated = self.risk_manager.update_risk_parameters(new_params)
-        
-        # Verify invalid parameters were not updated
-        self.assertEqual(updated['stop_loss_percent'], 0.02)  # Still default
-        self.assertEqual(updated['take_profit_percent'], 0.05)  # Still default
-        self.assertEqual(updated['max_open_positions'], 10)  # Still default
-        self.assertNotIn('unknown_param', updated)  # Not added
-    
-    def test_process_order_with_risk_management_success(self):
-        """Test processing an order with risk management that succeeds."""
-        # Mock successful order result
-        self.mock_order_engine.process_webhook_data.return_value = {
-            'status': 'success',
-            'order_id': 'test123',
-            'message': 'Order executed successfully'
-        }
-        
-        # Mock empty positions list (no position limit hit)
+        # Set up mock positions
         self.mock_broker.get_positions.return_value = []
         
-        # Create test order data
-        order_data = {
-            'symbol': 'AAPL',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'strategy_order_comment': 'Test order',
-            'time': int(time.time()),
-            'stop_loss': {
-                'percent': 0.02
+        # Create risk manager with mock broker
+        self.risk_manager = RiskManager(broker_adapter=self.mock_broker)
+
+    def test_initialize_risk_metrics(self):
+        """Test the initialization of risk metrics."""
+        # Arrange
+        self.mock_broker.get_account_info.return_value = {
+            'equity': '15000.0'
+        }
+        
+        # Act
+        self.risk_manager._initialize_risk_metrics()
+        
+        # Assert
+        self.assertEqual(self.risk_manager.risk_metrics.current_equity, 15000.0)
+        self.assertEqual(self.risk_manager.risk_metrics.starting_equity, 15000.0)
+        self.mock_broker.get_account_info.assert_called_once()
+        self.mock_broker.get_positions.assert_called_once()
+
+    def test_update_risk_parameters(self):
+        """Test updating risk parameters."""
+        # Arrange
+        new_parameters = {
+            "sl_tp": {
+                "stop_loss_percent": 0.03,
+                "take_profit_percent": 0.06
             },
-            'take_profit': {
-                'percent': 0.05
+            "portfolio": {
+                "max_daily_drawdown_percent": 0.10,
+                "max_open_positions": 15
             }
         }
         
-        # Process the order
-        result = self.risk_manager.process_order_with_risk_management(order_data)
+        # Act
+        result = self.risk_manager.update_risk_parameters(new_parameters)
         
-        # Verify the result
-        self.assertEqual(result['status'], 'success')
-        self.assertTrue(result['risk_applied'])
+        # Assert
+        self.assertEqual(self.risk_manager.risk_parameters.sl_tp.stop_loss_percent, 0.03)
+        self.assertEqual(self.risk_manager.risk_parameters.sl_tp.take_profit_percent, 0.06)
+        self.assertEqual(self.risk_manager.risk_parameters.portfolio.max_daily_drawdown_percent, 0.10)
+        self.assertEqual(self.risk_manager.risk_parameters.portfolio.max_open_positions, 15)
         
-        # Verify original order was processed
-        self.mock_order_engine.process_webhook_data.assert_called_with(order_data)
+        # Verify default values are maintained for fields not specified
+        self.assertEqual(self.risk_manager.risk_parameters.sl_tp.enabled, True)
+        self.assertEqual(self.risk_manager.risk_parameters.cleanup.orphaned_order_age_hours, 24)
+
+    def test_check_portfolio_limits_max_positions(self):
+        """Test portfolio limits check for maximum positions."""
+        # Arrange
+        self.mock_broker.get_positions.return_value = [
+            {'symbol': 'AAPL'}, {'symbol': 'MSFT'}, {'symbol': 'GOOG'}
+        ]
+        self.risk_manager.risk_metrics.open_position_count = 3
+        self.risk_manager.risk_parameters.portfolio.max_open_positions = 3
         
-        # Verify stop loss and take profit orders were added
-        # Process_webhook_data should be called 3 times (original order + SL + TP)
-        self.assertEqual(self.mock_order_engine.process_webhook_data.call_count, 3)
-    
-    def test_portfolio_limit_rejection(self):
-        """Test order rejection due to portfolio limits."""
-        # Mock positions list with max positions
-        self.mock_broker.get_positions.return_value = [{}] * 10  # 10 positions
+        order_data = {
+            'symbol': 'AMZN',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'buy',
+            'strategy_order_price': '100.0'
+        }
         
-        # Create test order data for a new position
+        # Act
+        result = self.risk_manager._check_portfolio_limits(order_data)
+        
+        # Assert
+        self.assertFalse(result)
+
+    def test_check_portfolio_limits_position_size(self):
+        """Test portfolio limits check for position size."""
+        # Arrange
+        self.risk_manager.risk_metrics.current_equity = 10000.0
+        self.risk_manager.risk_parameters.portfolio.max_position_size_percent = 0.05
+        
         order_data = {
             'symbol': 'AAPL',
             'strategy_order_id': 'long',
             'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'time': int(time.time())
+            'strategy_order_price': '100.0',
+            'strategy_order_contracts': '10.0'  # 100 * 10 = 1000 (10% of equity)
         }
         
-        # Process the order
+        # Act
+        result = self.risk_manager._check_portfolio_limits(order_data)
+        
+        # Assert
+        self.assertFalse(result)
+
+    def test_check_drawdown_limits(self):
+        """Test drawdown limits checking."""
+        # Arrange
+        self.risk_manager.risk_metrics.starting_equity = 10000.0
+        self.risk_manager.risk_metrics.current_equity = 9000.0  # 10% drawdown
+        self.risk_manager.risk_parameters.portfolio.max_daily_drawdown_percent = 0.05  # 5% limit
+        
+        # Act
+        result = self.risk_manager._check_drawdown_limits()
+        
+        # Assert
+        self.assertFalse(result)
+        self.assertEqual(self.risk_manager.risk_metrics.current_drawdown_percent, 0.1)
+
+    def test_process_order_with_risk_management_rejected_portfolio_limits(self):
+        """Test order processing when portfolio limits are exceeded."""
+        # Arrange
+        self.risk_manager._check_portfolio_limits = MagicMock(return_value=False)
+        
+        order_data = {
+            'symbol': 'AAPL',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'buy',
+            'strategy_order_price': '100.0'
+        }
+        
+        # Act
         result = self.risk_manager.process_order_with_risk_management(order_data)
         
-        # Verify the order was rejected
+        # Assert
         self.assertEqual(result['status'], 'rejected')
         self.assertIn('portfolio limits', result['message'])
+        self.assertEqual(result['order_data'], order_data)
+
+    def test_process_order_with_risk_management_success(self):
+        """Test successful order processing with risk management."""
+        # Arrange
+        self.risk_manager._check_portfolio_limits = MagicMock(return_value=True)
+        self.risk_manager._check_drawdown_limits = MagicMock(return_value=True)
         
-        # Verify order engine was not called
-        self.mock_order_engine.process_webhook_data.assert_not_called()
-    
-    def test_position_size_limit_rejection(self):
-        """Test order rejection due to position size limits."""
-        # Mock empty positions list
-        self.mock_broker.get_positions.return_value = []
-        
-        # Create test order data with very high price
-        order_data = {
-            'symbol': 'TSLA',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 1000.0,  # High price
-            'quantity': 10,  # Multiple shares
-            'time': int(time.time())
-        }
-        
-        # Process the order
-        result = self.risk_manager.process_order_with_risk_management(order_data)
-        
-        # Verify the order was rejected (order value > 5% of equity)
-        self.assertEqual(result['status'], 'rejected')
-        self.assertIn('portfolio limits', result['message'])
-        
-        # Verify order engine was not called
-        self.mock_order_engine.process_webhook_data.assert_not_called()
-    
-    def test_drawdown_limit_rejection(self):
-        """Test order rejection due to drawdown limits."""
-        # Mock broker account info for drawdown test
-        self.mock_broker.get_account_info.return_value = {
-            'equity': '9500',  # Current equity reduced from initial 10000
-            'buying_power': '19000'
-        }
-        
-        # Manually set daily performance to simulate drawdown
-        self.risk_manager.daily_performance['start_equity'] = 10000
-        self.risk_manager.daily_performance['current_equity'] = 9500
-        
-        # Set drawdown limit to 2% (below our current 5% drawdown)
-        self.risk_manager.risk_params['max_daily_drawdown_percent'] = 0.02
-        
-        # Create test order data
-        order_data = {
-            'symbol': 'AAPL',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'time': int(time.time())
-        }
-        
-        # Process the order
-        result = self.risk_manager.process_order_with_risk_management(order_data)
-        
-        # Verify the order was rejected
-        self.assertEqual(result['status'], 'rejected')
-        self.assertIn('drawdown limit', result['message'])
-        
-        # Verify order engine was not called
-        self.mock_order_engine.process_webhook_data.assert_not_called()
-    
-    def test_sell_order_bypass_portfolio_limits(self):
-        """Test that sell orders bypass portfolio limits."""
-        # Create test order data for a sell order
-        order_data = {
-            'symbol': 'AAPL',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'sell',  # Sell order
-            'strategy_order_price': 150.0,
-            'time': int(time.time())
-        }
-        
-        # Set up order engine to return success
-        self.mock_order_engine.process_webhook_data.return_value = {
+        mock_order_result = {
             'status': 'success',
-            'order_id': 'test123',
+            'order_id': 'test_order_123',
             'message': 'Order executed successfully'
         }
+        self.risk_manager.order_engine.process_webhook_data = MagicMock(return_value=mock_order_result)
         
-        # Process the order
-        result = self.risk_manager.process_order_with_risk_management(order_data)
+        self.risk_manager._add_stop_loss_take_profit = MagicMock(return_value={
+            'status': 'success',
+            'orders': [
+                {'type': 'stop_loss', 'order_id': 'sl_123', 'price': 95.0},
+                {'type': 'take_profit', 'order_id': 'tp_123', 'price': 105.0}
+            ]
+        })
         
-        # Verify the order was processed (not rejected by limits)
-        self.assertEqual(result['status'], 'success')
-        self.assertEqual(result['risk_applied'], False)  # No risk for sell orders
-        
-        # Verify order engine was called once
-        self.mock_order_engine.process_webhook_data.assert_called_once_with(order_data)
-    
-    def test_add_stop_loss_take_profit_with_explicit_price(self):
-        """Test adding stop loss and take profit orders with explicit prices."""
-        # Setup
-        symbol = 'AAPL'
-        entry_price = 150.0
-        parent_order_id = 'test123'
-        stop_loss_param = {'price': 145.0}  # Explicit price
-        take_profit_param = {'price': 160.0}  # Explicit price
-        
-        # Set up order engine to return success for SL/TP orders
-        self.mock_order_engine.process_webhook_data.side_effect = [
-            {'status': 'success', 'order_id': 'sl_test123'},  # SL order
-            {'status': 'success', 'order_id': 'tp_test123'}   # TP order
-        ]
-        
-        # Call the method
-        result = self.risk_manager._add_stop_loss_take_profit(
-            symbol, entry_price, parent_order_id, stop_loss_param, take_profit_param
-        )
-        
-        # Verify results
-        self.assertIsNotNone(result['stop_loss'])
-        self.assertIsNotNone(result['take_profit'])
-        
-        # Verify order engine called twice with correct parameters
-        self.assertEqual(self.mock_order_engine.process_webhook_data.call_count, 2)
-        
-        # Check SL order params
-        sl_call_args = self.mock_order_engine.process_webhook_data.call_args_list[0][0][0]
-        self.assertEqual(sl_call_args['symbol'], symbol)
-        self.assertEqual(sl_call_args['strategy_order_price'], 145.0)
-        self.assertEqual(sl_call_args['strategy_order_action'], 'sell')
-        self.assertEqual(sl_call_args['order_type'], 'stop')
-        
-        # Check TP order params
-        tp_call_args = self.mock_order_engine.process_webhook_data.call_args_list[1][0][0]
-        self.assertEqual(tp_call_args['symbol'], symbol)
-        self.assertEqual(tp_call_args['strategy_order_price'], 160.0)
-        self.assertEqual(tp_call_args['strategy_order_action'], 'sell')
-        self.assertEqual(tp_call_args['order_type'], 'limit')
-    
-    def test_add_stop_loss_take_profit_with_percentages(self):
-        """Test adding stop loss and take profit orders with percentages."""
-        # Setup
-        symbol = 'AAPL'
-        entry_price = 100.0  # Simple price for easy percentage calculation
-        parent_order_id = 'test123'
-        stop_loss_param = {'percent': 0.05}  # 5% below
-        take_profit_param = {'percent': 0.1}  # 10% above
-        
-        # Set up order engine to return success for SL/TP orders
-        self.mock_order_engine.process_webhook_data.side_effect = [
-            {'status': 'success', 'order_id': 'sl_test123'},  # SL order
-            {'status': 'success', 'order_id': 'tp_test123'}   # TP order
-        ]
-        
-        # Call the method
-        result = self.risk_manager._add_stop_loss_take_profit(
-            symbol, entry_price, parent_order_id, stop_loss_param, take_profit_param
-        )
-        
-        # Verify results
-        self.assertIsNotNone(result['stop_loss'])
-        self.assertIsNotNone(result['take_profit'])
-        
-        # Verify order engine called twice with correct parameters
-        self.assertEqual(self.mock_order_engine.process_webhook_data.call_count, 2)
-        
-        # Check SL order params
-        sl_call_args = self.mock_order_engine.process_webhook_data.call_args_list[0][0][0]
-        self.assertEqual(sl_call_args['symbol'], symbol)
-        self.assertEqual(sl_call_args['strategy_order_price'], 95.0)  # 5% below 100
-        self.assertEqual(sl_call_args['strategy_order_action'], 'sell')
-        
-        # Check TP order params
-        tp_call_args = self.mock_order_engine.process_webhook_data.call_args_list[1][0][0]
-        self.assertEqual(tp_call_args['symbol'], symbol)
-        self.assertEqual(tp_call_args['strategy_order_price'], 110.0)  # 10% above 100
-        self.assertEqual(tp_call_args['strategy_order_action'], 'sell')
-    
-    def test_cleanup_orphaned_orders(self):
-        """Test cleanup of orphaned orders."""
-        # Mock current time
-        current_time = datetime.now()
-        
-        # Mock open orders with some old and some new
-        old_time = (current_time - timedelta(hours=30)).isoformat() + 'Z'
-        new_time = (current_time - timedelta(hours=5)).isoformat() + 'Z'
-        
-        mock_orders = [
-            {'id': 'order1', 'created_at': old_time, 'type': 'limit'},  # Old, should be cancelled
-            {'id': 'order2', 'created_at': old_time, 'type': 'stop'},   # Old, should be cancelled
-            {'id': 'order3', 'created_at': new_time, 'type': 'limit'},  # New, should be kept
-            {'id': 'order4', 'created_at': old_time, 'type': 'market'}  # Market order, should be kept
-        ]
-        
-        self.mock_broker.get_open_orders.return_value = mock_orders
-        
-        # Mock successful cancellation
-        self.mock_broker.cancel_order.return_value = True
-        
-        # Call cleanup
-        result = self.risk_manager.cleanup_orphaned_orders()
-        
-        # Verify results
-        self.assertEqual(result['orders_checked'], 4)
-        self.assertEqual(result['orders_cancelled'], 2)
-        self.assertEqual(len(result['cancelled_ids']), 2)
-        self.assertIn('order1', result['cancelled_ids'])
-        self.assertIn('order2', result['cancelled_ids'])
-        
-        # Verify broker cancel_order called twice
-        self.assertEqual(self.mock_broker.cancel_order.call_count, 2)
-    
-    def test_get_risk_metrics(self):
-        """Test getting risk metrics."""
-        # Mock positions
-        mock_positions = [
-            {'market_value': '2000'},
-            {'market_value': '3000'}
-        ]
-        self.mock_broker.get_positions.return_value = mock_positions
-        
-        # Set daily performance values
-        self.risk_manager.daily_performance = {
-            'start_equity': 10000.0,
-            'current_equity': 9500.0,
-            'max_equity': 10200.0,
-            'min_equity': 9400.0,
-            'last_updated': datetime.now(),
-            'reset_time': datetime.now() + timedelta(days=1)
+        order_data = {
+            'symbol': 'AAPL',
+            'strategy_order_id': 'long',
+            'strategy_order_action': 'buy',
+            'strategy_order_price': '100.0'
         }
         
-        # Get metrics
-        metrics = self.risk_manager.get_risk_metrics()
+        # Act
+        result = self.risk_manager.process_order_with_risk_management(order_data)
         
-        # Verify metrics structure and values
-        self.assertEqual(metrics['account']['equity'], 9500.0)
-        self.assertEqual(metrics['account']['buying_power'], 20000.0)
+        # Assert
+        self.assertEqual(result['status'], 'success')
+        self.assertEqual(result['order_result'], mock_order_result)
+        self.assertEqual(result['risk_applied'], True)
+        self.assertIn('risk_metrics', result)
+
+    def test_add_stop_loss_take_profit(self):
+        """Test adding stop loss and take profit orders."""
+        # Arrange
+        symbol = 'AAPL'
+        entry_price = 100.0
+        parent_order_id = 'parent_123'
+        sl_tp_params = {
+            'stop_loss_percent': 0.05,
+            'take_profit_percent': 0.10,
+            'use_fixed_price': False,
+            'use_fill_price_for_sl_tp': False
+        }
         
-        self.assertEqual(metrics['positions']['count'], 2)
-        self.assertEqual(metrics['positions']['value'], 5000.0)
-        self.assertAlmostEqual(metrics['positions']['exposure_percent'], 5000.0/9500.0)
-        self.assertEqual(metrics['positions']['max_positions'], 10)
+        # Mock get_position to return a long position with 10 shares
+        self.mock_broker.get_position.return_value = {
+            'symbol': 'AAPL',
+            'qty': '10.0',
+            'avg_entry_price': '100.0'
+        }
         
-        self.assertEqual(metrics['daily_performance']['start_equity'], 10000.0)
-        self.assertEqual(metrics['daily_performance']['current_equity'], 9500.0)
-        self.assertEqual(metrics['daily_performance']['max_equity'], 10200.0)
-        self.assertEqual(metrics['daily_performance']['min_equity'], 9400.0)
-        self.assertAlmostEqual(metrics['daily_performance']['drawdown'], 0.05)  # 5% drawdown
+        # Mock place_order to simulate successful orders
+        self.mock_broker.place_order.side_effect = [
+            {'id': 'sl_123', 'status': 'new'},
+            {'id': 'tp_123', 'status': 'new'}
+        ]
         
-        self.assertEqual(metrics['risk_limits']['max_position_size'], 475.0)  # 5% of 9500
+        # Act
+        result = self.risk_manager._add_stop_loss_take_profit(
+            symbol, entry_price, parent_order_id, sl_tp_params
+        )
         
+        # Assert
+        self.assertEqual(result['status'], 'success')
+        self.assertEqual(len(result['orders']), 2)
+        
+        # Verify SL parameters
+        sl_call_args = self.mock_broker.place_order.call_args_list[0][1]
+        self.assertEqual(sl_call_args['symbol'], 'AAPL')
+        self.assertEqual(sl_call_args['qty'], 10.0)
+        self.assertEqual(sl_call_args['side'], 'sell')
+        self.assertEqual(sl_call_args['type'], 'stop')
+        self.assertEqual(sl_call_args['stop_price'], 95.0)  # 100.0 * (1 - 0.05)
+        
+        # Verify TP parameters
+        tp_call_args = self.mock_broker.place_order.call_args_list[1][1]
+        self.assertEqual(tp_call_args['symbol'], 'AAPL')
+        self.assertEqual(tp_call_args['qty'], 10.0)
+        self.assertEqual(tp_call_args['side'], 'sell')
+        self.assertEqual(tp_call_args['type'], 'limit')
+        self.assertEqual(tp_call_args['limit_price'], 110.0)  # 100.0 * (1 + 0.10)
+
+    def test_cleanup_orphaned_orders(self):
+        """Test cleanup of orphaned orders."""
+        # Arrange
+        # Empty positions list means no active positions
+        self.mock_broker.get_positions.return_value = []
+        
+        # Set up mock orders with some having SL/TP in their client_order_id
+        self.mock_broker.get_orders.return_value = [
+            {'id': 'order1', 'client_order_id': 'normal_order', 'symbol': 'AAPL'},
+            {'id': 'order2', 'client_order_id': 'parent-sl-123', 'symbol': 'MSFT', 'created_at': '2023-01-01T00:00:00Z'},
+            {'id': 'order3', 'client_order_id': 'parent-tp-456', 'symbol': 'GOOG', 'created_at': '2023-01-01T00:00:00Z'}
+        ]
+        
+        # Act
+        result = self.risk_manager.cleanup_orphaned_orders()
+        
+        # Assert
+        self.assertEqual(result['status'], 'success')
+        self.assertEqual(result['orders_cancelled'], 2)
+        self.assertEqual(len(result['order_ids']), 2)
+        self.assertIn('order2', result['order_ids'])
+        self.assertIn('order3', result['order_ids'])
+        
+        # Verify cancel_order was called for the orphaned orders
+        self.mock_broker.cancel_order.assert_any_call('order2')
+        self.mock_broker.cancel_order.assert_any_call('order3')
+
 if __name__ == '__main__':
     unittest.main() 
