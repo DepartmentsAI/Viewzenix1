@@ -22,6 +22,34 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-02-01: Prioritize Risk Management System Before Master Branch Release
+
+**Date:** 2025-05-02
+**Decision Maker:** Project Manager
+**Participants:** PM
+**Context:** 
+With the completion of core components (webhook API, frontend foundation, order execution engine), we needed to decide whether to merge develop to master now or wait until additional features are implemented.
+
+**Decision:** 
+Wait to merge develop to master until the Risk Management System (Issue #15) is fully implemented.
+
+**Rationale:**
+1. The Risk Management System is a critical safety component for automated trading
+2. Without proper risk controls, the platform could execute trades without adequate safeguards
+3. Key supporting features for monitoring (dashboard order status tracking) and testing (paper trading adapter) are still in development
+4. Comprehensive testing of the order execution engine is not yet complete
+
+**Implications:**
+- Master branch release will be delayed until Risk Management implementation is complete
+- All teams will focus on Risk Management implementation as their highest priority
+- Task assignments have been distributed to all teams (BE, FE, QA, INT) for coordinated implementation
+- This approach prioritizes safety and quality over earlier release
+
+**Status:** Implemented
+**Related Issues:** #15 (Risk Management System)
+
+---
+
 ## DEC-2025-05-01-01: Project Structure and Technology Stack
 
 **Date:** 2025-05-01
