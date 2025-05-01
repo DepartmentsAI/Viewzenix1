@@ -26,3 +26,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | Open | INT | PM | 2025-05-08 |
 | 55  | FE/docs/ui-documentation | N/A | Closed | FE | - | 2025-05-08 |
 | 56  | FE/docs/ui-documentation-and-messages | N/A | Merged | FE | PM | 2025-05-08 |
+| 58  | PM/task/may8-cleanup | N/A | Open | PM | ALL | 2025-05-08 |
