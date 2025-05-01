@@ -9,6 +9,8 @@ import logging
 from flask import Blueprint, request, jsonify, current_app
 from jsonschema import validate, ValidationError
 
+from src.backend.services.order_engine import OrderEngine
+
 # Create blueprint
 webhook_bp = Blueprint('webhook', __name__)
 
@@ -42,6 +44,9 @@ TRADINGVIEW_SCHEMA = {
     },
     "additionalProperties": False
 }
+
+# Create an instance of the OrderEngine
+order_engine = OrderEngine()
 
 @webhook_bp.route('/webhook', methods=['POST'])
 def receive_webhook():
@@ -80,22 +85,29 @@ def receive_webhook():
             "details": str(e)
         }), 400
     
-    # Process the webhook (in a real implementation, you would call a service here)
+    # Process the webhook using the OrderEngine
     try:
-        # Log successful webhook receipt
-        logger.info(f"Valid webhook received for symbol: {payload['symbol']}")
+        # Use the OrderEngine to process the webhook data
+        result = order_engine.process_webhook_data(payload)
         
-        # Here you would queue the job for processing
-        # For now, we'll just return a success response
-        return jsonify({
-            "status": "success",
-            "message": f"Webhook received for {payload['symbol']}",
-            "trade_type": f"{payload['strategy_order_id']} {payload['strategy_order_action']}"
-        }), 200
+        # Log the result
+        logger.info(f"Webhook processed: {result}")
+        
+        # Return the result
+        if result.get('status') == 'success':
+            return jsonify(result), 200
+        elif result.get('status') == 'warning':
+            return jsonify(result), 200  # Still return 200 for warnings
+        else:
+            return jsonify(result), 400  # Return 400 for errors
     
     except Exception as e:
         logger.error(f"Error processing webhook: {str(e)}")
-        return jsonify({"error": "Error processing webhook"}), 500
+        return jsonify({
+            "status": "error",
+            "error": "Error processing webhook",
+            "details": str(e)
+        }), 500
 
 @webhook_bp.route('/webhook/status', methods=['GET'])
 def webhook_status():
