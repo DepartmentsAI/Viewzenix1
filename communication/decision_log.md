@@ -22,6 +22,37 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-07-01: Proceed with Final Pre-Release Testing and Risk Management Integration
+
+**Date:** 2025-05-07
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, QA
+**Context:** 
+With the completion of the two critical pre-release tasks (Dashboard Order Status Tracking and Order Execution Engine Tests), we need to determine the next steps for finalizing the v1.0.0 release scheduled for May 10th.
+
+**Decision:** 
+1. Proceed with the code freeze on May 8th as scheduled
+2. Prioritize merging the enhanced Risk Management System (PR #40) after resolving merge conflicts
+3. Execute the comprehensive testing plan outlined in FINAL_TEST_PLAN.md from May 8-9
+4. Prepare for the master branch merge on May 10th
+
+**Rationale:**
+1. All critical pre-release tasks are now complete (PR #36 for Issue #12 and PR #37 for Issue #14)
+2. The enhanced Risk Management System will provide additional safety features for the platform
+3. The QA team's comprehensive tests will ensure system stability and reliability
+4. We have sufficient time to resolve any issues discovered during testing
+
+**Implications:**
+- BE team must resolve merge conflicts in PR #40 by May 8th
+- All teams will participate in the final testing phase
+- No new features will be accepted after the code freeze
+- Focus will shift to bug fixes and documentation refinement
+
+**Status:** Implemented
+**Related Issues:** #12, #14, #15
+
+---
+
 ## DEC-2025-05-02-01: Prioritize Risk Management System Before Master Branch Release
 
 **Date:** 2025-05-02
