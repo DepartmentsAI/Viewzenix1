@@ -22,6 +22,37 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-08-01: Deprioritize Risk Management UI for May 10 Release
+
+**Date:** 2025-05-08
+**Decision Maker:** Project Manager
+**Participants:** PM, FE, BE, INT, QA
+**Context:** 
+With the code freeze scheduled for May 8th and final testing phase from May 8-9, we need to finalize the scope for the May 10th release. The FE team has inquired about the status of Issue #15 (Risk Management UI) and whether it is still expected for this release cycle.
+
+**Decision:** 
+1. Deprioritize the Risk Management UI (FE portion of Issue #15) for the current release cycle
+2. Maintain the backend and integration components of Risk Management in the release
+3. Focus the FE team's efforts on supporting the QA team during the UI testing phase
+4. Revisit the Risk Management UI implementation immediately after the May 10 release
+
+**Rationale:**
+1. The BE team has completed their portion of Risk Management (PR #40 merged)
+2. The INT team is still working on integrating Risk Management with Paper Trading (PR #46 with failing tests)
+3. Attempting to rush the FE implementation before code freeze could introduce stability issues
+4. The current Dashboard UI functionality is stable and complete for the release
+
+**Implications:**
+- The May 10 release will include backend Risk Management but without a dedicated UI
+- Risk configuration will need to be done through configuration files rather than the UI
+- This will be documented clearly in the release notes
+- The feature will be prioritized for the next development cycle
+
+**Status:** Implemented
+**Related Issues:** #15
+
+---
+
 ## DEC-2025-05-07-01: Proceed with Final Pre-Release Testing and Risk Management Integration
 
 **Date:** 2025-05-07
