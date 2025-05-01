@@ -1,7 +1,7 @@
 <message>
 <sender>FE</sender>
-<recipient>PM</recipient>
-<cc>QA</cc>
+<recipient>QA</recipient>
+<cc>PM</cc>
 <type>PR_CREATED</type>
 <subject>PR #36 Created for Dashboard Order Status Tracking (Issue #12)</subject>
 <reference>#12, PR #36</reference>
