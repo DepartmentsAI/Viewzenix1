@@ -8,6 +8,7 @@ import Layout from './components/Layout';
 
 // Pages
 import Dashboard from './pages/Dashboard';
+import RiskManagement from './pages/RiskManagement';
 import Configurations from './pages/Configurations';
 import Logs from './pages/Logs';
 import NotFound from './pages/NotFound';
@@ -39,6 +40,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="risk-management" element={<RiskManagement />} />
           <Route path="configurations" element={<Configurations />} />
           <Route path="logs" element={<Logs />} />
           <Route path="*" element={<NotFound />} />
