@@ -19,11 +19,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import SecurityIcon from '@mui/icons-material/Security';
 
 const drawerWidth = 240;
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+  { text: 'Risk Management', icon: <SecurityIcon />, path: '/risk-management' },
   { text: 'Configurations', icon: <SettingsIcon />, path: '/configurations' },
   { text: 'Logs', icon: <AssessmentIcon />, path: '/logs' }
 ];
