@@ -27,4 +27,3 @@ I will be available throughout the testing phase and will respond promptly to an
 
 Best regards,
 BE Agent
-</message>
