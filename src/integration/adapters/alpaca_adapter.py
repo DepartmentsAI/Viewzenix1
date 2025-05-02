@@ -8,6 +8,7 @@ from src.integration.adapters.broker_adapter import BrokerAdapter
 from src.integration.utils.api_key_manager import ApiKeyManager
 from src.integration.utils.logger import IntegrationLogger
 from src.integration.utils.env_config import get_config_manager
+from src.integration.adapters.config import get_broker_config
 
 class AlpacaAdapter(BrokerAdapter):
     """Adapter for Alpaca Markets API.
@@ -31,86 +32,75 @@ class AlpacaAdapter(BrokerAdapter):
     # Delay between retries (seconds)
     RETRY_DELAY = 2
     
-    def __init__(self, use_paper: bool = True, logger: Optional[IntegrationLogger] = None):
-        """Initialize the Alpaca adapter.
+    def __init__(self, use_paper: bool = True, api_key: str = None, api_secret: str = None, 
+                 base_url: str = None, data_url: str = None, 
+                 logger: Optional[IntegrationLogger] = None):
+        """Initialize AlpacaAdapter with API credentials.
         
         Args:
-            use_paper: Whether to use paper trading API (True) or live trading API (False)
-            logger: Optional integration logger instance
+            use_paper: Whether to use paper trading (default: True)
+            api_key: Alpaca API key (default: from environment)
+            api_secret: Alpaca API secret (default: from environment)
+            base_url: Base URL for Alpaca API (default: from environment)
+            data_url: Data URL for Alpaca API (default: from environment)
+            logger: Optional logger instance
         """
-        self.use_paper = use_paper
-        self.base_url = self.PAPER_BASE_URL if use_paper else self.LIVE_BASE_URL
-        self.api_key = None
-        self.api_secret = None
-        self.authenticated = False
-        
-        # Initialize logger
+        # Initialize logger first to capture any configuration issues
         self.logger = logger or IntegrationLogger()
         
-        # Authenticate upon initialization
-        self.authenticate()
+        # Load configuration from BrokerConfig
+        alpaca_config = get_broker_config("alpaca")
+        
+        # Use provided values or fall back to config values
+        self.use_paper = use_paper if use_paper is not None else alpaca_config.get("paper_trading", True)
+        self.api_key = api_key or alpaca_config.get("api_key")
+        self.api_secret = api_secret or alpaca_config.get("api_secret")
+        self.base_url = base_url or alpaca_config.get("base_url")
+        self.data_url = data_url or alpaca_config.get("data_url")
+        
+        # Log configuration status (never log full secrets)
+        key_preview = "****" if not self.api_key else self.api_key[:4] + "****"
+        self.logger.log_info("alpaca_init", 
+                       f"AlpacaAdapter initialized: paper={self.use_paper}, key={key_preview}")
+        
+        # Initialize with unauthenticated status
+        self.authenticated = False
+        self.account_id = None
+        self.rest_api = None
+        self.stream = None
     
     def authenticate(self) -> bool:
-        """Authenticate with Alpaca API using environment variables.
-        
-        Loads API key and secret from environment variables and verifies them by making
-        a test request to the account endpoint.
+        """Authenticate with Alpaca API using provided credentials.
         
         Returns:
-            bool: True if authentication was successful, False otherwise
+            bool: True if authentication succeeded, False otherwise
         """
-        # First try to use the new config manager
         try:
-            config_manager = get_config_manager()
-            alpaca_config = config_manager.get_broker_config("alpaca")
-            
-            if alpaca_config and alpaca_config["api_key"] and alpaca_config["api_secret"]:
-                api_key = alpaca_config["api_key"]
-                api_secret = alpaca_config["api_secret"]
-                
-                # Use the base_url from config if available
-                if "base_url" in alpaca_config:
-                    self.base_url = alpaca_config["base_url"]
-                    
-                self.logger.log_info("config", "Using credentials from EnvConfigManager")
-            else:
-                # Fall back to the original method if new config doesn't have valid data
-                env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
-                env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
-                
-                # Load API keys
-                api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
-                self.logger.log_info("config", "Using credentials from ApiKeyManager fallback")
-        except Exception as e:
-            # If new config manager fails, fall back to original method
-            env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
-            env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
-            
-            # Load API keys
-            api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
-            self.logger.log_warning("config", f"Config manager error, using fallback: {str(e)}")
-        
-        if not ApiKeyManager.validate_api_keys(api_key, api_secret):
-            self.logger.log_error(
-                "auth_error", 
-                "Failed to load or validate Alpaca API keys from environment"
+            # Create the Alpaca REST API client
+            self.rest_api = REST(
+                key_id=self.api_key,
+                secret_key=self.api_secret,
+                base_url=self.base_url,
+                api_version='v2'
             )
-            return False
-        
-        self.api_key = api_key
-        self.api_secret = api_secret
-        
-        # Test authentication by getting account info
-        try:
-            response = self._make_request("GET", self.ACCOUNT_ENDPOINT, {})
-            if response and "account_number" in response:
-                self.authenticated = True
-                return True
-            else:
-                self.logger.log_error("auth_error", "Failed to authenticate with Alpaca API")
-                return False
+            
+            # Test authentication by getting account information
+            account = self.rest_api.get_account()
+            self.account_id = account.id
+            self.authenticated = True
+            
+            # Check if using demo credentials in production
+            using_demo = "demo_paper_key" in self.api_key or "demo_paper_secret" in self.api_secret
+            if using_demo and not self.use_paper:
+                self.logger.log_warning("alpaca_demo_in_prod", 
+                                 "Using demo credentials in production mode!")
+            
+            self.logger.log_info("alpaca_auth", f"Successfully authenticated with Alpaca as {account.id}")
+            return True
+            
         except Exception as e:
-            self.logger.log_error("auth_error", f"Exception during Alpaca authentication: {str(e)}")
+            self.authenticated = False
+            self.logger.log_error("alpaca_auth_failed", f"Authentication failed: {str(e)}")
             return False
     
     def place_market_order(self, symbol: str, qty: float, side: str, client_order_id: Optional[str] = None) -> Dict[str, Any]:
