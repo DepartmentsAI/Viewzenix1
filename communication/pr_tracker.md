@@ -43,3 +43,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 77  | PM/task/branch-cleanup-may8 | N/A | Merged | PM | ALL | 2025-05-08 |
 | 78  | PM/task/delete-merged-branches | N/A | Merged | PM | ALL | 2025-05-08 |
 | 83  | BE/feature/health-check-endpoints | N/A | Open | BE | PM, QA | 2025-05-08 |
+| 86  | BE/communication/testing-coordination | N/A | Open | BE | PM, QA, INT | 2025-05-08 |
