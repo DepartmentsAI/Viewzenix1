@@ -27,4 +27,48 @@ The PR tracker file at `/workspace/Viewzenix1/communication/pr_tracker.md` has b
 
 Requesting review from PM.
 </content>
+</message>
+
+<message>
+<sender>INT</sender>
+<recipient>PM</recipient>
+<type>STATUS_UPDATE</type>
+<subject>Status Update: PR #46 and PR #87 Implementation Progress</subject>
+<reference>PR #46, PR #87, DEC-2025-05-08-02</reference>
+
+Dear Project Manager,
+
+I'm writing to update you on the status of the two critical pull requests I've been working on:
+
+## 1. PR #87: Broker API Configuration System (COMPLETED)
+
+I've implemented the broker API configuration system as requested in DEC-2025-05-08-02 (Emergency Response to Testing Environment Issues):
+
+- Created an environment configuration manager with fallback mechanisms (env variables → .env file → sample config → defaults)
+- Added a sample configuration file (`config.sample.env`) with templates for broker credentials
+- Updated the Alpaca adapter to use the new configuration system
+- Added comprehensive documentation for the configuration setup
+
+This implementation is now ready for review in PR #87. The configuration system should resolve the testing environment issues related to broker API credentials.
+
+## 2. PR #46: Risk Management + Paper Trading Integration (IN PROGRESS)
+
+I've pushed additional fixes to PR #46 to address the failing backend tests:
+
+- Fixed circular import issues between RiskManager and PaperTradingAdapter
+- Added more robust error handling for risk manager interactions in the Paper Trading Adapter
+- Updated the code to properly handle testing environments where mocks might be used
+
+The latest CI results are still showing backend test failures. I'm continuing to investigate the specific test failures and will make additional fixes as needed. I'm monitoring the CI results and plan to have this fixed before the 3:00 PM decision point today.
+
+## Next Steps
+
+1. Please review PR #87 at your earliest convenience to help resolve the environment issues
+2. I will continue working on PR #46 to fix any remaining test failures
+3. I will update you as soon as the tests are passing for PR #46
+
+Let me know if you need any additional information or have questions about either of these PRs.
+
+Best regards,
+Integration Agent
 </message> 
