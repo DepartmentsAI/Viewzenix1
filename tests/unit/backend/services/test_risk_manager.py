@@ -10,6 +10,10 @@ from src.backend.services.risk_manager import RiskManager
 from src.backend.services.order_engine import OrderEngine
 from src.integration.adapters.broker_adapter import BrokerAdapter
 
+# Explicitly import the paper trading adapter to ensure it's properly loaded
+# This helps prevent circular import issues during testing
+from src.integration.adapters.paper_trading_adapter import PaperTradingAdapter
+
 
 class MockBrokerAdapter(BrokerAdapter):
     """Mock BrokerAdapter implementation for testing."""
