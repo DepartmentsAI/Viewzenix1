@@ -2,10 +2,13 @@
 Unit tests for the RiskManager class.
 """
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
+import sys
+import logging
 
+# Import the classes we're testing
 from src.backend.services.risk_manager import RiskManager
 from src.backend.services.order_engine import OrderEngine
 from src.integration.adapters.broker_adapter import BrokerAdapter
@@ -13,6 +16,11 @@ from src.integration.adapters.broker_adapter import BrokerAdapter
 # Explicitly import the paper trading adapter to ensure it's properly loaded
 # This helps prevent circular import issues during testing
 from src.integration.adapters.paper_trading_adapter import PaperTradingAdapter
+
+# Set up logging for tests
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class MockBrokerAdapter(BrokerAdapter):
