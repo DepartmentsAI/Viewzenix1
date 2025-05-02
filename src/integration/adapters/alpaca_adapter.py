@@ -7,6 +7,7 @@ import json
 from src.integration.adapters.broker_adapter import BrokerAdapter
 from src.integration.utils.api_key_manager import ApiKeyManager
 from src.integration.utils.logger import IntegrationLogger
+from src.integration.utils.env_config import get_config_manager
 
 class AlpacaAdapter(BrokerAdapter):
     """Adapter for Alpaca Markets API.
@@ -58,16 +59,41 @@ class AlpacaAdapter(BrokerAdapter):
         Returns:
             bool: True if authentication was successful, False otherwise
         """
-        env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
-        env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
-        
-        # Load API keys
-        api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
+        # First try to use the new config manager
+        try:
+            config_manager = get_config_manager()
+            alpaca_config = config_manager.get_broker_config("alpaca")
+            
+            if alpaca_config and alpaca_config["api_key"] and alpaca_config["api_secret"]:
+                api_key = alpaca_config["api_key"]
+                api_secret = alpaca_config["api_secret"]
+                
+                # Use the base_url from config if available
+                if "base_url" in alpaca_config:
+                    self.base_url = alpaca_config["base_url"]
+                    
+                self.logger.log_info("config", "Using credentials from EnvConfigManager")
+            else:
+                # Fall back to the original method if new config doesn't have valid data
+                env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
+                env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
+                
+                # Load API keys
+                api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
+                self.logger.log_info("config", "Using credentials from ApiKeyManager fallback")
+        except Exception as e:
+            # If new config manager fails, fall back to original method
+            env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
+            env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
+            
+            # Load API keys
+            api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
+            self.logger.log_warning("config", f"Config manager error, using fallback: {str(e)}")
         
         if not ApiKeyManager.validate_api_keys(api_key, api_secret):
             self.logger.log_error(
                 "auth_error", 
-                f"Failed to load or validate Alpaca API keys from environment: {env_key_name}, {env_secret_name}"
+                "Failed to load or validate Alpaca API keys from environment"
             )
             return False
         
