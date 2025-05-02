@@ -7,6 +7,7 @@ import json
 from src.integration.adapters.broker_adapter import BrokerAdapter
 from src.integration.utils.api_key_manager import ApiKeyManager
 from src.integration.utils.logger import IntegrationLogger
+from src.integration.utils.env_config import get_broker_config, get_config_value
 
 class AlpacaAdapter(BrokerAdapter):
     """Adapter for Alpaca Markets API.
@@ -58,16 +59,31 @@ class AlpacaAdapter(BrokerAdapter):
         Returns:
             bool: True if authentication was successful, False otherwise
         """
-        env_key_name = "ALPACA_PAPER_API_KEY" if self.use_paper else "ALPACA_LIVE_API_KEY"
-        env_secret_name = "ALPACA_PAPER_API_SECRET" if self.use_paper else "ALPACA_LIVE_API_SECRET"
+        # Get broker configuration from our new config utility
+        alpaca_config = get_broker_config('alpaca')
         
-        # Load API keys
-        api_key, api_secret = ApiKeyManager.load_api_keys_from_env(env_key_name, env_secret_name)
-        
-        if not ApiKeyManager.validate_api_keys(api_key, api_secret):
+        if not alpaca_config:
             self.logger.log_error(
                 "auth_error", 
-                f"Failed to load or validate Alpaca API keys from environment: {env_key_name}, {env_secret_name}"
+                "Failed to load Alpaca API configuration from any source"
+            )
+            return False
+        
+        # Use the appropriate keys based on paper/live mode
+        if self.use_paper:
+            api_key = alpaca_config.get('paper_api_key')
+            api_secret = alpaca_config.get('paper_api_secret')
+            config_source = alpaca_config.get('source', 'unknown')
+        else:
+            api_key = alpaca_config.get('live_api_key')
+            api_secret = alpaca_config.get('live_api_secret')
+            config_source = alpaca_config.get('source', 'unknown')
+        
+        # Check if we have valid keys
+        if not api_key or not api_secret or api_key.startswith('DEFAULT_PLACEHOLDER'):
+            self.logger.log_error(
+                "auth_error", 
+                f"Invalid Alpaca API keys from source: {config_source}"
             )
             return False
         
@@ -79,6 +95,10 @@ class AlpacaAdapter(BrokerAdapter):
             response = self._make_request("GET", self.ACCOUNT_ENDPOINT, {})
             if response and "account_number" in response:
                 self.authenticated = True
+                self.logger.log_info(
+                    "auth_success", 
+                    f"Authenticated with Alpaca API using credentials from {config_source}"
+                )
                 return True
             else:
                 self.logger.log_error("auth_error", "Failed to authenticate with Alpaca API")
