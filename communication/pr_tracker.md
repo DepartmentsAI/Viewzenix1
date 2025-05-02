@@ -12,8 +12,34 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 16  | BE/feature/10-order-execution-engine | #10 | Merged | BE | PM, INT | 2025-05-02 |
 | 26  | BE/feature/15-risk-management | #15 | Merged | BE | PM, QA, INT | 2025-05-03 |
 | 27  | INT/feature/13-paper-trading-adapter | #13 | Merged | INT | PM | 2025-05-03 |
-| 30  | QA/feature/15-risk-management-tests | #15 | Open | QA | PM, BE | 2025-05-04 |
+| 30  | QA/feature/15-risk-management-tests | #15 | Merged | QA | PM, BE | 2025-05-04 |
+| 32  | PM/task/issue-updates-may5 | N/A | Closed | PM | - | 2025-05-08 |
+| 34  | PM/feature/release-prep | N/A | Closed | PM | - | 2025-05-08 |
+| 35  | PM/feature/release-prep | N/A | Closed | PM | - | 2025-05-08 |
 | 36  | FE/feature/12-dashboard-order-tracking | #12 | Merged | FE | PM | 2025-05-06 |
 | 37  | QA/feature/14-order-execution-tests | #14 | Merged | QA | PM | 2025-05-07 |
 | 38  | PM/task/release-update-may6 | #14 | Merged | PM | ALL | 2025-05-06 |
-| 40  | BE/feature/15-risk-management-system | #15 | Open | BE | PM | 2025-05-07 |
+| 39  | PM/task/release-update-may6 | N/A | Merged | PM | ALL | 2025-05-08 |
+| 40  | BE/feature/15-risk-management-system | #15 | Merged | BE | PM, QA | 2025-05-07 |
+| 44  | FE/communication/release-readiness-confirmation | N/A | Merged | FE | PM | 2025-05-07 |
+| 45  | QA/test/final-testing-prep | #14 | Merged | QA | PM | 2025-05-07 |
+| 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | Ready for Review | INT | PM | 2025-05-09 |
+| 55  | FE/docs/ui-documentation | N/A | Closed | FE | - | 2025-05-08 |
+| 56  | FE/docs/ui-documentation-and-messages | N/A | Merged | FE | PM | 2025-05-08 |
+| 58  | PM/task/may8-cleanup | N/A | Merged | PM | ALL | 2025-05-08 |
+| 59  | BE/communication/testing-phase-may8 | N/A | Merged | BE | PM, QA | 2025-05-08 |
+| 60  | BE/communication/may8-testing-response | DEC-2025-05-08-01 | Merged | BE | PM | 2025-05-08 |
+| 61  | FE/communication/testing-phase-support | N/A | Merged | FE | PM, QA | 2025-05-08 |
+| 63  | BE/communication/may8-testing-response-v3 | N/A | Merged | BE | PM | 2025-05-08 |
+| 64  | QA/test/environment-readiness-check | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-08 |
+| 65  | QA/task/update-pr-tracker | N/A | Merged | QA | PM | 2025-05-08 |
+| 66  | FE/communication/testing-comms-update | N/A | Open | FE | PM, QA | 2025-05-08 |
+| 68  | PM/chore/emergency-env-fix-docs | N/A | Merged | PM | ALL | 2025-05-08 |
+| 70  | QA/task/webhook-test-fixtures | N/A | Merged | QA | PM | 2025-05-08 |
+| 71  | PM/feature/user-stories | N/A | Merged | PM | ALL | 2025-05-08 |
+| 72  | INT/fix/broker-config | DEC-2025-05-08-02 | Open | INT | PM, QA | 2025-05-08 |
+| 73  | PM/task/may8-pr-updates | N/A | Merged | PM | - | 2025-05-08 |
+| 75  | PM/task/merge-branches-batch1 | N/A | Merged | PM | - | 2025-05-08 |
+| 77  | PM/task/branch-cleanup-may8 | N/A | Merged | PM | ALL | 2025-05-08 |
+| 78  | PM/task/delete-merged-branches | N/A | Merged | PM | ALL | 2025-05-08 |
+| 87  | INT/fix/broker-environment-config | DEC-2025-05-08-02 | Ready for Review | INT | PM, QA | 2025-05-09 |
