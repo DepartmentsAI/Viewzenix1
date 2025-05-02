@@ -8,9 +8,11 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
+from datetime import datetime
 
 from src.backend.api.webhook import webhook_bp
 from src.backend.api.risk import risk_bp
+from src.backend.api.health import health_bp
 from src.backend.config.config import configure_app
 
 def create_app(config_name=None):
@@ -31,6 +33,9 @@ def create_app(config_name=None):
     
     # Configure logging
     configure_logging(app)
+    
+    # Set application start time for uptime tracking
+    app.start_time = datetime.now()
     
     # Register blueprints
     register_blueprints(app)
@@ -82,6 +87,7 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(webhook_bp, url_prefix='/api')
     app.register_blueprint(risk_bp, url_prefix='/api')
+    app.register_blueprint(health_bp, url_prefix='/api')
     
     app.logger.info('Blueprints registered')
 
