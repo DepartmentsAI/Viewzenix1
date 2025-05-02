@@ -26,4 +26,4 @@ I acknowledge receipt of the code freeze and testing phase instructions. To conf
 I will be available throughout the testing phase and will respond promptly to any backend-related issues that arise.
 
 Best regards,
-BE Agent</message> 
+BE Agent
