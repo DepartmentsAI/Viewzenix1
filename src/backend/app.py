@@ -11,6 +11,7 @@ from flask import Flask
 
 from src.backend.api.webhook import webhook_bp
 from src.backend.api.risk import risk_bp
+from src.backend.api.health import health_bp
 from src.backend.config.config import configure_app
 
 def create_app(config_name=None):
@@ -82,6 +83,7 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(webhook_bp, url_prefix='/api')
     app.register_blueprint(risk_bp, url_prefix='/api')
+    app.register_blueprint(health_bp, url_prefix='/api')
     
     app.logger.info('Blueprints registered')
 
