@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from '../src/config';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = config.api.baseUrl;
 
 /**
  * Fetch all orders with optional filters
