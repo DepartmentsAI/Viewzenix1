@@ -71,6 +71,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
+| 116 | FE/fix/frontend-environment-unavailable | DEC-2025-05-10-01 | Open | FE | PM, QA | 2025-05-10 |
 
 ## PR #98: Risk Management UI Integration 
 
@@ -78,3 +79,10 @@ This document tracks all pull requests in the Viewzenix1 project.
 **Related to**: PR #90  
 **Status**: Open  
 **Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
+
+## PR #116: Frontend Environment Accessibility Fix
+
+**Branch**: FE/fix/frontend-environment-unavailable  
+**Related to**: QA Issue Report Msg-QA-To-FE-Seq001-May9  
+**Status**: Open  
+**Summary**: Addresses the critical issue where the frontend application was not accessible on port 3000. Fixes include centralized configuration through `config.js`, explicit port binding, specialized startup scripts for Windows environments, and comprehensive documentation for environment setup and troubleshooting.
