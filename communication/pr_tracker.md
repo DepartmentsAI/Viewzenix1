@@ -72,5 +72,6 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
+| 117 | QA/test/16-contingency-plan | #14 | Open | QA | PM, BE, FE, INT | 2025-05-10 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
