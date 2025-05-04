@@ -33,7 +33,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 63  | BE/communication/may8-testing-response-v3 | N/A | Merged | BE | PM | 2025-05-08 |
 | 64  | QA/test/environment-readiness-check | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-08 |
 | 65  | QA/task/update-pr-tracker | N/A | Merged | QA | PM | 2025-05-08 |
-| 66  | FE/communication/testing-comms-update | N/A | Open | FE | PM, QA | 2025-05-08 |
+| 66  | FE/communication/testing-comms-update | N/A | Closed | FE | PM, QA | 2025-05-09 |
 | 68  | PM/chore/emergency-env-fix-docs | N/A | Merged | PM | ALL | 2025-05-08 |
 | 70  | QA/task/webhook-test-fixtures | N/A | Merged | QA | PM | 2025-05-08 |
 | 71  | PM/feature/user-stories | N/A | Merged | PM | ALL | 2025-05-08 |
@@ -44,9 +44,9 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 78  | PM/task/delete-merged-branches | N/A | Merged | PM | ALL | 2025-05-08 |
 | 79  | PM/task/update-pr-tracker-final | N/A | Merged | PM | - | 2025-05-08 |
 | 80  | PM/task/final-cleanup-summary | N/A | Merged | PM | ALL | 2025-05-08 |
-| 80  | FE/fix/frontend-environment | DEC-2025-05-08-02 | Open | FE | PM, QA | 2025-05-08 |
-| 82  | QA/task/update-pr-tracker-verification-tools | N/A | Open | QA | PM | 2025-05-08 |
-| 83  | BE/task/restore-communication-files | N/A | Open | BE | PM | 2025-05-08 |
+| 80  | FE/fix/frontend-environment | DEC-2025-05-08-02 | Closed | FE | PM, QA | 2025-05-09 |
+| 82  | QA/task/update-pr-tracker-verification-tools | N/A | Closed | QA | PM | 2025-05-09 |
+| 83  | BE/task/restore-communication-files | N/A | Closed | BE | PM | 2025-05-09 |
 | 84  | FE/communication/user-stories-response | N/A | Merged | FE | PM, QA | 2025-05-09 |
 | 85  | BE/task/restore-communication-files | N/A | Closed | BE | PM | 2025-05-09 |
 | 86  | BE/communication/pr83-notifications | N/A | Closed | BE | PM | 2025-05-09 |
@@ -63,9 +63,11 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 99  | BE/feature/health-api-docs-and-utils | N/A | Open | BE | PM | 2025-05-09 |
 | 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
 | 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
-| 104 | QA/test/14-contingency-testing | #14 | Open | QA | PM | 2025-05-09 |
-| 105 | BE/update/pr-tracker-and-notifications | N/A | Open | BE | PM | 2025-05-09 |
+| 104 | QA/test/14-contingency-testing | #14 | Merged | QA | PM | 2025-05-09 |
+| 105 | BE/update/pr-tracker-and-notifications | N/A | Closed | BE | PM | 2025-05-09 |
 | 106 | PM/task/contingency-decision | DEC-2025-05-09-02 | Merged | PM | ALL | 2025-05-09 |
 | 107 | PM/docs/environment-restoration-checklist | DEC-2025-05-09-02 | Merged | PM | ALL | 2025-05-09 |
 | 108 | PM/task/may9-pr-tracker-update | DEC-2025-05-09-02 | Merged | PM | ALL | 2025-05-09 |
-| 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Open | PM | ALL | 2025-05-09 |
+| 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
+| 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
+| 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
