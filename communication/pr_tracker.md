@@ -58,3 +58,11 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 92  | BE/communication/testing-coordination | N/A | Merged | BE | PM | 2025-05-09 |
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
+| 98  | FE/feature/risk-management-integration | PR #90 | Open | FE | PM, QA | 2025-05-09 |
+
+## PR #98: Risk Management UI Integration 
+
+**Branch**: FE/feature/risk-management-integration  
+**Related to**: PR #90  
+**Status**: Open  
+**Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
