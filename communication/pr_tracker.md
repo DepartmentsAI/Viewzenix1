@@ -66,3 +66,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 104 | QA/test/14-contingency-testing | #14 | Open | QA | PM | 2025-05-09 |
 | 105 | BE/update/pr-tracker-and-notifications | N/A | Open | BE | PM | 2025-05-09 |
 | 106 | PM/task/contingency-decision | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-09 |
+| 107 | PM/docs/environment-restoration-checklist | DEC-2025-05-09-02 | Merged | PM | ALL | 2025-05-09 |
