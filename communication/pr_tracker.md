@@ -75,6 +75,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 112 | FE/feature/notification-system | N/A | Open | FE | PM, QA | 2025-05-10 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
+| 122 | FE/fix/frontend-environment-startup | N/A | Open | FE | PM, QA | 2025-05-10 |
 
 ## PR #98: Risk Management UI Integration 
 
@@ -110,3 +111,18 @@ This document tracks all pull requests in the Viewzenix1 project.
    - Comprehensive unit tests
 
 These improvements make the frontend more robust, consistent across different environments, and provide a better developer and user experience.
+
+## PR #122: Fix Frontend Environment and Startup Issues
+
+**Branch**: FE/fix/frontend-environment-startup  
+**Status**: Open  
+**Summary**: Addresses the frontend application unavailability issues reported by QA (in Msg-QA-To-FE-Seq001-May9) that were blocking testing efforts. This PR adds:
+
+1. Cross-platform startup scripts (PowerShell, Batch, and Shell)
+2. Centralized configuration system (config.js)
+3. Docker support for development and production
+4. Health check utility to diagnose common issues
+5. Browser compatibility checking
+6. Detailed environment setup documentation
+
+These changes ensure the frontend can be started reliably across different environments and platforms.
