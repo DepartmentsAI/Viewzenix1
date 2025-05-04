@@ -44,6 +44,24 @@ class IntegrationLogger:
             console_handler.setFormatter(formatter)
             self.logger.addHandler(console_handler)
     
+    def log_info(self, log_type: str, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+        """Log informational messages.
+        
+        Args:
+            log_type: Type of information being logged
+            message: Informational message
+            details: Optional additional details
+        """
+        self._log_json_event(
+            event_type="info",
+            data={
+                "log_type": log_type,
+                "message": message,
+                "details": details or {}
+            }
+        )
+        self.logger.info(f"{log_type}: {message}")
+    
     def log_webhook(self, payload: Dict[str, Any], status_code: int, response: Dict[str, Any]) -> None:
         """Log incoming webhook request and response.
         
