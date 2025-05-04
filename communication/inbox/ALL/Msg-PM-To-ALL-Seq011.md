@@ -35,4 +35,42 @@ Thank you all for your continued dedication to this project. We're very close to
 
 Best regards,
 Project Manager
+</message>
+
+<message>
+<sender>PM</sender>
+<recipient>ALL</recipient>
+<type>INFO</type>
+<subject>Proposed Improvements to Alpaca API Integration</subject>
+<reference>DEC-2025-05-09-04</reference>
+
+Dear Team,
+
+I've conducted research and analysis of our current Alpaca API integration and have identified several potential improvements to enhance reliability, security, and performance. These improvements have been documented in detail at:
+
+`/workspace/Viewzenix1/docs/integration/ALPACA_INTEGRATION_IMPROVEMENTS.md`
+
+Key improvements include:
+
+1. **WebSocket Integration**: Add real-time data streaming support for account updates, order status, and market data 
+2. **Enhanced Error Handling**: Implement more sophisticated error handling and rate limiting awareness
+3. **Comprehensive Testing**: Develop a test suite for the Alpaca integration using mock responses
+4. **Historical Data Support**: Add support for fetching historical market data for backtesting
+5. **Security Enhancements**: Strengthen security around API credentials and sensitive data handling
+6. **Documentation & Examples**: Create comprehensive documentation and usage examples
+
+As a proof of concept, I've implemented a skeleton for the WebSocket integration:
+- `/workspace/Viewzenix1/src/integration/adapters/alpaca_stream_adapter.py` 
+- `/workspace/Viewzenix1/src/integration/examples/websocket_example.py`
+
+**Action Requested:**
+- **INT Team**: Please review the proposed improvements and provide feedback, particularly on the WebSocket implementation
+- **BE Team**: Evaluate how these improvements would integrate with the backend services
+- **FE Team**: Consider how real-time data features could enhance the UI experience
+- **QA Team**: Review the testing approach and suggest additional test scenarios
+
+This is an open proposal for discussion. Please provide your feedback by creating a message in my inbox with type `QUERY_RESPONSE` and reference to this message.
+
+Best regards,
+PM
 </message> 

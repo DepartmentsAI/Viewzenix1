@@ -94,6 +94,55 @@ The Trading Webhook Platform is a broker-agnostic trade execution system that re
 - Comprehensive documentation
 - Clean, testable code
 
+## Alpaca API Integration Enhancements
+
+### 1. WebSocket Integration 
+
+- **Purpose**: Provide real-time data streaming and reduce API request volume
+- **Requirements**:
+  - Connect to Alpaca WebSocket API for account updates
+  - Stream real-time trade data for monitored assets
+  - Maintain reconnection logic for connection drops
+  - Implement heartbeat monitor for connection health
+  - Support paper and live trading environments
+
+### 2. Enhanced Error Handling
+
+- **Purpose**: Improve reliability and fault tolerance
+- **Requirements**:
+  - Implement custom exception classes for different error types
+  - Add exponential backoff for API retries
+  - Track API rate limits and adjust request timing
+  - Implement circuit breaker pattern for persistent failures
+  - Provide detailed error logs for debugging
+
+### 3. Historical Data Support
+
+- **Purpose**: Enable backtesting and analysis
+- **Requirements**:
+  - Retrieve OHLCV data for various timeframes
+  - Support efficient caching for frequently accessed data
+  - Provide CSV export for analytical tools
+  - Implement data normalization for different asset types
+
+### 4. Security Enhancements
+
+- **Purpose**: Protect API credentials and sensitive data
+- **Requirements**:
+  - Implement credential encryption at rest
+  - Add API key rotation capabilities
+  - Enhance access logging for all API interactions
+  - Support for IP-based access restrictions
+
+### 5. Comprehensive Testing
+
+- **Purpose**: Ensure reliability and proper functionality
+- **Requirements**:
+  - Create mock response fixtures for API scenarios
+  - Test error handling and recovery logic
+  - Validate order flow from creation to execution
+  - Test WebSocket reconnection scenarios
+
 ## Future Enhancements
 
 1. Multi-tenant workspaces

@@ -331,3 +331,32 @@ The final verification report identified critical environment issues preventing 
 
 **Status:** Implemented
 **Related Issues:** PR #100, DEC-2025-05-09-02 
+
+## DEC-2025-05-09-04: Alpaca API Integration Improvements
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM
+**Context:** 
+Now that we have successfully implemented the Alpaca API integration with the API credentials provided, there's an opportunity to enhance the integration for better reliability, performance, and security. The current implementation works but could benefit from improvements identified through research and analysis of best practices.
+
+**Decision:** 
+1. Develop a comprehensive improvement plan for the Alpaca API integration
+2. Create a proof-of-concept implementation for WebSocket support
+3. Document the proposed improvements and implementation plan
+4. Gather feedback from all teams before proceeding with implementation
+
+**Rationale:**
+1. The current implementation meets basic requirements but lacks real-time data streaming capabilities
+2. Adding WebSocket support would reduce API request volume and provide real-time updates
+3. Enhanced error handling and security measures are needed for a production environment
+4. A well-documented implementation plan will allow for coordinated development
+
+**Implications:**
+- Integration Team will need to review and provide feedback on the proposed improvements
+- Backend Team should evaluate how these improvements integrate with existing services
+- Frontend Team should consider how real-time data could enhance the UI
+- QA Team should prepare to test the new functionalities
+
+**Status:** Proposed
+**Related Issues:** N/A (New initiative) 
