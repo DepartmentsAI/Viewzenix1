@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -24,52 +24,25 @@ import {
   TableHead,
   TableRow,
   Chip,
-  LinearProgress
+  LinearProgress,
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import SecurityIcon from '@mui/icons-material/Security';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
-// Mock data for active orders with SL/TP
-const mockActiveOrders = [
-  { 
-    id: 'ord-1', 
-    symbol: 'BTCUSD', 
-    type: 'LONG', 
-    entryPrice: 65000, 
-    quantity: 0.1,
-    slPrice: 63500,
-    tpPrice: 68000,
-    slPercent: -2.3,
-    tpPercent: 4.6,
-    status: 'active'
-  },
-  { 
-    id: 'ord-2', 
-    symbol: 'ETHUSD', 
-    type: 'SHORT', 
-    entryPrice: 3200, 
-    quantity: 1.5,
-    slPrice: 3360,
-    tpPrice: 2900,
-    slPercent: -5.0,
-    tpPercent: 9.4,
-    status: 'active'
-  },
-  { 
-    id: 'ord-3', 
-    symbol: 'AAPL', 
-    type: 'LONG', 
-    entryPrice: 186.5, 
-    quantity: 10,
-    slPrice: 180.0,
-    tpPrice: 195.0,
-    slPercent: -3.5,
-    tpPercent: 4.6,
-    status: 'sl_triggered'
-  }
-];
+// Import risk management service
+import { 
+  fetchRiskSettings, 
+  updateRiskSettings, 
+  fetchRiskMetrics, 
+  fetchOrdersWithRiskParams,
+  updateOrderRiskParams,
+  getRiskLevelInfo,
+  executeEmergencyStop
+} from '../services/riskManagementService';
 
 // Risk thresholds
 const RISK_THRESHOLDS = {
@@ -80,26 +53,141 @@ const RISK_THRESHOLDS = {
 
 function RiskManagement() {
   const [tab, setTab] = useState(0);
-  const [baseEquity, setBaseEquity] = useState(100000);
-  const [currentEquity, setCurrentEquity] = useState(105200);
-  const [riskExposure, setRiskExposure] = useState(35); // percent
   
-  // Default per-order SL/TP settings
+  // Data states
+  const [riskSettings, setRiskSettings] = useState(null);
+  const [riskMetrics, setRiskMetrics] = useState(null);
+  const [ordersWithRisk, setOrdersWithRisk] = useState([]);
+  
+  // UI states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+  
+  // Form states (initialized from API data)
+  const [baseEquity, setBaseEquity] = useState(100000);
   const [attachSlTp, setAttachSlTp] = useState(true);
   const [useAvgFillForSlTp, setUseAvgFillForSlTp] = useState(true);
   const [slPercent, setSlPercent] = useState(1.0);
   const [tpPercent, setTpPercent] = useState(2.0);
-  
-  // Global SL/TP settings
   const [enableGlobalSlTp, setEnableGlobalSlTp] = useState(true);
   const [globalSlPercent, setGlobalSlPercent] = useState(20);
   const [globalTpPercent, setGlobalTpPercent] = useState(50);
+  const [maxPositionSize, setMaxPositionSize] = useState(5);
+
+  useEffect(() => {
+    // Load data when component mounts
+    loadRiskData();
+  }, []);
+
+  // Handle loading all risk management data
+  const loadRiskData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Fetch settings, metrics, and orders in parallel
+      const [settingsData, metricsData, ordersData] = await Promise.all([
+        fetchRiskSettings(),
+        fetchRiskMetrics(),
+        fetchOrdersWithRiskParams()
+      ]);
+      
+      // Update state with fetched data
+      setRiskSettings(settingsData);
+      setRiskMetrics(metricsData);
+      setOrdersWithRisk(ordersData);
+      
+      // Initialize form states with fetched settings
+      if (settingsData) {
+        setBaseEquity(settingsData.baseEquity || 100000);
+        setAttachSlTp(settingsData.attachSlTp !== undefined ? settingsData.attachSlTp : true);
+        setUseAvgFillForSlTp(settingsData.useAvgFillForSlTp !== undefined ? settingsData.useAvgFillForSlTp : true);
+        setSlPercent(settingsData.slPercent || 1.0);
+        setTpPercent(settingsData.tpPercent || 2.0);
+        setEnableGlobalSlTp(settingsData.enableGlobalSlTp !== undefined ? settingsData.enableGlobalSlTp : true);
+        setGlobalSlPercent(settingsData.globalSlPercent || 20);
+        setGlobalTpPercent(settingsData.globalTpPercent || 50);
+        setMaxPositionSize(settingsData.maxPositionSize || 5);
+      }
+    } catch (err) {
+      console.error("Error loading risk data:", err);
+      setError("Failed to load risk management data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save default order settings
+  const saveOrderSettings = async () => {
+    setSaveLoading(true);
+    try {
+      const settings = {
+        attachSlTp,
+        useAvgFillForSlTp,
+        slPercent,
+        tpPercent
+      };
+      
+      await updateRiskSettings(settings);
+      
+      setNotification({
+        open: true,
+        message: 'Default order settings saved successfully',
+        severity: 'success'
+      });
+    } catch (err) {
+      console.error("Error saving order settings:", err);
+      setNotification({
+        open: true,
+        message: 'Failed to save settings. Please try again.',
+        severity: 'error'
+      });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
   
-  // Position size limits
-  const [maxPositionSize, setMaxPositionSize] = useState(5); // percent of equity
+  // Save global risk parameters
+  const saveGlobalSettings = async () => {
+    setSaveLoading(true);
+    try {
+      const settings = {
+        baseEquity,
+        enableGlobalSlTp,
+        globalSlPercent,
+        globalTpPercent,
+        maxPositionSize
+      };
+      
+      await updateRiskSettings(settings);
+      
+      setNotification({
+        open: true,
+        message: 'Global risk parameters saved successfully',
+        severity: 'success'
+      });
+    } catch (err) {
+      console.error("Error saving global settings:", err);
+      setNotification({
+        open: true,
+        message: 'Failed to save settings. Please try again.',
+        severity: 'error'
+      });
+    } finally {
+      setSaveLoading(false);
+    }
+  };
   
+  // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
+  };
+  
+  // Handle notification close
+  const handleNotificationClose = () => {
+    setNotification({ ...notification, open: false });
   };
   
   // Get severity based on risk level
@@ -108,6 +196,32 @@ function RiskManagement() {
     if (value <= RISK_THRESHOLDS.MEDIUM) return 'warning';
     return 'error';
   };
+
+  // Display loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Loading risk management data...
+        </Typography>
+      </Box>
+    );
+  }
+  
+  // Display error state
+  if (error) {
+    return (
+      <Box>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+        <Button variant="contained" onClick={loadRiskData}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -136,14 +250,27 @@ function RiskManagement() {
                 <CardHeader title="Portfolio Value" />
                 <CardContent>
                   <Typography variant="h4" sx={{ textAlign: 'center' }}>
-                    ${currentEquity.toLocaleString()}
+                    ${riskMetrics?.currentEquity.toLocaleString() || '0'}
                   </Typography>
-                  <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-                    <TrendingUpIcon color="success" />
-                    <Typography variant="body2" color="success.main">
-                      +{((currentEquity - baseEquity) / baseEquity * 100).toFixed(2)}% from base
-                    </Typography>
-                  </Box>
+                  {riskMetrics && (
+                    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+                      {riskMetrics.equityChange >= 0 ? (
+                        <>
+                          <TrendingUpIcon color="success" />
+                          <Typography variant="body2" color="success.main">
+                            +{riskMetrics.equityChangePercent.toFixed(2)}% from base
+                          </Typography>
+                        </>
+                      ) : (
+                        <>
+                          <TrendingDownIcon color="error" />
+                          <Typography variant="body2" color="error.main">
+                            {riskMetrics.equityChangePercent.toFixed(2)}% from base
+                          </Typography>
+                        </>
+                      )}
+                    </Box>
+                  )}
                 </CardContent>
               </Card>
             </Grid>
@@ -154,16 +281,16 @@ function RiskManagement() {
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
                     <Typography variant="h4">
-                      {riskExposure}%
+                      {riskMetrics?.riskExposure || 0}%
                     </Typography>
                   </Box>
                   <LinearProgress 
                     variant="determinate" 
-                    value={riskExposure} 
-                    color={getRiskSeverity(riskExposure)}
+                    value={riskMetrics?.riskExposure || 0} 
+                    color={getRiskSeverity(riskMetrics?.riskExposure || 0)}
                     sx={{ height: 10, borderRadius: 5 }}
                   />
-                  {riskExposure > RISK_THRESHOLDS.MEDIUM && (
+                  {riskMetrics?.riskExposure > RISK_THRESHOLDS.MEDIUM && (
                     <Alert severity="warning" sx={{ mt: 2 }}>
                       <Typography variant="body2">
                         Risk exposure is approaching your defined limits
@@ -178,7 +305,7 @@ function RiskManagement() {
               <Card>
                 <CardHeader title="Global SL/TP Status" />
                 <CardContent sx={{ textAlign: 'center' }}>
-                  {enableGlobalSlTp ? (
+                  {riskSettings?.enableGlobalSlTp ? (
                     <>
                       <Chip 
                         label="Enabled" 
@@ -191,7 +318,7 @@ function RiskManagement() {
                             SL Threshold
                           </Typography>
                           <Typography variant="body1">
-                            ${(baseEquity * (1 - globalSlPercent / 100)).toLocaleString()}
+                            ${((riskSettings?.baseEquity || 0) * (1 - (riskSettings?.globalSlPercent || 0) / 100)).toLocaleString()}
                           </Typography>
                         </Box>
                         <Box>
@@ -199,7 +326,7 @@ function RiskManagement() {
                             TP Threshold
                           </Typography>
                           <Typography variant="body1">
-                            ${(baseEquity * (1 + globalTpPercent / 100)).toLocaleString()}
+                            ${((riskSettings?.baseEquity || 0) * (1 + (riskSettings?.globalTpPercent || 0) / 100)).toLocaleString()}
                           </Typography>
                         </Box>
                       </Box>
@@ -237,31 +364,39 @@ function RiskManagement() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {mockActiveOrders.map((order) => (
-                        <TableRow key={order.id} hover>
-                          <TableCell><strong>{order.symbol}</strong></TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={order.type} 
-                              color={order.type === 'LONG' ? 'success' : 'error'} 
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>${order.entryPrice}</TableCell>
-                          <TableCell>{order.quantity}</TableCell>
-                          <TableCell>${order.slPrice}</TableCell>
-                          <TableCell>${order.tpPrice}</TableCell>
-                          <TableCell sx={{ color: 'error.main' }}>{order.slPercent}%</TableCell>
-                          <TableCell sx={{ color: 'success.main' }}>+{order.tpPercent}%</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={order.status === 'active' ? 'Active' : 'SL Triggered'} 
-                              color={order.status === 'active' ? 'primary' : 'error'} 
-                              size="small"
-                            />
+                      {ordersWithRisk.length > 0 ? (
+                        ordersWithRisk.map((order) => (
+                          <TableRow key={order.id} hover>
+                            <TableCell><strong>{order.symbol}</strong></TableCell>
+                            <TableCell>
+                              <Chip 
+                                label={order.type} 
+                                color={order.type === 'LONG' ? 'success' : 'error'} 
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell>${order.entryPrice}</TableCell>
+                            <TableCell>{order.quantity}</TableCell>
+                            <TableCell>${order.slPrice}</TableCell>
+                            <TableCell>${order.tpPrice}</TableCell>
+                            <TableCell sx={{ color: 'error.main' }}>{order.slPercent}%</TableCell>
+                            <TableCell sx={{ color: 'success.main' }}>+{order.tpPercent}%</TableCell>
+                            <TableCell>
+                              <Chip 
+                                label={order.status === 'active' ? 'Active' : order.status} 
+                                color={order.status === 'active' ? 'primary' : 'error'} 
+                                size="small"
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={9} align="center">
+                            No active orders with SL/TP
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -362,8 +497,13 @@ function RiskManagement() {
             </Grid>
             
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button variant="contained" color="primary">
-                Save Default Settings
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={saveOrderSettings}
+                disabled={saveLoading}
+              >
+                {saveLoading ? <CircularProgress size={24} /> : 'Save Default Settings'}
               </Button>
             </Box>
           </Paper>
@@ -578,8 +718,8 @@ function RiskManagement() {
                     Example Position Sizes
                   </Typography>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Typography variant="body2">At current equity (${currentEquity.toLocaleString()}):</Typography>
-                    <Typography variant="body2">${Math.round(currentEquity * maxPositionSize / 100).toLocaleString()}</Typography>
+                    <Typography variant="body2">At current equity (${riskMetrics?.currentEquity.toLocaleString() || '0'}):</Typography>
+                    <Typography variant="body2">${Math.round((riskMetrics?.currentEquity || 0) * maxPositionSize / 100).toLocaleString()}</Typography>
                   </Box>
                   <Divider sx={{ my: 1 }} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -592,12 +732,62 @@ function RiskManagement() {
           </Paper>
           
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="contained" color="primary">
-              Save Global Risk Parameters
+            <Button 
+              variant="outlined" 
+              color="error" 
+              sx={{ mr: 2 }} 
+              onClick={() => {
+                if (window.confirm('WARNING: This will close ALL open positions. Are you sure?')) {
+                  executeEmergencyStop()
+                    .then(() => {
+                      setNotification({
+                        open: true,
+                        message: 'Emergency stop executed. All positions closed.',
+                        severity: 'success'
+                      });
+                      loadRiskData(); // Refresh data
+                    })
+                    .catch(err => {
+                      console.error("Error executing emergency stop:", err);
+                      setNotification({
+                        open: true,
+                        message: 'Failed to execute emergency stop. Please try again.',
+                        severity: 'error'
+                      });
+                    });
+                }
+              }}
+            >
+              Emergency Stop (Close All Positions)
+            </Button>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={saveGlobalSettings}
+              disabled={saveLoading}
+            >
+              {saveLoading ? <CircularProgress size={24} /> : 'Save Global Risk Parameters'}
             </Button>
           </Box>
         </Box>
       )}
+      
+      {/* Notification */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleNotificationClose}
+        message={notification.message}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleNotificationClose} 
+          severity={notification.severity} 
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
