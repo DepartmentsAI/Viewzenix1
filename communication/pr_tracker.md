@@ -59,3 +59,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
 | 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
+| 103 | BE/fix/integration-logger-missing-method | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
