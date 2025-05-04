@@ -303,3 +303,31 @@ With the May 10 release approaching, several PRs related to communication, docum
 
 **Status:** Implemented
 **Related PRs:** #92, #84 
+
+---
+
+## DEC-2025-05-09-03: Adding Alpaca API Credentials to Environment Configuration
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM
+**Context:** 
+The final verification report identified critical environment issues preventing testing, including missing API credentials for the Alpaca trading platform. Proper credentials were needed for the integration tests and for validating the trading features.
+
+**Decision:** 
+1. Add the provided Alpaca paper trading API credentials to the project's environment configuration files (`.env` at root and `src/integration/.env`)
+2. Document the credentials in a message to all teams
+3. Instruct teams to use these credentials for their respective environment verification and testing
+
+**Rationale:**
+- The Alpaca paper trading account has $100,000 in simulated funds, which is sufficient for all testing scenarios
+- Using a shared set of credentials ensures consistency across environments
+- The paper trading account prevents any real money from being at risk
+
+**Implications:**
+- All teams can now complete their environment setup and testing
+- Integration testing with the Alpaca API can proceed
+- The broker-related environment issues identified in the verification report should be resolved
+
+**Status:** Implemented
+**Related Issues:** PR #100, DEC-2025-05-09-02 
