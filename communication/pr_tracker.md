@@ -60,7 +60,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
 | 95  | PM/task/update-docs-and-tasks | None | Merged | PM | None | 2025-05-08 |
 | 97  | BE/fix/integration-logger | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
-| 98  | FE/feature/risk-management-integration | N/A | Open | FE | PM | 2025-05-09 |
+| 98  | FE/feature/risk-management-integration | PR #90 | Open | FE | PM, QA | 2025-05-10 |
 | 99  | BE/feature/health-api-docs-and-logger-fix | #46 | Open | BE | PM, INT | 2025-05-09 |
 | 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
 | 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
@@ -74,3 +74,10 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
+
+## PR #98: Risk Management UI Integration 
+
+**Branch**: FE/feature/risk-management-integration  
+**Related to**: PR #90  
+**Status**: Open  
+**Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
