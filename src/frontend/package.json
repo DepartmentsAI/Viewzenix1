@@ -18,9 +18,16 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:windows": "set PORT=3000 && react-scripts start",
+    "start:unix": "PORT=3000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "healthcheck": "node healthcheck.js",
+    "docker:build": "docker build -t viewzenix-frontend .",
+    "docker:start": "docker run -p 3000:3000 viewzenix-frontend",
+    "docker:compose": "docker-compose up",
+    "docker:compose:build": "docker-compose up --build"
   },
   "eslintConfig": {
     "extends": [

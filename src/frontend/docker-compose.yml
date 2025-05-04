@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - REACT_APP_API_URL=http://localhost:5000/api/v1
+      - NODE_ENV=development
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+    # For Windows users, uncomment this to use polling
+    # command: npm start -- --poll 
