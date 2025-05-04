@@ -22,6 +22,45 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-09-02: Activating Contingency Plan for May 10 Release
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, INT, QA
+**Context:** 
+The QA team's final verification testing has revealed critical environment issues that are blocking all testing efforts for the May 10 release. These issues include:
+1. Backend API unavailability (connections refused to localhost:5000)
+2. Frontend application unavailability (connections refused to localhost:3000)
+3. Broker API configuration issues (missing credentials and invalid endpoints)
+4. Missing test fixtures in the fixtures/data directory
+
+**Decision:** 
+1. Activate the contingency plan for the May 10 release
+2. Extend the testing window to include the weekend (May 11-12)
+3. Set a conditional release date of May 13 pending successful verification
+4. Prioritize critical environment fixes with immediate effect:
+   - BE team to restore backend API services
+   - FE team to restore frontend application
+   - INT team to fix broker configuration issues
+   - QA team to restore test fixtures
+
+**Rationale:**
+1. Critical verification failures make the May 10 release date unachievable without compromising quality
+2. The contingency plan (documented in QA PR #104) provides a structured approach to resolve the issues
+3. Environment fixes are straightforward and can likely be completed within 24 hours
+4. A conditional release date gives teams a clear target while ensuring quality standards
+
+**Implications:**
+- All teams must shift focus to environment fixes as the top priority
+- Weekend work will be required for the verification and final preparations
+- Stakeholders must be notified of the potential delay
+- The PR approval process will prioritize fixes related to the environment issues
+
+**Status:** Implemented
+**Related PRs:** #100 (QA Final Verification Report), #104 (Contingency Test Plan)
+
+---
+
 ## DEC-2025-05-08-02: Emergency Response to Testing Environment Issues
 
 **Date:** 2025-05-08
