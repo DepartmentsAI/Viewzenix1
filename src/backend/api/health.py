@@ -7,8 +7,12 @@ import os
 import sys
 import platform
 import json
+import requests
 from datetime import datetime
 from flask import Blueprint, jsonify, current_app
+
+# Import the Alpaca validator
+from src.backend.utils.alpaca_validator import validate_credentials, load_credentials
 
 health_bp = Blueprint('health', __name__)
 
@@ -58,8 +62,8 @@ def detailed_health_check():
     # Check database status
     db_status = check_database_connection()
     
-    # Check external services (simplified for now)
-    broker_status = check_broker_service()
+    # Check Alpaca API connection
+    alpaca_status = check_alpaca_connection()
     
     # Check recent webhook reception
     webhook_status = check_webhook_reception()
@@ -73,7 +77,7 @@ def detailed_health_check():
     # Overall health assessment
     all_components = [
         db_status["connected"],
-        broker_status["connected"],
+        alpaca_status["connected"],
         webhook_status["operational"],
         risk_status["operational"],
         disk_status["sufficient"]
@@ -86,7 +90,7 @@ def detailed_health_check():
         "timestamp": datetime.now().isoformat(),
         "components": {
             "database": db_status,
-            "broker_service": broker_status,
+            "alpaca_api": alpaca_status,
             "webhook_system": webhook_status,
             "risk_management": risk_status,
             "disk_space": disk_status
@@ -119,21 +123,42 @@ def check_database_connection():
         "latency_ms": latency_ms
     }
 
-def check_broker_service():
+def check_alpaca_connection():
     """
-    Check broker service connection.
+    Check Alpaca API connection using credentials.
     
     Returns:
-        dict: Broker service status info
+        dict: Alpaca API connection status
     """
-    # Simulate broker service check
-    connected = True
-    status = "connected"
+    # Get credentials from environment
+    key_id, secret_key, base_url = load_credentials()
     
-    return {
-        "connected": connected,
-        "status": status
-    }
+    if not key_id or not secret_key:
+        return {
+            "connected": False,
+            "status": "error: missing API credentials"
+        }
+    
+    # Validate credentials
+    is_valid, result = validate_credentials(key_id, secret_key, base_url)
+    
+    if is_valid:
+        account_id = result.get('id', 'Unknown')
+        account_status = result.get('status', 'Unknown')
+        buying_power = result.get('buying_power', 'Unknown')
+        
+        return {
+            "connected": True,
+            "status": "connected",
+            "account_id": account_id,
+            "account_status": account_status,
+            "buying_power": buying_power
+        }
+    else:
+        return {
+            "connected": False,
+            "status": f"error: {result}"
+        }
 
 def check_webhook_reception():
     """

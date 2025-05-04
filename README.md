@@ -1,116 +1,110 @@
-# Trading Webhook Platform
+# Viewzenix1 Trading Platform
 
-A broker-agnostic webhook platform for automated trading execution from TradingView alerts.
-
-## Overview
-
-The Trading Webhook Platform is a comprehensive solution for executing trades from TradingView alerts through various brokers. The system features a Flask-based API for receiving webhooks and a React dashboard for configuration and monitoring.
-
-## Key Features
-
-- **Deterministic, broker-agnostic trade execution** from TradingView alerts
-- **Feature-rich React dashboard** with minimal-click access and advanced settings
-- **Comprehensive risk management** with per-order and global stop-loss/take-profit
-- **Automated testing** with mocked broker interactions
-- **Extensible design** for adding new brokers and features
-
-## Project Structure
-
-```
-Viewzenix1/
-├── src/                   # Source code
-│   ├── backend/           # Flask API and backend services
-│   ├── frontend/          # React dashboard
-│   └── integration/       # Integration with external services
-├── tests/                 # Test files
-│   ├── unit/              # Unit tests
-│   ├── integration/       # Integration tests
-│   └── e2e/               # End-to-end tests
-├── docs/                  # Documentation
-│   ├── api/               # API documentation
-│   ├── architecture/      # Architecture docs
-│   ├── requirements/      # Requirements docs
-│   ├── ui/                # UI/UX documentation
-│   ├── testing/           # Testing docs
-│   └── knowledge-base/    # Shared learnings
-└── communication/         # Team communication
-    ├── inbox/             # Agent-specific messages
-    ├── decision_log.md    # Project decisions
-    └── pr_tracker.md      # PR tracking
-```
+This repository contains the source code for the Viewzenix1 trading platform, a system that integrates with various brokers to provide automated trading capabilities.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.9+
-- Node.js 16+
+- Python 3.8 or higher
 - Git
+- Pip package manager
 
 ### Installation
 
-1. Clone the repository
-   ```
+1. Clone the repository:
+   ```bash
    git clone https://github.com/DepartmentsAI/Viewzenix1.git
    cd Viewzenix1
    ```
 
-2. Set up backend
-   ```
-   cd src/backend
+2. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up frontend
-   ```
-   cd src/frontend
-   npm install
-   ```
+3. Set up environment variables:
+   - Create a `.env` file in the project root with the following variables:
+     ```
+     # Flask Configuration
+     FLASK_APP=src/backend/app.py
+     FLASK_ENV=development
+     FLASK_DEBUG=True
+     PORT=5000
+     
+     # Alpaca API Credentials
+     APCA_API_KEY_ID=PKG1F8EEMI2HWAFFWSD7
+     APCA_API_SECRET_KEY=PKG1F8EEMI2HWAFFWSD7
+     APCA_API_BASE_URL=https://paper-api.alpaca.markets/v2
+     ```
 
-### Running for Development
+## Running the Application
 
-1. Start the backend server
-   ```
-   cd src/backend
-   python app.py
-   ```
+### Starting the Backend API Server
 
-2. Start the frontend development server
-   ```
-   cd src/frontend
-   npm run dev
-   ```
+#### Windows
+Run the provided batch script:
+```cmd
+.\scripts\start_backend.bat
+```
 
-3. Access the application at http://localhost:3000
+#### macOS/Linux
+Run the provided shell script:
+```bash
+chmod +x ./scripts/start_backend.sh
+./scripts/start_backend.sh
+```
+
+#### Manual Start
+If you prefer to start the server manually:
+```bash
+python src/backend/run.py
+```
+
+The backend API server will be available at `http://localhost:5000`.
+
+### Starting the Frontend Development Server
+
+To start the frontend development server:
+```bash
+cd src/frontend
+npm install
+npm start
+```
+
+The frontend development server will be available at `http://localhost:3000`.
+
+## API Documentation
+
+API documentation is available at the following endpoints:
+
+- Health Check API: [API Documentation](/docs/api/health_monitoring.md)
+- Webhook API: [API Documentation](/docs/api/webhook.md)
+- Risk Management API: [API Documentation](/docs/api/risk_management.md)
+
+## Architecture
+
+For more information about the system architecture, see [Architecture Documentation](/docs/architecture/).
 
 ## Contributing
 
-1. Ensure you're working in the appropriate branch for your task
-2. Follow the code standards and testing requirements
-3. Submit pull requests for review
+1. Create a feature branch from `develop`: `git checkout -b feature/your-feature-name`
+2. Make your changes
+3. Push to your branch: `git push origin feature/your-feature-name`
+4. Submit a pull request
 
-## Testing
+## Troubleshooting
 
-Run backend tests:
-```
-cd src/backend
-pytest
-```
+If you encounter issues with the backend API:
 
-Run frontend tests:
-```
-cd src/frontend
-npm test
-```
-
-## Deployment
-
-The application is deployed on Fly.io with private networking.
+1. Check that the server is running (`http://localhost:5000/api/health`)
+2. Verify that the `.env` file exists and contains the correct credentials
+3. Check the log files in the `logs/` directory
 
 ## License
 
-[Specify License]
+This project is proprietary and confidential.
 
-## Contact
+## Support
 
-[Project Contact Information] 
+For support, please contact the development team. 
