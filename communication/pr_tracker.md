@@ -95,3 +95,31 @@ This document tracks all pull requests in the Viewzenix1 project.
 **Related to**: PR #90  
 **Status**: Open  
 **Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
+
+## PR #112: Notification System and Frontend Environment Improvements
+
+**Branch**: FE/feature/notification-system  
+**Status**: Open  
+**Summary**: Adds a comprehensive notification system and improves frontend environment configuration. The PR includes:
+
+1. **Notification System**:
+   - Centralized notification service (`notificationService.js`)
+   - UI component for displaying notifications (`NotificationCenter.jsx`)
+   - React hook for easy access in components (`useNotification.js`)
+   - Support for various notification types (success, error, warning, info)
+   - API error handling integration
+
+2. **Environment Configuration**:
+   - Cross-platform startup scripts for Windows, macOS, and Linux
+   - Centralized configuration system (`config.js`)
+   - Docker support with Dockerfile and docker-compose
+   - Frontend environment documentation
+   - Browser compatibility checks
+   - Health check script
+
+3. **Risk Management**:
+   - Improved `riskManagementService.js` implementation
+   - React hook for risk management functionality (`useRiskManagement.js`)
+   - Comprehensive unit tests
+
+These improvements make the frontend more robust, consistent across different environments, and provide a better developer and user experience.
