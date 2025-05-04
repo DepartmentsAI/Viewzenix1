@@ -11,6 +11,7 @@ The Paper Trading Adapter provides a simulated trading environment for testing t
 - **Fees Simulation**: Includes realistic fee simulation (0.1% per trade)
 - **Stop-Loss/Take-Profit**: Fully simulates bracket orders with TP/SL legs
 - **Account Management**: Tracks cash, equity, portfolio value, and buying power
+- **Risk Management Integration**: Integrates with the Risk Management service for position sizing and risk control
 
 ## Usage
 
@@ -50,6 +51,55 @@ print(f"Equity: ${float(account['equity']):.2f}")
 positions = adapter.get_all_positions()
 for position in positions:
     print(f"Position: {position['qty']} {position['symbol']} ({position['side']})")
+```
+
+### Risk Management Integration
+
+The Paper Trading Adapter is now fully integrated with the Risk Management service for comprehensive risk control:
+
+```python
+from src.integration.adapters.paper_trading_adapter import PaperTradingAdapter
+from src.backend.services.risk_manager import RiskManager
+from src.backend.services.order_engine import OrderEngine
+
+# Initialize the adapter
+adapter = PaperTradingAdapter(initial_balance=100000.0)
+
+# Initialize the order engine with the adapter
+order_engine = OrderEngine(broker_adapter=adapter)
+
+# Initialize the risk manager with the adapter and order engine
+risk_manager = RiskManager(
+    broker_adapter=adapter,
+    order_engine=order_engine,
+    max_position_size=5000.0,  # $5000 max position size
+    max_drawdown_pct=0.05  # 5% max drawdown
+)
+
+# Process a trade signal through risk management
+trade_signal = {
+    "symbol": "AAPL",
+    "side": "buy",
+    "qty": 20,
+    "type": "market",
+    "signal_source": "strategy_1",
+    "risk_profile": "moderate"
+}
+
+# Risk manager will apply position sizing rules before execution
+result = risk_manager.process_order_with_risk_management(trade_signal)
+print(f"Order result: {result['status']} - {result['message']}")
+
+# Risk manager can add stop loss and take profit based on risk parameters
+parent_order_id = result.get('order_id')
+if parent_order_id:
+    sl_tp_result = risk_manager.add_stop_loss_take_profit(
+        symbol=trade_signal["symbol"],
+        entry_price=165.0,  # Current price
+        parent_order_id=parent_order_id,
+        risk_reward_ratio=2.0  # 2:1 reward-to-risk ratio
+    )
+    print(f"SL/TP orders created: {sl_tp_result}")
 ```
 
 ### Risk Management Testing
@@ -133,9 +183,42 @@ The adapter maintains realistic positions:
 - Unrealized P&L calculation based on current prices
 - Portfolio value updates
 
+### Risk Management Integration
+
+The adapter integrates with the Risk Management service to:
+
+- Validate order sizes against account risk limits
+- Apply position sizing algorithms based on risk profiles
+- Create stop-loss and take-profit orders with appropriate risk parameters
+- Monitor portfolio-wide risk metrics
+- Provide real-time risk assessment on potential trades
+
+To prevent circular imports during testing, the adapter uses a lazy-loading mechanism for RiskManager integration:
+
+```python
+# In paper_trading_adapter.py
+RiskManager = None  # Initially None
+
+def _import_risk_manager():
+    global RiskManager
+    if RiskManager is None:
+        try:
+            from src.backend.services.risk_manager import RiskManager
+        except ImportError:
+            # Use a placeholder for testing environments
+            class DummyRiskManager:
+                def __init__(self, *args, **kwargs):
+                    pass
+                
+                def validate_order_risk(*args, **kwargs):
+                    return True, "Risk validation passed"
+                
+            RiskManager = DummyRiskManager
+```
+
 ## Testing
 
-Comprehensive unit tests are available in `test_paper_trading_adapter.py`.
+Comprehensive unit tests are available in `tests/unit/integration/test_paper_trading_adapter.py` and integration with risk management is tested in `tests/unit/backend/services/test_risk_manager.py`.
 
 ## Limitations
 
@@ -152,4 +235,5 @@ Potential enhancements for the paper trading adapter:
 - Implementing slippage models
 - Adding more realistic market hours
 - Simulating circuit breakers and trading halts
-- Supporting trading multiple assets in different currencies 
+- Supporting trading multiple assets in different currencies
+- Enhanced risk management capabilities with advanced stop-loss strategies 
