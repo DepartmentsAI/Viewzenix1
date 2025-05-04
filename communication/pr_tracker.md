@@ -59,7 +59,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
 | 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
-| 98  | FE/feature/risk-management-integration | N/A | Open | FE | PM | 2025-05-09 |
+| 98  | FE/feature/risk-management-integration | PR #90 | Open | FE | PM, QA | 2025-05-10 |
 | 99  | BE/feature/health-api-docs-and-utils | N/A | Open | BE | PM | 2025-05-09 |
 | 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
 | 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
@@ -71,3 +71,10 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
+
+## PR #98: Risk Management UI Integration 
+
+**Branch**: FE/feature/risk-management-integration  
+**Related to**: PR #90  
+**Status**: Open  
+**Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
