@@ -48,13 +48,14 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 82  | QA/task/update-pr-tracker-verification-tools | N/A | Open | QA | PM | 2025-05-08 |
 | 83  | BE/task/restore-communication-files | N/A | Open | BE | PM | 2025-05-08 |
 | 84  | FE/communication/user-stories-response | N/A | Merged | FE | PM, QA | 2025-05-09 |
-| 85  | BE/task/restore-communication-files | N/A | Open | BE | PM | 2025-05-08 |
-| 86  | BE/communication/pr83-notifications | N/A | Open | BE | PM | 2025-05-08 |
+| 85  | BE/task/restore-communication-files | N/A | Closed | BE | PM | 2025-05-09 |
+| 86  | BE/communication/pr83-notifications | N/A | Closed | BE | PM | 2025-05-09 |
 | 87  | INT/fix/broker-config | DEC-2025-05-08-02 | Merged | INT | PM, QA | 2025-05-08 |
-| 88  | BE/task/restore-remaining-files | N/A | Open | BE | PM | 2025-05-08 |
+| 88  | BE/task/restore-remaining-files | N/A | Closed | BE | PM | 2025-05-09 |
 | 89  | QA/task/additional-verification-tools | #14 | Merged | QA | PM | 2025-05-08 |
 | 90  | FE/enhancement/ui-components | FE-1, FE-2 | Merged | FE | PM | 2025-05-08 |
 | 91  | BE/feature/health-check-endpoints | BE-1 | Merged | BE | PM | 2025-05-08 |
 | 92  | BE/communication/testing-coordination | N/A | Merged | BE | PM | 2025-05-09 |
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
+| 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
