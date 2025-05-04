@@ -58,11 +58,11 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 92  | BE/communication/testing-coordination | N/A | Merged | BE | PM | 2025-05-09 |
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
-<<<<<<< HEAD
-| 97  | BE/fix/integration-logger | N/A | Open | BE | PM | 2025-05-09 |
+| 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
 | 98  | FE/feature/risk-management-integration | N/A | Open | FE | PM | 2025-05-09 |
 | 99  | BE/feature/health-api-docs-and-utils | N/A | Open | BE | PM | 2025-05-09 |
-| 100 | QA/task/final-verification-report | #14 | Open | QA | PM, BE, FE, INT | 2025-05-09 |
-=======
-| 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
->>>>>>> origin/develop
+| 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
+| 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
+| 104 | QA/test/14-contingency-testing | #14 | Open | QA | PM | 2025-05-09 |
+| 105 | BE/update/pr-tracker-and-notifications | N/A | Open | BE | PM | 2025-05-09 |
+| 106 | PM/task/contingency-decision | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-09 |
