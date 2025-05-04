@@ -71,4 +71,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
-| 112 | QA/test/15-environment-verification | #14 | Open | QA | PM, BE, FE, INT | 2025-05-10 |
+| 114 | QA/test/15-environment-verification | #14 | Open | QA | PM, BE, FE, INT | 2025-05-10 |
