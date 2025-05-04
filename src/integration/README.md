@@ -89,3 +89,76 @@ To add support for a new broker:
 2. Implement all required methods for the specific broker's API
 3. Add appropriate tests in the `tests/` directory
 4. Update the documentation in this README 
+
+# Integration Service Configuration Guide
+
+This document outlines how to configure broker integrations for the Viewzenix1 platform.
+
+## Broker API Credentials
+
+### Configuration Files
+
+The system uses a multi-layered configuration approach for maximum flexibility:
+
+1. **Environment Variables** (highest priority)
+   - Set directly in the environment
+   - Most secure for production deployments
+
+2. **.env File** (second priority)
+   - Create a `.env` file in the `src/integration` directory
+   - Copy from `config.sample.env` and add your actual credentials
+   - Good for local development
+
+3. **Sample Config** (third priority)
+   - `config.sample.env` provides template values
+   - Used as fallback for non-critical environments
+
+4. **Default Values** (lowest priority)
+   - Hardcoded placeholder values
+   - Will not work for actual API calls
+   - Used only for initialization and testing
+
+### Alpaca Trading API Configuration
+
+To configure Alpaca Trading API credentials:
+
+```
+# Add to .env file or environment variables
+ALPACA_PAPER_API_KEY=your_paper_api_key
+ALPACA_PAPER_API_SECRET=your_paper_api_secret
+ALPACA_PAPER_TRADING=true
+ALPACA_BASE_URL=https://paper-api.alpaca.markets
+
+# For live trading (optional)
+ALPACA_LIVE_API_KEY=your_live_api_key
+ALPACA_LIVE_API_SECRET=your_live_api_secret
+```
+
+## Configuration Utility
+
+The `env_config.py` utility provides a unified way to access configuration:
+
+```python
+from src.integration.utils.env_config import get_broker_config, get_config_value
+
+# Get all configuration for a broker
+alpaca_config = get_broker_config('alpaca')
+
+# Get a specific configuration value
+api_key = get_config_value('alpaca.paper_api_key')
+```
+
+## Security Considerations
+
+- Never commit real API credentials to version control
+- Always use the `.env` file or environment variables for real credentials
+- The sample config contains dummy values that won't work with real APIs
+- For production, use secure environment variable management
+
+## Testing
+
+The configuration system supports testing by allowing:
+
+- Mock configuration during tests
+- Fallback to sample values for test environments
+- Clear logging of configuration sources for debugging 
