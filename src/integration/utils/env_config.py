@@ -104,4 +104,18 @@ class EnvConfigManager:
 # Convenience function to get the config manager
 def get_config_manager() -> EnvConfigManager:
     """Get the configuration manager instance."""
-    return EnvConfigManager.get_instance() 
+    return EnvConfigManager.get_instance()
+
+def get_alpaca_config(logger=None):
+    """
+    Get the Alpaca API configuration from environment variables.
+    
+    Args:
+        logger: Optional integration logger for recording configuration loading
+        
+    Returns:
+        Dictionary with Alpaca API configuration parameters
+    """
+    # Import from adapters directory to avoid circular imports
+    from src.integration.adapters.config import get_alpaca_config as get_config
+    return get_config(logger) 

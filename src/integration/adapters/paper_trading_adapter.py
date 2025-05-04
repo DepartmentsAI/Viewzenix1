@@ -149,54 +149,64 @@ class PaperTradingAdapter(BrokerAdapter):
         """
         return True
         
-    def place_market_order(self, symbol: str, qty: float, side: str, client_order_id: Optional[str] = None) -> Dict[str, Any]:
+    def place_market_order(self, symbol, qty, side, client_order_id=None):
         """Place a market order.
-        
+
         Args:
-            symbol: The trading symbol (e.g., 'AAPL', 'BTC/USD')
-            qty: Quantity to trade
-            side: 'buy' or 'sell'
-            client_order_id: Optional client-defined order ID for tracking
-            
+            symbol (str): The stock symbol
+            qty (int/float): The quantity to buy/sell
+            side (str): 'buy' or 'sell'
+            client_order_id (str, optional): A unique ID for the order
+
         Returns:
-            Dict containing the order details and simulated response
+            dict: The order details
         """
-        # Generate client_order_id if not provided
-        if not client_order_id:
-            client_order_id = self._generate_client_order_id()
-            
-        # Get or generate current market price for the symbol
-        current_price = self._get_current_price(symbol)
+        symbol = self._format_symbol(symbol)
+        self._validate_order_params(symbol, qty, side)
         
-        # Create order
+        # Generate a client_order_id if not provided
+        if not client_order_id:
+            client_order_id = f"paper-{int(time.time())}-{self._generate_order_id()}"
+        
+        # Get the current market price with a small random variation to simulate real markets
+        current_price = self._get_market_price(symbol)
+        price_variation = random.uniform(-0.0005, 0.0005)  # +/- 0.05% variation
+        
+        # Convert to Decimal for consistent precision
+        price_variation_decimal = Decimal(str(price_variation))
+        
+        # Calculate fill price using Decimal arithmetic
+        fill_price = current_price * (Decimal('1') + price_variation_decimal)
+        
+        # Create order and process immediately (since it's a market order)
         order = {
-            "id": str(uuid.uuid4()),
+            "id": self._generate_order_id(),
             "client_order_id": client_order_id,
+            "created_at": self._get_current_time_iso(),
+            "updated_at": self._get_current_time_iso(),
+            "submitted_at": self._get_current_time_iso(),
+            "filled_at": self._get_current_time_iso(),  # Market orders fill immediately
+            "expired_at": None,
+            "canceled_at": None,
+            "failed_at": None,
             "symbol": symbol,
-            "qty": Decimal(str(qty)),
-            "side": side.lower(),
-            "type": self.ORDER_TYPE_MARKET,
-            "time_in_force": "gtc",
-            "status": self.STATUS_NEW,
-            "created_at": datetime.datetime.now().isoformat(),
-            "updated_at": datetime.datetime.now().isoformat(),
-            "submitted_at": datetime.datetime.now().isoformat(),
-            "filled_qty": Decimal("0"),
-            "filled_avg_price": None,
-            "order_price": current_price,  # No limit price for market orders, but store current price
-            "filled_at": None
+            "qty": str(qty),
+            "filled_qty": str(qty),  # Market orders completely fill
+            "type": "market",
+            "side": side,
+            "time_in_force": "gtc",  # Good til cancelled
+            "status": "filled",  # Market orders are immediately filled
+            "filled_avg_price": str(fill_price),
+            "limit_price": None,
+            "stop_price": None,
+            "filled_at_price": str(fill_price),
+            "trail_percent": None,
+            "trail_price": None,
+            "hwm": None
         }
         
         # Store order
         self.orders[client_order_id] = order
-        
-        # Simulate immediate or delayed fill for market orders
-        fill_chance = random.random()
-        if fill_chance <= self.MARKET_ORDER_FILL_CHANCE:
-            # Simulate immediate fill with slight price variation
-            price_variation = random.uniform(-self.PRICE_VOLATILITY, self.PRICE_VOLATILITY)
-            fill_price = current_price * (1 + price_variation)
-            self._fill_order(client_order_id, Decimal(str(qty)), Decimal(str(fill_price)))
         
         self.logger.log_info("market_order_placed", f"Paper Trading: {side} {qty} {symbol} @ market, ID: {client_order_id}")
         return self.orders[client_order_id]
@@ -1164,4 +1174,49 @@ class PaperTradingAdapter(BrokerAdapter):
         Returns:
             str: Unique order ID
         """
-        return f"paper-{uuid.uuid4().hex}" 
+        return f"paper-{uuid.uuid4().hex}"
+
+    def _get_market_price(self, symbol):
+        """Get the current market price for a symbol."""
+        # If we already have a price, return it
+        if symbol in self.market_prices:
+            return self.market_prices[symbol]
+        
+        # Otherwise, generate a random price (for demo purposes)
+        price = Decimal(str(random.uniform(50.0, 200.0)))
+        self.market_prices[symbol] = price
+        return price
+        
+    def _format_symbol(self, symbol):
+        """Format the symbol into a standardized format."""
+        # Strip whitespace and convert to uppercase
+        symbol = symbol.strip().upper()
+        
+        # Handle different formats (AAPL, aapl, etc.)
+        # For crypto, ensure format like BTC/USD
+        if '/' in symbol:
+            parts = symbol.split('/')
+            return f"{parts[0].upper()}/{parts[1].upper()}"
+        
+        return symbol
+        
+    def _validate_order_params(self, symbol, qty, side):
+        """Validate the order parameters."""
+        if not symbol:
+            raise ValueError("Symbol is required")
+        
+        if not isinstance(qty, (int, float, Decimal)) or qty <= 0:
+            raise ValueError("Quantity must be a positive number")
+        
+        if side.lower() not in ["buy", "sell"]:
+            raise ValueError("Side must be 'buy' or 'sell'")
+        
+        return True
+        
+    def _generate_order_id(self):
+        """Generate a unique order ID."""
+        return f"{uuid.uuid4()}"
+        
+    def _get_current_time_iso(self):
+        """Get the current time in ISO format."""
+        return datetime.datetime.now().isoformat() 

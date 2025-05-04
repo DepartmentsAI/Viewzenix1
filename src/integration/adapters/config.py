@@ -152,4 +152,57 @@ def get_broker_config(broker_name: str = "alpaca") -> Dict[str, Any]:
         Dictionary of configuration values (empty dict if not found)
     """
     config = BrokerConfig.get_instance().get_broker_config(broker_name)
-    return config or {} 
+    return config or {}
+
+def get_alpaca_config(logger=None):
+    """
+    Get the Alpaca API configuration from environment variables.
+    
+    Args:
+        logger: Optional integration logger for recording configuration loading
+        
+    Returns:
+        Dictionary with Alpaca API configuration parameters
+    """
+    # Determine if using paper trading
+    use_paper = os.environ.get("ALPACA_PAPER_TRADING", "true").lower() == "true"
+    
+    # Get API keys based on environment
+    if use_paper:
+        api_key = os.environ.get("ALPACA_PAPER_API_KEY", "test-paper-key")
+        api_secret = os.environ.get("ALPACA_PAPER_API_SECRET", "test-paper-secret")
+    else:
+        api_key = os.environ.get("ALPACA_LIVE_API_KEY", "")
+        api_secret = os.environ.get("ALPACA_LIVE_API_SECRET", "")
+    
+    # Build config
+    config = {
+        "paper_trading": use_paper,
+        "paper_api_key": os.environ.get("ALPACA_PAPER_API_KEY", "test-paper-key"),
+        "paper_api_secret": os.environ.get("ALPACA_PAPER_API_SECRET", "test-paper-secret"),
+        "live_api_key": os.environ.get("ALPACA_LIVE_API_KEY", ""),
+        "live_api_secret": os.environ.get("ALPACA_LIVE_API_SECRET", ""),
+        "paper_api_base_url": os.environ.get("ALPACA_PAPER_API_URL", "https://paper-api.alpaca.markets"),
+        "live_api_base_url": os.environ.get("ALPACA_LIVE_API_URL", "https://api.alpaca.markets"),
+        "paper_data_feed_url": os.environ.get("ALPACA_PAPER_DATA_URL", "https://data.alpaca.markets"),
+        "live_data_feed_url": os.environ.get("ALPACA_LIVE_DATA_URL", "https://data.alpaca.markets"),
+        "paper_ws_url": os.environ.get("ALPACA_PAPER_WS_URL", "wss://paper-api.alpaca.markets/stream"),
+        "live_ws_url": os.environ.get("ALPACA_LIVE_WS_URL", "wss://api.alpaca.markets/stream"),
+        "data_ws_url": os.environ.get("ALPACA_DATA_WS_URL", "wss://stream.data.alpaca.markets/v2/iex"),
+    }
+    
+    # Log configuration if logger provided
+    if logger:
+        # Mask API keys for security when logging
+        masked_key = api_key[:4] + "****" if api_key else "None"
+        if hasattr(logger, 'log_info'):
+            logger.log_info("alpaca_config_loaded", f"Loaded Alpaca configuration: paper_trading={use_paper}, key={masked_key}")
+        else:
+            # Fallback if logger doesn't have log_info
+            logging.info(f"Loaded Alpaca configuration: paper_trading={use_paper}, key={masked_key}")
+    else:
+        # Use standard logging if no custom logger
+        masked_key = api_key[:4] + "****" if api_key else "None"
+        logging.info(f"Loaded Alpaca configuration: paper_trading={use_paper}, key={masked_key}")
+    
+    return config 
