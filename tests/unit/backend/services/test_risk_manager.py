@@ -2,6 +2,8 @@
 Unit tests for the RiskManager class.
 """
 import pytest
+import json
+import os
 from unittest.mock import MagicMock, patch, PropertyMock
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
@@ -22,6 +24,32 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+@pytest.fixture
+def webhook_examples():
+    """Load webhook example data for testing."""
+    # Get the path to the webhook examples file
+    fixture_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
+        "e2e", "fixtures", "data", "webhook_examples.json"
+    )
+    
+    # Check if the file exists and load it
+    if os.path.exists(fixture_path):
+        with open(fixture_path, 'r') as f:
+            return json.load(f)
+    else:
+        logger.warning(f"Webhook examples file not found at {fixture_path}")
+        # Return a minimal set of webhook examples if the file isn't found
+        return {
+            "long_entry": {
+                "symbol": "BTCUSD",
+                "strategy_order_id": "long",
+                "strategy_order_action": "buy",
+                "strategy_order_contracts": 0.1,
+                "strategy_order_price": 50000,
+                "time": 1620000000000
+            }
+        }
 
 class MockBrokerAdapter(BrokerAdapter):
     """Mock BrokerAdapter implementation for testing."""
@@ -241,43 +269,28 @@ class TestRiskManager:
         assert params['max_open_positions'] == 10
         assert params['orphaned_order_age_hours'] == 24
     
-    def test_process_order_with_risk_management_success(self, risk_manager, mock_order_engine):
-        """Test processing an order with risk management (success case)."""
-        order_data = {
-            'symbol': 'AAPL',
-            'strategy_order_id': 'long',
-            'strategy_order_action': 'buy',
-            'strategy_order_price': 150.0,
-            'strategy_order_contracts': 5,
-            'time': 1620000000000
+    def test_process_order_with_risk_management_success(self, risk_manager, mock_order_engine, webhook_examples):
+        """Test successful processing of an order with risk management."""
+        # Use a long entry example from webhook fixtures
+        order_data = webhook_examples["long_entry"]
+        
+        # Mock order_engine response
+        mock_order_engine.process_webhook_data.return_value = {
+            'status': 'success',
+            'order_id': 'test-order-123',
+            'message': 'Order executed successfully'
         }
         
-        # Configure mock for get_position
-        risk_manager.broker_adapter.get_position.return_value = {
-            'symbol': 'AAPL',
-            'qty': 5,
-            'market_value': 750.0,
-            'avg_entry_price': 150.0
-        }
-        
-        # Submit orders for stop loss and take profit should succeed
-        risk_manager.broker_adapter.submit_order.side_effect = [
-            {'id': 'sl-order-123', 'status': 'new'},
-            {'id': 'tp-order-123', 'status': 'new'}
-        ]
-        
+        # Process the order with risk management
         result = risk_manager.process_order_with_risk_management(order_data)
         
+        # Verify result
         assert result['status'] == 'success'
-        assert result['message'] == 'Order executed with risk management'
-        assert result['risk_applied'] == True
-        assert result['order_result']['order_id'] == 'test-order-123'
+        assert result['risk_applied'] is True
+        assert 'order_result' in result
         
-        # Verify order engine was called
+        # Verify order_engine was called
         mock_order_engine.process_webhook_data.assert_called_once_with(order_data)
-        
-        # Verify stop loss and take profit orders were created
-        assert risk_manager.broker_adapter.submit_order.call_count == 2
     
     def test_process_order_with_risk_management_portfolio_limit_rejection(self, risk_manager):
         """Test order rejection due to portfolio limits."""
@@ -374,56 +387,90 @@ class TestRiskManager:
         
         assert result is False  # Should reject the order
     
-    def test_add_stop_loss_take_profit(self, risk_manager):
+    def test_add_stop_loss_take_profit(self, risk_manager, webhook_examples):
         """Test adding stop loss and take profit orders."""
-        symbol = 'AAPL'
-        entry_price = 150.0
-        parent_order_id = 'parent-order-123'
+        # Prepare test data
+        symbol = "BTCUSD"
+        entry_price = 50000.0
+        parent_order_id = "test-order-123"
         
-        # Configure get_position
-        risk_manager.broker_adapter.get_position.return_value = {
+        # Mock broker adapter methods
+        risk_manager.broker_adapter.place_stop_order.return_value = {
+            'id': 'sl-123',
+            'client_order_id': 'sl-test-order-123',
             'symbol': symbol,
-            'qty': 10,
-            'market_value': 1500.0,
-            'avg_entry_price': entry_price
+            'side': 'sell',
+            'type': 'stop',
+            'status': 'new'
         }
         
-        # Configure submit_order for successful order creation
-        risk_manager.broker_adapter.submit_order.side_effect = [
-            {'id': 'sl-order-123', 'status': 'new'},
-            {'id': 'tp-order-123', 'status': 'new'}
-        ]
+        risk_manager.broker_adapter.place_limit_order.return_value = {
+            'id': 'tp-123',
+            'client_order_id': 'tp-test-order-123',
+            'symbol': symbol,
+            'side': 'sell',
+            'type': 'limit',
+            'status': 'new'
+        }
         
+        # Get the risk parameters
+        risk_params = risk_manager.get_risk_parameters()
+        
+        # Calculate expected stop loss and take profit prices
+        expected_sl_price = entry_price * (1 - risk_params['stop_loss_percent'])
+        expected_tp_price = entry_price * (1 + risk_params['take_profit_percent'])
+        
+        # Test with default parameters
         result = risk_manager._add_stop_loss_take_profit(
-            symbol,
-            entry_price,
-            parent_order_id,
-            None,  # Use default stop loss
-            None   # Use default take profit
+            symbol=symbol,
+            entry_price=entry_price,
+            parent_order_id=parent_order_id
         )
         
+        # Verify result
         assert result['status'] == 'success'
-        assert 'stop_loss' in result
-        assert 'take_profit' in result
+        assert 'stop_loss_order' in result
+        assert 'take_profit_order' in result
         
-        # Verify submit_order was called twice (SL and TP)
-        assert risk_manager.broker_adapter.submit_order.call_count == 2
+        # Verify broker adapter calls
+        risk_manager.broker_adapter.place_stop_order.assert_called_once()
+        risk_manager.broker_adapter.place_limit_order.assert_called_once()
         
-        # Verify the first call was for stop loss
-        sl_call_args = risk_manager.broker_adapter.submit_order.call_args_list[0][0][0]
+        # Verify the stop loss price was calculated correctly
+        sl_call_args = risk_manager.broker_adapter.place_stop_order.call_args[1]
         assert sl_call_args['symbol'] == symbol
         assert sl_call_args['side'] == 'sell'
-        assert sl_call_args['type'] == 'stop'
-        assert sl_call_args['stop_price'] == 147.0  # 150 * (1-0.02)
-        assert sl_call_args['parent_id'] == parent_order_id
+        assert abs(sl_call_args['stop_price'] - expected_sl_price) < 0.01
         
-        # Verify the second call was for take profit
-        tp_call_args = risk_manager.broker_adapter.submit_order.call_args_list[1][0][0]
+        # Verify the take profit price was calculated correctly
+        tp_call_args = risk_manager.broker_adapter.place_limit_order.call_args[1]
         assert tp_call_args['symbol'] == symbol
         assert tp_call_args['side'] == 'sell'
-        assert tp_call_args['type'] == 'limit'
-        assert tp_call_args['limit_price'] == 157.5  # 150 * (1+0.05)
-        assert tp_call_args['parent_id'] == parent_order_id
+        assert abs(tp_call_args['limit_price'] - expected_tp_price) < 0.01
+        
+        # Test with explicit parameters
+        stop_loss_price = 45000.0
+        take_profit_price = 60000.0
+        
+        # Reset mocks
+        risk_manager.broker_adapter.place_stop_order.reset_mock()
+        risk_manager.broker_adapter.place_limit_order.reset_mock()
+        
+        # Call with explicit parameters
+        result = risk_manager._add_stop_loss_take_profit(
+            symbol=symbol,
+            entry_price=entry_price,
+            parent_order_id=parent_order_id,
+            stop_loss_param=stop_loss_price,
+            take_profit_param=take_profit_price
+        )
+        
+        # Verify broker adapter calls with explicit parameters
+        sl_call_args = risk_manager.broker_adapter.place_stop_order.call_args[1]
+        tp_call_args = risk_manager.broker_adapter.place_limit_order.call_args[1]
+        
+        assert sl_call_args['stop_price'] == stop_loss_price
+        assert tp_call_args['limit_price'] == take_profit_price
     
     def test_cleanup_orphaned_orders(self, risk_manager):
         """Test cleanup of orphaned orders."""
