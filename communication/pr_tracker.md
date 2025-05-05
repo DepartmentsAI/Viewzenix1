@@ -88,3 +88,5 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 125 | PM/task/update-integration-docs-may10 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-10 |
 | 126 | PM/docs/consolidate-environment-guides | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-10 |
 | 127 | PM/task/update-decision-log | DEC-2025-05-10-01 | Open | PM | ALL | 2025-05-10 |
+| 129 | QA/docs/verification-supporting-docs | #14 | Open | QA | PM | 2025-05-10 |
+| 134 | QA/docs/135-env-verification-steps | #135 | Open | QA | PM, ALL | 2025-05-10 |
