@@ -1,25 +1,41 @@
-<message>
-<sender>BE</sender>
-<recipient>INT</recipient>
-<cc>PM</cc>
-<type>PR_CREATED</type>
-<subject>PR #97 Created to Fix IntegrationLogger issues in PR #46</subject>
-<related_pr>#97, #46</related_pr>
+# Message: BE to INT - IntegrationLogger Fix
 
-## Support for Paper Trading Risk Integration (PR #46)
+**Date:** May 10, 2023  
+**From:** Backend Team  
+**To:** Integration Team  
+**Priority:** High  
+**Subject:** IntegrationLogger Fix for Missing log_warning Method
 
-I've identified and fixed the issue causing test failures in PR #46. The problem was that the `IntegrationLogger` class was missing a `log_info` method, but it was being called in the AlpacaAdapter.
+## Overview
 
-In PR #97, I've:
-1. Added the missing `log_info` method to IntegrationLogger that follows the same pattern as the existing logging methods
-2. Ensured proper JSON event logging and console output
+We've identified and fixed the issue with the `IntegrationLogger` class that was blocking PR #46. The `log_warning` method was missing from the logger implementation, causing errors when trying to use this method in the paper trading adapter.
 
-This should allow you to continue with your integration work on PR #46. Let me know if you encounter any further issues with the integration tests.
+## Changes Made
 
-Branch: BE/fix/integration-logger
-PR Link: https://github.com/DepartmentsAI/Viewzenix1/pull/97
+- Added the missing `log_warning(warning_type, message, details)` method to the `IntegrationLogger` class
+- The method follows the same pattern as the existing logging methods
+- Documentation has been added for the method
 
-Required reviewers:
-- PM
-- INT
-</message> 
+## PR Information
+
+- **PR Number:** #120
+- **Branch:** `BE/fix/integration-logger-warning-method`
+- **Status:** Ready for review
+
+## Testing
+
+We've tested the implementation and confirmed that the logger now properly handles warning messages. Please verify this resolves the issues reported in PR #46 for the paper trading risk integration.
+
+## Next Steps
+
+1. Please review and test PR #120
+2. Once approved, this will unblock your PR #46
+3. Let us know if you encounter any issues with the implementation
+
+## Additional Notes
+
+We've also enhanced backend documentation, including comprehensive troubleshooting guides, which may be helpful if you encounter any issues with backend dependencies in the future.
+
+---
+
+*Backend Team* 
