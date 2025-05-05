@@ -60,7 +60,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
 | 95  | PM/task/update-docs-and-tasks | None | Merged | PM | None | 2025-05-08 |
 | 97  | BE/fix/integration-logger | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
-| 98  | FE/feature/risk-management-integration | N/A | Open | FE | PM | 2025-05-09 |
+| 98  | FE/feature/risk-management-integration | PR #90 | Open | FE | PM, QA | 2025-05-10 |
 | 99  | BE/feature/health-api-docs-and-logger-fix | #46 | Open | BE | PM, INT | 2025-05-09 |
 | 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
 | 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
@@ -72,7 +72,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
-| 112 | QA/task/update-pr-tracker-may9 | N/A | Open | QA | PM | 2025-05-09 |
+| 112 | FE/feature/notification-system | N/A | Open | FE | PM, QA | 2025-05-10 |
 | 113 | QA/task/add-missing-test-fixtures | #14 | Open | QA | PM | 2025-05-09 |
 | 114 | QA/test/15-environment-verification | #14, #15 | Open | QA | PM, BE, FE, INT | 2025-05-09 |
 | 115 | BE/fix/backend-api-startup-issues | #QA_May9_Verification | Merged | BE | PM, QA | 2025-05-10 |
@@ -82,9 +82,86 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
 | 120 | INT/fix/46-add-websocket-client-dependency | #46 | Merged | INT | PM, BE | 2025-05-10 |
 | 121 | QA/chore/migrate-external-files | N/A | Open | QA | PM | 2025-05-09 |
-| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | In Progress | FE | PM, QA | 2025-05-10 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | In Progress | FE | PM, QA | 2025-05-12 |
 | 123 | QA/chore/update-pr-tracker-may10 | N/A | Open | QA | PM | 2025-05-10 |
 | 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Merged | PM | ALL | 2025-05-09 |
 | 125 | PM/task/update-integration-docs-may10 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-10 |
 | 126 | PM/docs/consolidate-environment-guides | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-10 |
 | 127 | PM/task/update-decision-log | DEC-2025-05-10-01 | Open | PM | ALL | 2025-05-10 |
+| 131 | FE/docs/frontend-environment | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-11 |
+| 133 | FE/feature/browser-compatibility-check | #QA_May9_Verification | Merged into #122 | FE | PM, QA | 2025-05-12 |
+
+## PR #98: Risk Management UI Integration 
+
+**Branch**: FE/feature/risk-management-integration  
+**Related to**: PR #90  
+**Status**: Open  
+**Summary**: Integrates UI components with the backend risk management API. Includes the implementation of `riskManagementService.js` for proper API interactions, refactors the `RiskManagement.js` component to use real data instead of mock data, and adds loading states, error handling, notifications, and form validation.
+
+## PR #112: Notification System and Frontend Environment Improvements
+
+**Branch**: FE/feature/notification-system  
+**Status**: Open  
+**Summary**: Adds a comprehensive notification system and improves frontend environment configuration. The PR includes:
+
+1. **Notification System**:
+   - Centralized notification service (`notificationService.js`)
+   - UI component for displaying notifications (`NotificationCenter.jsx`)
+   - React hook for easy access in components (`useNotification.js`)
+   - Support for various notification types (success, error, warning, info)
+   - API error handling integration
+
+2. **Environment Configuration**:
+   - Cross-platform startup scripts for Windows, macOS, and Linux
+   - Centralized configuration system (`config.js`)
+   - Docker support with Dockerfile and docker-compose
+   - Frontend environment documentation
+   - Browser compatibility checks
+   - Health check script
+
+3. **Risk Management**:
+   - Improved `riskManagementService.js` implementation
+   - React hook for risk management functionality (`useRiskManagement.js`)
+   - Comprehensive unit tests
+
+These improvements make the frontend more robust, consistent across different environments, and provide a better developer and user experience.
+
+## PR #122: Fix Frontend Environment and Startup Issues
+
+**Branch**: FE/fix/frontend-environment-startup  
+**Status**: In Progress  
+**Summary**: Addresses the frontend application unavailability issues reported by QA (in Msg-QA-To-FE-Seq001-May9) that were blocking testing efforts. This PR adds:
+
+1. Cross-platform startup scripts (PowerShell, Batch, and Shell)
+2. Centralized configuration system (config.js)
+3. Docker support for development and production
+4. Health check utility to diagnose common issues
+5. Browser compatibility checking (merged from PR #133)
+6. Detailed environment setup documentation
+7. Environment verification tests (`environment.test.js`) for automated validation
+8. Standalone verification script (`verify-environment.js`) for comprehensive environment checks
+9. Additional npm scripts for environment verification:
+   - `npm run verify`: Run detailed environment verification
+   - `npm run verify:ci`: Run verification in CI mode (silent, exits with code)
+   - `npm run test:env`: Run Jest environment tests
+10. Browser compatibility checker with:
+    - Browser version detection and validation
+    - Feature detection for required browser capabilities
+    - Compatibility warning component for React
+    - Fallback page for incompatible browsers
+
+These changes ensure the frontend can be started reliably across different environments and platforms, with additional verification tools to diagnose and prevent environment-related issues.
+
+## PR #133: Browser Compatibility Checker
+
+**Branch**: FE/feature/browser-compatibility-check  
+**Status**: Open  
+**Summary**: Adds a comprehensive browser compatibility checking system to help address frontend application stability issues. The feature includes:
+
+1. A browser compatibility checking utility that verifies browser versions and required features
+2. A React component that displays compatibility warnings when issues are detected
+3. A fallback page for incompatible browsers
+4. Integration with the main App component
+5. Detailed documentation for using and extending the system
+
+These additions will improve the frontend environment stability by ensuring users are on compatible browsers and providing clear guidance when they're not. This complements PR #122 (Frontend Environment Startup fixes) to create a more robust application.
