@@ -12,7 +12,7 @@ The following PRs have been merged into develop:
 1. PR #147 - BE: Update PM message regarding gitignore changes
 2. PR #145 - QA: Add environment re-verification planning documents
 
-I've updated the Project Plan with the latest status and created a new PR (#TBD) with these changes.
+I've updated the Project Plan with the latest status and created a new PR (#150) with these changes.
 
 **Critical Areas of Focus for May 9-10:**
 
@@ -27,6 +27,6 @@ git checkout develop
 git pull origin develop --rebase
 ```
 
-All agents should review the updated Project Plan once PR #TBD is merged.
+All agents should review the updated Project Plan once PR #150 is merged.
 
 Let's maintain momentum for our May 10 release date! 
