@@ -6,6 +6,8 @@ import requests
 from datetime import datetime
 
 from src.integration.adapters.alpaca_adapter import AlpacaAdapter
+# Import our configuration utility for testing
+from src.integration.utils.env_config import EnvConfigManager, get_config_manager
 
 class TestAlpacaAdapter(unittest.TestCase):
     """Test cases for the AlpacaAdapter class."""
@@ -18,6 +20,17 @@ class TestAlpacaAdapter(unittest.TestCase):
         
         # Create a mock logger to avoid file operations
         self.mock_logger = MagicMock()
+        
+        # Patch the config manager to use our test values
+        self.patch_config = patch.object(EnvConfigManager, 'get_broker_config')
+        self.mock_get_broker_config = self.patch_config.start()
+        self.mock_get_broker_config.return_value = {
+            'paper_api_key': 'test_api_key',
+            'paper_api_secret': 'test_api_secret',
+            'paper_trading': True,
+            'base_url': 'https://paper-api.alpaca.markets',
+            'source': 'test'
+        }
         
         # Patch the _make_request method to avoid real API calls
         self.make_request_patcher = patch.object(AlpacaAdapter, '_make_request')
@@ -33,6 +46,7 @@ class TestAlpacaAdapter(unittest.TestCase):
         """Clean up after each test."""
         # Stop all patches
         self.make_request_patcher.stop()
+        self.patch_config.stop()
         
         # Clear environment variables
         if "ALPACA_PAPER_API_KEY" in os.environ:

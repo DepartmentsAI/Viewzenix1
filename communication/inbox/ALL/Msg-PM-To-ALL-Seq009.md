@@ -3,6 +3,7 @@
 <recipient>ALL</recipient>
 <type>INFO</type>
 <subject>Pre-Release Update: Critical Tasks Complete, Code Freeze Tomorrow</subject>
+<reference>DEC-2025-05-07-01</reference>
 
 Dear Team Members,
 

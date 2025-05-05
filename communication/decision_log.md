@@ -22,6 +22,45 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-09-02: Activating Contingency Plan for May 10 Release
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, INT, QA
+**Context:** 
+The QA team's final verification testing has revealed critical environment issues that are blocking all testing efforts for the May 10 release. These issues include:
+1. Backend API unavailability (connections refused to localhost:5000)
+2. Frontend application unavailability (connections refused to localhost:3000)
+3. Broker API configuration issues (missing credentials and invalid endpoints)
+4. Missing test fixtures in the fixtures/data directory
+
+**Decision:** 
+1. Activate the contingency plan for the May 10 release
+2. Extend the testing window to include the weekend (May 11-12)
+3. Set a conditional release date of May 13 pending successful verification
+4. Prioritize critical environment fixes with immediate effect:
+   - BE team to restore backend API services
+   - FE team to restore frontend application
+   - INT team to fix broker configuration issues
+   - QA team to restore test fixtures
+
+**Rationale:**
+1. Critical verification failures make the May 10 release date unachievable without compromising quality
+2. The contingency plan (documented in QA PR #104) provides a structured approach to resolve the issues
+3. Environment fixes are straightforward and can likely be completed within 24 hours
+4. A conditional release date gives teams a clear target while ensuring quality standards
+
+**Implications:**
+- All teams must shift focus to environment fixes as the top priority
+- Weekend work will be required for the verification and final preparations
+- Stakeholders must be notified of the potential delay
+- The PR approval process will prioritize fixes related to the environment issues
+
+**Status:** Implemented
+**Related PRs:** #100 (QA Final Verification Report), #104 (Contingency Test Plan)
+
+---
+
 ## DEC-2025-05-08-02: Emergency Response to Testing Environment Issues
 
 **Date:** 2025-05-08
@@ -232,4 +271,63 @@ We need to establish the initial project structure and technology stack for the 
 **Related Artifacts**:
 - PR #36 (Dashboard Order Status Tracking)
 - `/workspace/Viewzenix1/docs/requirements/RELEASE_NOTES.md`
-- `/workspace/Viewzenix1/docs/requirements/DEPLOYMENT_CHECKLIST.md` 
+- `/workspace/Viewzenix1/docs/requirements/DEPLOYMENT_CHECKLIST.md`
+
+---
+
+## DEC-2025-05-09-01: Testing Coordination and Documentation Updates
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, QA
+**Context:** 
+With the May 10 release approaching, several PRs related to communication, documentation, and testing coordination were pending. These PRs needed to be reviewed and merged to ensure that all teams have clear guidance for the final testing phase and documentation is up-to-date.
+
+**Decision:** 
+1. Merge PR #92 (Testing coordination documentation) to improve team collaboration
+2. Merge PR #84 (FE response to user stories and environment fix) to address frontend environment issues
+3. Prioritize review of remaining open PRs based on release criticality
+4. Maintain focus on testing and stabilization for the upcoming release
+
+**Rationale:**
+1. Clear testing coordination documentation is essential for the final testing phase
+2. The frontend environment fixes are critical for proper UI testing
+3. User story responses ensure alignment with project requirements
+4. Addressing these PRs enables more efficient collaboration between teams
+
+**Implications:**
+- Testing teams now have clearer documentation for the final phase
+- Frontend environment issues have been resolved
+- The PR tracker has been updated to reflect the current project status
+- Teams can proceed with testing with improved coordination
+
+**Status:** Implemented
+**Related PRs:** #92, #84 
+
+---
+
+## DEC-2025-05-09-03: Adding Alpaca API Credentials to Environment Configuration
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM
+**Context:** 
+The final verification report identified critical environment issues preventing testing, including missing API credentials for the Alpaca trading platform. Proper credentials were needed for the integration tests and for validating the trading features.
+
+**Decision:** 
+1. Add the provided Alpaca paper trading API credentials to the project's environment configuration files (`.env` at root and `src/integration/.env`)
+2. Document the credentials in a message to all teams
+3. Instruct teams to use these credentials for their respective environment verification and testing
+
+**Rationale:**
+- The Alpaca paper trading account has $100,000 in simulated funds, which is sufficient for all testing scenarios
+- Using a shared set of credentials ensures consistency across environments
+- The paper trading account prevents any real money from being at risk
+
+**Implications:**
+- All teams can now complete their environment setup and testing
+- Integration testing with the Alpaca API can proceed
+- The broker-related environment issues identified in the verification report should be resolved
+
+**Status:** Implemented
+**Related Issues:** PR #100, DEC-2025-05-09-02 
