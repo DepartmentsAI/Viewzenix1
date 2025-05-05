@@ -75,7 +75,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 112 | FE/feature/notification-system | N/A | Open | FE | PM, QA | 2025-05-10 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
-| 122 | FE/fix/frontend-environment-startup | N/A | Open | FE | PM, QA | 2025-05-10 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-10 |
 
 ## PR #98: Risk Management UI Integration 
 
