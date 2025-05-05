@@ -58,5 +58,8 @@ communication/inbox/*/archive/
 # Communication messages
 communication/inbox/*/*.md
 
+# Runtime configuration files
+config/
+
 # Temporary backups
 temp_backup/ 
