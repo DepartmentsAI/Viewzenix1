@@ -20,7 +20,19 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "health-check": "node health-check.js",
+    "start:win": "powershell -ExecutionPolicy Bypass -File ./start.ps1",
+    "start:unix": "bash ./start.sh",
+    "start:docker": "docker-compose up",
+    "build:docker": "docker build -t viewzenix-frontend .",
+    "verify": "node verify-environment.js",
+    "verify:ci": "node verify-environment.js --ci",
+    "test:env": "jest tests/environment.test.js",
+    "check-browser": "node scripts/check-browser-compatibility.js",
+    "check-browser:common": "node scripts/check-browser-compatibility.js --check-common",
+    "check-browser:list": "node scripts/check-browser-compatibility.js --list-supported",
+    "migrate-env": "node scripts/migrate-environment.js"
   },
   "eslintConfig": {
     "extends": [
@@ -32,12 +44,21 @@
     "production": [
       ">0.2%",
       "not dead",
-      "not op_mini all"
+      "not op_mini all",
+      "not ie <= 11",
+      "chrome >= 80",
+      "firefox >= 74",
+      "safari >= 13",
+      "edge >= 80"
     ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   }
 } 

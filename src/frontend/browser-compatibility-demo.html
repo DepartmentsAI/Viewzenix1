@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Compatibility Check Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    code {
+      background-color: #f8f8f8;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    pre {
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Browser Compatibility Check Demo</h1>
+    <p>This page demonstrates the browser compatibility checker for the Viewzenix1 trading application.</p>
+  </header>
+
+  <section>
+    <h2>Interactive Compatibility Check</h2>
+    <p>Click the button below to check if your browser is compatible with our application:</p>
+    <button id="checkCompatibility">Run Compatibility Check</button>
+    <div id="compatibility-results"></div>
+  </section>
+
+  <section>
+    <h2>How to Use the Compatibility Checker</h2>
+    <p>You can integrate this compatibility checker into your application in several ways:</p>
+
+    <h3>1. Run on page load</h3>
+    <pre><code>// Import the checker
+const { runCompatibilityCheck } = require('./browser-compatibility-check');
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  runCompatibilityCheck('#results-container');
+});</code></pre>
+
+    <h3>2. Run before critical features</h3>
+    <pre><code>import { checkCompatibility } from './browser-compatibility-check';
+
+async function beforeUsingCriticalFeature() {
+  const results = await checkCompatibility();
+  if (!results.fullCompatibility) {
+    showWarningToUser('Your browser may not support all features');
+  }
+}</code></pre>
+
+    <h3>3. Use in React applications</h3>
+    <pre><code>import React, { useEffect, useState } from 'react';
+import { checkCompatibility } from './browser-compatibility-check';
+
+function BrowserCheck() {
+  const [compatibility, setCompatibility] = useState(null);
+
+  useEffect(() => {
+    async function check() {
+      const results = await checkCompatibility();
+      setCompatibility(results);
+    }
+    check();
+  }, []);
+
+  if (!compatibility) return <div>Checking compatibility...</div>;
+  
+  return (
+    <div>
+      {!compatibility.fullCompatibility && (
+        <div className="browser-warning">
+          Browser compatibility issues detected.
+        </div>
+      )}
+    </div>
+  );
+}</code></pre>
+  </section>
+
+  <script src="browser-compatibility-check.js"></script>
+  <script>
+    document.getElementById('checkCompatibility').addEventListener('click', function() {
+      runCompatibilityCheck('#compatibility-results');
+    });
+  </script>
+</body>
+</html> 
