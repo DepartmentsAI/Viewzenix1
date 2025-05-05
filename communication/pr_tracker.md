@@ -82,12 +82,13 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
 | 120 | INT/fix/46-add-websocket-client-dependency | #46 | Merged | INT | PM, BE | 2025-05-10 |
 | 121 | QA/chore/migrate-external-files | N/A | Open | QA | PM | 2025-05-09 |
-| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | In Progress | FE | PM, QA | 2025-05-10 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | In Progress | FE | PM, QA | 2025-05-11 |
 | 123 | QA/chore/update-pr-tracker-may10 | N/A | Open | QA | PM | 2025-05-10 |
 | 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Merged | PM | ALL | 2025-05-09 |
 | 125 | PM/task/update-integration-docs-may10 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-10 |
 | 126 | PM/docs/consolidate-environment-guides | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-10 |
 | 127 | PM/task/update-decision-log | DEC-2025-05-10-01 | Open | PM | ALL | 2025-05-10 |
+| 131 | FE/docs/frontend-environment | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-11 |
 
 ## PR #98: Risk Management UI Integration 
 
@@ -123,3 +124,32 @@ This document tracks all pull requests in the Viewzenix1 project.
    - Comprehensive unit tests
 
 These improvements make the frontend more robust, consistent across different environments, and provide a better developer and user experience.
+
+## PR #122: Fix Frontend Environment and Startup Issues
+
+**Branch**: FE/fix/frontend-environment-startup  
+**Status**: In Progress  
+**Summary**: Addresses the frontend application unavailability issues reported by QA (in Msg-QA-To-FE-Seq001-May9) that were blocking testing efforts. This PR adds:
+
+1. Cross-platform startup scripts (PowerShell, Batch, and Shell)
+2. Centralized configuration system (config.js)
+3. Docker support for development and production
+4. Health check utility to diagnose common issues
+5. Browser compatibility checking
+6. Detailed environment setup documentation
+7. Environment verification tests and utilities 
+
+These changes resolve the frontend application unavailability issue and provide a robust foundation for future development.
+
+## PR #131: Frontend Environment Documentation and Tools
+
+**Branch**: FE/docs/frontend-environment  
+**Status**: Open  
+**Summary**: Complements PR #122 by adding comprehensive documentation and tools for the frontend environment:
+
+1. **Environment Verification Guide**: Detailed instructions for using the verification tools
+2. **Environment Troubleshooting Guide**: Common issues and solutions with step-by-step diagnostics
+3. **Templates and Configuration Files**: Standard configuration templates for consistent setup
+4. **Migration Script**: Tool to automate migration from older environments to the new structure
+
+These resources make the environment more robust, easier to maintain, and provide better support for developers and QA working with the frontend application.
