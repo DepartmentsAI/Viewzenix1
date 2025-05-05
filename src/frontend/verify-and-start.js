@@ -106,56 +106,71 @@ function checkNodeModules() {
   return new Promise((resolve) => {
     console.log(`${colors.cyan}Checking node_modules...${colors.reset}`);
     const nodeModulesPath = path.join(process.cwd(), 'node_modules');
-    
+    let needsInstall = false;
+    let initialCheckPassed = false;
+
     if (!fs.existsSync(nodeModulesPath)) {
       issues.push("node_modules directory not found - will run 'npm install'");
       console.log(`${colors.red}✗ node_modules directory not found${colors.reset}`);
+      needsInstall = true;
+    } else {
+      console.log(`${colors.green}✓ node_modules directory found${colors.reset}`);
+      // Check for critical packages initially
+      const criticalPackages = ['react', 'react-dom', 'react-scripts'];
+      const missingPackages = criticalPackages.filter(pkg => {
+        const pkgPath = path.join(nodeModulesPath, pkg);
+        return !fs.existsSync(pkgPath);
+      });
+
+      if (missingPackages.length > 0) {
+        issues.push(`Critical packages missing from node_modules: ${missingPackages.join(', ')}`);
+        console.log(`${colors.red}✗ Critical packages missing: ${missingPackages.join(', ')}${colors.reset}`);
+        needsInstall = true;
+      } else {
+        passes.push("All critical packages installed in node_modules");
+        initialCheckPassed = true; // Packages were present initially
+      }
+    }
+
+    // Run install if needed
+    if (needsInstall) {
       console.log(`${colors.yellow}⚠ Attempting to fix: Running 'npm install'...${colors.reset}`);
-      
       try {
         console.log(`Installing dependencies...`);
         execSync('npm install', { stdio: 'inherit' });
-        fixes.push("Installed dependencies with 'npm install'");
-        console.log(`${colors.green}✓ Dependencies installed successfully${colors.reset}`);
+        fixes.push("Attempted dependency installation with 'npm install'");
+        console.log(`${colors.green}✓ Dependency installation command executed${colors.reset}`);
+
+        // Re-verify critical packages after installation
+        console.log(`${colors.cyan}Re-verifying critical packages after install...${colors.reset}`);
+        const criticalPackages = ['react', 'react-dom', 'react-scripts'];
+        const missingPackagesAfterInstall = criticalPackages.filter(pkg => {
+           const pkgPath = path.join(nodeModulesPath, pkg);
+           return !fs.existsSync(pkgPath);
+        });
+
+        if (missingPackagesAfterInstall.length > 0) {
+           // If packages are still missing, keep the original issue
+           console.log(`${colors.red}✗ Critical packages still missing after install: ${missingPackagesAfterInstall.join(', ')}${colors.reset}`);
+        } else {
+           console.log(`${colors.green}✓ All critical packages verified after install${colors.reset}`);
+           // Remove the previous 'missing packages' issue if it existed
+           const issueIndex = issues.findIndex(issue => issue.startsWith('Critical packages missing'));
+           if (issueIndex > -1) {
+               issues.splice(issueIndex, 1);
+           }
+           // Add a pass if it wasn't already passed initially
+           if (!initialCheckPassed) {
+                passes.push("All critical packages installed in node_modules (after install)");
+           }
+        }
+
       } catch (error) {
         issues.push(`Failed to install dependencies: ${error.message}`);
         console.log(`${colors.red}✗ Failed to install dependencies: ${error.message}${colors.reset}`);
       }
-      
-      return resolve();
     }
-    
-    console.log(`${colors.green}✓ node_modules directory found${colors.reset}`);
-    
-    // Check for critical packages
-    const criticalPackages = ['react', 'react-dom', 'react-scripts'];
-    const missingPackages = [];
-    
-    for (const pkg of criticalPackages) {
-      const pkgPath = path.join(nodeModulesPath, pkg);
-      if (!fs.existsSync(pkgPath)) {
-        missingPackages.push(pkg);
-      }
-    }
-    
-    if (missingPackages.length > 0) {
-      issues.push(`Critical packages missing from node_modules: ${missingPackages.join(', ')}`);
-      console.log(`${colors.red}✗ Critical packages missing: ${missingPackages.join(', ')}${colors.reset}`);
-      console.log(`${colors.yellow}⚠ Attempting to fix: Running 'npm install'...${colors.reset}`);
-      
-      try {
-        console.log(`Installing dependencies...`);
-        execSync('npm install', { stdio: 'inherit' });
-        fixes.push("Reinstalled dependencies to fix missing packages");
-        console.log(`${colors.green}✓ Dependencies reinstalled successfully${colors.reset}`);
-      } catch (error) {
-        issues.push(`Failed to reinstall dependencies: ${error.message}`);
-        console.log(`${colors.red}✗ Failed to reinstall dependencies: ${error.message}${colors.reset}`);
-      }
-    } else {
-      passes.push("All critical packages installed in node_modules");
-    }
-    
+
     resolve();
   });
 }
