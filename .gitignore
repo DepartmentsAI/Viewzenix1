@@ -52,11 +52,35 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 
+# Node / Frontend
+src/frontend/node_modules/
+src/frontend/build/
+src/frontend/coverage/
+src/frontend/.env
+src/frontend/.env.local
+src/frontend/.env.development.local
+src/frontend/.env.test.local
+src/frontend/.env.production.local
+src/frontend/package-lock.json
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+.pnp/
+.pnp.js
+
 # Communication archive
 communication/inbox/*/archive/
+
+# Communication messages
+# communication/inbox/*/*.md  <- Removing this, messages should be tracked if explicitly added
 
 # Runtime configuration files
 config/
 
 # Temporary backups
-temp_backup/ 
+temp_backup/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3 
