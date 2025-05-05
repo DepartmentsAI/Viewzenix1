@@ -88,6 +88,8 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 125 | PM/task/update-integration-docs-may10 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-10 |
 | 126 | PM/docs/consolidate-environment-guides | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-10 |
 | 127 | PM/task/update-decision-log | DEC-2025-05-10-01 | Open | PM | ALL | 2025-05-10 |
+| 131 | FE/docs/frontend-environment | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-11 |
+| 133 | FE/feature/browser-compatibility-check | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-11 |
 
 ## PR #98: Risk Management UI Integration 
 
@@ -123,3 +125,17 @@ This document tracks all pull requests in the Viewzenix1 project.
    - Comprehensive unit tests
 
 These improvements make the frontend more robust, consistent across different environments, and provide a better developer and user experience.
+
+## PR #133: Browser Compatibility Checker
+
+**Branch**: FE/feature/browser-compatibility-check  
+**Status**: Open  
+**Summary**: Adds a comprehensive browser compatibility checking system to help address frontend application stability issues. The feature includes:
+
+1. A browser compatibility checking utility that verifies browser versions and required features
+2. A React component that displays compatibility warnings when issues are detected
+3. A fallback page for incompatible browsers
+4. Integration with the main App component
+5. Detailed documentation for using and extending the system
+
+These additions will improve the frontend environment stability by ensuring users are on compatible browsers and providing clear guidance when they're not. This complements PR #122 (Frontend Environment Startup fixes) to create a more robust application.
