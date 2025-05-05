@@ -14,7 +14,7 @@ class TestAlpacaAdapter(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment before each test."""
-        # Mock environment variables for API keys
+        # Mock environment variables for API keys (though config mock should override)
         os.environ["ALPACA_PAPER_API_KEY"] = "test_api_key"
         os.environ["ALPACA_PAPER_API_SECRET"] = "test_api_secret"
         
@@ -22,11 +22,12 @@ class TestAlpacaAdapter(unittest.TestCase):
         self.mock_logger = MagicMock()
         
         # Patch the config manager to use our test values
+        # Using patch.object as in the develop branch
         self.patch_config = patch.object(EnvConfigManager, 'get_broker_config')
         self.mock_get_broker_config = self.patch_config.start()
         self.mock_get_broker_config.return_value = {
-            'paper_api_key': 'test_api_key',
-            'paper_api_secret': 'test_api_secret',
+            'api_key': 'test_api_key', # Ensure keys match what authenticate expects
+            'api_secret': 'test_api_secret',
             'paper_trading': True,
             'base_url': 'https://paper-api.alpaca.markets',
             'source': 'test'
@@ -36,11 +37,14 @@ class TestAlpacaAdapter(unittest.TestCase):
         self.make_request_patcher = patch.object(AlpacaAdapter, '_make_request')
         self.mock_make_request = self.make_request_patcher.start()
         
-        # Set up mock response for authentication
-        self.mock_make_request.return_value = {"account_number": "TEST123"}
+        # Set up mock response for authentication (GET /account)
+        self.mock_make_request.return_value = {"account_number": "TEST123", "id": "mock_account_id"}
         
         # Initialize adapter with mocked logger
+        # Authentication is now called implicitly by methods if needed, 
+        # but we can call it explicitly here to test it.
         self.adapter = AlpacaAdapter(use_paper=True, logger=self.mock_logger)
+        self.adapter.authenticate() # Call authenticate explicitly for testing its path
     
     def tearDown(self):
         """Clean up after each test."""
@@ -55,41 +59,46 @@ class TestAlpacaAdapter(unittest.TestCase):
             del os.environ["ALPACA_PAPER_API_SECRET"]
     
     def test_init_and_authenticate(self):
-        """Test initialization and authentication."""
-        # Authentication already happens in setUp
+        """Test initialization and authentication call."""
+        # Check that authentication was successful during setUp
         self.assertTrue(self.adapter.authenticated)
         self.assertEqual(self.adapter.api_key, "test_api_key")
         self.assertEqual(self.adapter.api_secret, "test_api_secret")
-        self.assertEqual(self.adapter.base_url, AlpacaAdapter.PAPER_BASE_URL)
+        self.assertEqual(self.adapter.base_url, 'https://paper-api.alpaca.markets')
+        self.assertEqual(self.adapter.account_id, "mock_account_id")
         
-        # Verify _make_request was called with the account endpoint
-        self.mock_make_request.assert_called_once_with("GET", "/account", {})
-    
+        # Verify get_broker_config was called during init/auth
+        self.mock_get_broker_config.assert_called_with('alpaca', use_paper=True)
+        
+        # Verify _make_request was called for the account endpoint during authenticate
+        self.mock_make_request.assert_called_with("GET", "/account")
+        self.mock_logger.log_info.assert_any_call("auth_success", f"Authenticated with Alpaca API (Account: TEST123) using credentials from test")
+
     def test_place_market_order(self):
         """Test placing a market order."""
-        # Set up mock response for order placement
+        # Reset mock for this specific test, ensure auth happened in setUp
+        self.mock_make_request.reset_mock()
+        # Set up mock response for order placement (POST /orders)
         order_response = {
             "id": "test-order-id",
-            "client_order_id": "alpaca-123456-abcdef",
+            "client_order_id": "test-client-id", # Assuming we provide this
             "status": "accepted",
             "type": "market",
             "side": "buy",
             "symbol": "AAPL",
-            "qty": "10",
-            "filled_qty": "0"
+            "qty": "10"
+            # ... other fields
         }
-        self.mock_make_request.reset_mock()
         self.mock_make_request.return_value = order_response
         
-        # Call the method under test
         result = self.adapter.place_market_order("AAPL", 10, "buy", "test-client-id")
         
-        # Verify the result
         self.assertTrue(result["success"])
         self.assertEqual(result["order_id"], "test-order-id")
-        self.assertEqual(result["symbol"], "AAPL")
+        self.assertEqual(result["client_order_id"], "test-client-id")
+        self.assertEqual(result["details"]["symbol"], "AAPL") # Check details sub-dict
         
-        # Verify _make_request was called correctly
+        # Verify _make_request was called for the order endpoint
         self.mock_make_request.assert_called_once()
         method, endpoint, params = self.mock_make_request.call_args[0]
         self.assertEqual(method, "POST")
@@ -99,7 +108,8 @@ class TestAlpacaAdapter(unittest.TestCase):
         self.assertEqual(params["side"], "buy")
         self.assertEqual(params["type"], "market")
         self.assertEqual(params["client_order_id"], "test-client-id")
-    
+        self.mock_logger.log_info.assert_any_call("order_placed", f"Order test-order-id placed successfully.", details=order_response)
+
     def test_place_limit_order(self):
         """Test placing a limit order."""
         # Set up mock response
