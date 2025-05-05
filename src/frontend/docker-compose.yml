@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: viewzenix1-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - viewzenix-network
+
+  # Optional: Add a development service with hot reloading
+  frontend-dev:
+    image: node:18-alpine
+    container_name: viewzenix1-frontend-dev
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:5000/api
+      - PORT=3000
+      - HOST=0.0.0.0
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    restart: unless-stopped
+    networks:
+      - viewzenix-network
+
+networks:
+  viewzenix-network:
+    name: viewzenix-network
+    driver: bridge
+
+volumes:
+  node_modules: 
