@@ -72,6 +72,16 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
+| 112 | QA/task/update-pr-tracker-may9 | N/A | Open | QA | PM | 2025-05-09 |
+| 113 | QA/task/add-missing-test-fixtures | #14 | Open | QA | PM | 2025-05-09 |
+| 114 | QA/test/15-environment-verification | #14, #15 | Open | QA | PM, BE, FE, INT | 2025-05-09 |
+| 115 | BE/fix/backend-api-startup-issues | #QA_May9_Verification | Open | BE | PM, QA | 2025-05-09 |
+| 116 | FE/fix/frontend-environment-unavailable | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-09 |
+| 117 | QA/test/16-contingency-plan | #14 | Open | QA | PM | 2025-05-09 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
-| 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-09 |
+| 120 | INT/fix/46-add-websocket-client-dependency | #46 | Open | INT | PM, BE | 2025-05-09 |
+| 121 | QA/chore/migrate-external-files | N/A | Open | QA | PM | 2025-05-09 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-09 |
+| 123 | QA/chore/update-pr-tracker-may10 | N/A | Open | QA | PM | 2025-05-09 |
+| 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Merged | PM | ALL | 2025-05-09 |
