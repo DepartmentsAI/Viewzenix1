@@ -9,11 +9,17 @@ import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 from src.backend.api.webhook import webhook_bp
 from src.backend.api.risk import risk_bp
 from src.backend.api.health import health_bp
 from src.backend.config.config import configure_app
+
+# Initialize extensions
+db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app(config_name=None):
     """
@@ -30,6 +36,10 @@ def create_app(config_name=None):
     
     # Configure app from environment variables and config files
     configure_app(app, config_name)
+    
+    # Initialize extensions with the app
+    db.init_app(app)
+    migrate.init_app(app, db)
     
     # Configure logging
     configure_logging(app)
