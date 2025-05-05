@@ -56,4 +56,7 @@ Thumbs.db
 communication/inbox/*/archive/
 
 # Communication messages
-communication/inbox/*/*.md 
+communication/inbox/*/*.md
+
+# Runtime configuration files
+config/risk_parameters.json 
