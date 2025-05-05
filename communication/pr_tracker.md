@@ -75,7 +75,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 112 | FE/feature/notification-system | N/A | Open | FE | PM, QA | 2025-05-10 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
-| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-10 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | In Progress | FE | PM, QA | 2025-05-11 |
 
 ## PR #98: Risk Management UI Integration 
 
@@ -115,7 +115,7 @@ These improvements make the frontend more robust, consistent across different en
 ## PR #122: Fix Frontend Environment and Startup Issues
 
 **Branch**: FE/fix/frontend-environment-startup  
-**Status**: Open  
+**Status**: In Progress  
 **Summary**: Addresses the frontend application unavailability issues reported by QA (in Msg-QA-To-FE-Seq001-May9) that were blocking testing efforts. This PR adds:
 
 1. Cross-platform startup scripts (PowerShell, Batch, and Shell)
@@ -124,5 +124,11 @@ These improvements make the frontend more robust, consistent across different en
 4. Health check utility to diagnose common issues
 5. Browser compatibility checking
 6. Detailed environment setup documentation
+7. **NEW**: Environment verification tests (`environment.test.js`) for automated validation
+8. **NEW**: Standalone verification script (`verify-environment.js`) for comprehensive environment checks
+9. **NEW**: Additional npm scripts for environment verification:
+   - `npm run verify`: Run detailed environment verification
+   - `npm run verify:ci`: Run verification in CI mode (silent, exits with code)
+   - `npm run test:env`: Run Jest environment tests
 
-These changes ensure the frontend can be started reliably across different environments and platforms.
+These changes ensure the frontend can be started reliably across different environments and platforms, with additional verification tools to diagnose and prevent environment-related issues.
