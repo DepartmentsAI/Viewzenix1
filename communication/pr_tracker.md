@@ -74,3 +74,4 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
 | 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
+| 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-09 |
