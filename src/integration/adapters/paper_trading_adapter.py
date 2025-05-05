@@ -692,6 +692,23 @@ class PaperTradingAdapter(BrokerAdapter):
         
         return self.market_prices[symbol]
 
+    def _set_market_price(self, symbol: str, price: float) -> None:
+        """Manually set a market price for a symbol (for testing and verification).
+        
+        Args:
+            symbol: The trading symbol
+            price: The price to set
+            
+        Returns:
+            None
+        """
+        symbol = symbol.upper()
+        self.market_prices[symbol] = Decimal(str(price))
+        self.logger.log_info(
+            "market_price_set", 
+            f"Manually set {symbol} price to {price:.2f} for testing"
+        )
+
     def _simulate_market(self) -> None:
         """Background thread to simulate market changes and process orders.
         
