@@ -60,6 +60,24 @@ class IntegrationLogger:
         )
         self.logger.info(message)
     
+    def log_warning(self, warning_type: str, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+        """Log warning message.
+        
+        Args:
+            warning_type: Type of warning
+            message: Warning message
+            details: Optional additional details
+        """
+        self._log_json_event(
+            event_type="warning",
+            data={
+                "warning_type": warning_type,
+                "message": message,
+                "details": details or {}
+            }
+        )
+        self.logger.warning(f"Warning - {warning_type}: {message}")
+    
     def log_webhook(self, payload: Dict[str, Any], status_code: int, response: Dict[str, Any]) -> None:
         """Log incoming webhook request and response.
         
