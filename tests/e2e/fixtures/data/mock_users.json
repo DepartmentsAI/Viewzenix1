@@ -1,0 +1,11 @@
+{
+  "description": "Placeholder for E2E test user data. Replace with actual mock data.",
+  "users": [
+    {
+      "id": "user_placeholder_1",
+      "name": "Test User One",
+      "email": "test1@example.com",
+      "roles": ["trader"]
+    }
+  ]
+} 

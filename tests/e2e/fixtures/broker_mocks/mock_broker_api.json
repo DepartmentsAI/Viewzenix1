@@ -1,0 +1,12 @@
+{
+  "description": "Placeholder for broker API mock responses. Replace with actual simulated responses.",
+  "connection_status": "connected_mock",
+  "auth_response": {
+    "status": "authenticated_mock",
+    "user_id": "broker_user_placeholder"
+  },
+  "market_data": {
+    "symbol": "MOCK/USD",
+    "price": 100.00
+  }
+} 
