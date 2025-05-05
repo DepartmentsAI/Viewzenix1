@@ -1,91 +1,112 @@
-# Integration Components
+# Viewzenix1 Integration Tools
 
-This directory contains the integration components for the Trading Webhook Platform, responsible for connecting the system with external services and brokers.
+This directory contains tools, adapters, examples, and utilities for integrating various components of the Viewzenix1 trading system.
 
-## Structure
+## Key Components
 
-- `adapters/`: Contains adapter implementations for various brokers
-  - `broker_adapter.py`: Base interface for all broker adapters
-  - `alpaca_adapter.py`: Alpaca Markets API implementation
-- `utils/`: Utility classes for integration support
-  - `api_key_manager.py`: Secure management of API keys
-  - `logger.py`: Structured logging for integration operations
-- `services/`: Integration service implementations
-- `tests/`: Unit tests for integration components
+### Adapters
 
-## Adapters
+- **AlpacaStreamAdapter** (`adapters/alpaca_stream_adapter.py`) - WebSocket connection for real-time market data
+- **PaperTradingAdapter** (`adapters/paper_trading_adapter.py`) - Risk-free simulation of trading operations
+- **AlpacaAdapter** (`adapters/alpaca_adapter.py`) - REST API interaction with Alpaca for account/order management
+- **BrokerAdapter** (`adapters/broker_adapter.py`) - Abstract base class for broker interactions
 
-### BrokerAdapter
+### Utils
 
-The `BrokerAdapter` is an abstract base class that defines the interface for all broker-specific adapters. It requires implementations for:
+- **RiskMarketDataValidator** (`utils/risk_market_data_validator.py`) - Validates the integration between market data and risk management
+- **ValidateIntegration** (`utils/validate_integration.py`) - Comprehensive validation framework for all integration components
+- **VerifyBrokerConfig** (`utils/verify_broker_config.py`) - Verifies broker API configuration and credentials
+- **Logger** (`utils/logger.py`) - Custom logging for integration components
+- **ApiKeyManager** (`utils/api_key_manager.py`) - Secure management of API credentials
+- **EnvConfig** (`utils/env_config.py`) - Environment configuration management
 
-- Authentication with broker APIs
-- Placing various order types (market, limit, stop, bracket)
-- Managing positions and account information
-- Handling broker-specific responses and errors
+### Examples
 
-### AlpacaAdapter
+- **PaperTradingRiskIntegration** (`examples/paper_trading_risk_integration.py`) - Example demonstrating the integration between WebSocket market data, risk management, and paper trading
+- **WebsocketExample** (`examples/websocket_example.py`) - Simple example of using the WebSocket adapters
+- **PaperTradingExample** (`examples/paper_trading_example.py`) - Example of paper trading functionality
 
-The `AlpacaAdapter` is a concrete implementation of the `BrokerAdapter` interface for Alpaca Markets. Features include:
+## Getting Started
 
-- Paper and live trading modes
-- Support for all required order types
-- Comprehensive error handling and retry mechanism
-- Extensive logging of all API interactions
-- Symbol format normalization (handling different formats like BTC/USD → BTCUSD)
+### Prerequisites
 
-## Configuration
+- Python 3.8+
+- API credentials for Alpaca (set as environment variables)
+- Required Python packages (see requirements.txt)
 
-The adapters use environment variables for configuration:
+### Environment Setup
 
-- `ALPACA_PAPER_API_KEY`: API key for Alpaca paper trading
-- `ALPACA_PAPER_API_SECRET`: API secret for Alpaca paper trading
-- `ALPACA_LIVE_API_KEY`: API key for Alpaca live trading
-- `ALPACA_LIVE_API_SECRET`: API secret for Alpaca live trading
+Set the following environment variables:
 
-## Usage Example
-
-```python
-from src.integration.adapters.alpaca_adapter import AlpacaAdapter
-
-# Initialize the adapter (defaults to paper trading)
-adapter = AlpacaAdapter(use_paper=True)
-
-# Check authentication
-if adapter.authenticated:
-    # Place a market order
-    result = adapter.place_market_order(
-        symbol="AAPL", 
-        qty=10, 
-        side="buy"
-    )
-    
-    if result["success"]:
-        print(f"Order placed! Order ID: {result['order_id']}")
-    else:
-        print(f"Order failed: {result['error']}")
+```
+ALPACA_API_KEY=your_api_key
+ALPACA_API_SECRET=your_api_secret
+ALPACA_API_BASE_URL=https://paper-api.alpaca.markets
+ALPACA_WS_URL=wss://stream.data.alpaca.markets/v2/iex
 ```
 
-## Logging
+### Validation Tools
 
-The integration components use structured logging to capture all API interactions:
-
-- `logs.jsonl`: Machine-readable logs in JSON format
-- `activity.log`: Human-readable logs with timestamps and levels
-
-## Tests
-
-Run the integration tests with:
+To validate your integration setup:
 
 ```bash
-python -m unittest discover -s src/integration/tests
+# Verify broker configuration
+python src/integration/utils/verify_broker_config.py
+
+# Run the risk market data validator
+python src/integration/utils/risk_market_data_validator.py
+
+# Run the comprehensive integration validator
+python src/integration/utils/validate_integration.py --full-test
 ```
 
-## Future Broker Support
+### Running Examples
 
-To add support for a new broker:
+```bash
+# Run the paper trading and risk management example
+python src/integration/examples/paper_trading_risk_integration.py --symbols AAPL,MSFT,GOOGL --duration 300
 
-1. Create a new adapter class that implements the `BrokerAdapter` interface
-2. Implement all required methods for the specific broker's API
-3. Add appropriate tests in the `tests/` directory
-4. Update the documentation in this README 
+# Run the WebSocket example
+python src/integration/examples/websocket_example.py
+```
+
+## Testing
+
+Unit tests are located in `tests/unit/integration/`:
+
+```bash
+# Run all integration tests
+python -m unittest discover -s tests/unit/integration
+
+# Run the validation utility with unit tests only
+python src/integration/utils/validate_integration.py --quick-test
+```
+
+## Documentation
+
+Detailed documentation can be found in:
+
+- [Risk WebSocket Integration](../../docs/integration/RISK_WEBSOCKET_INTEGRATION.md)
+- [Paper Trading](../../docs/integration/paper_trading.md)
+- [Alpaca WebSocket Integration](../../docs/integration/ALPACA_WEBSOCKET_INTEGRATION.md)
+
+## Troubleshooting
+
+If you encounter issues with the integration:
+
+1. Verify your broker configuration:
+   ```bash
+   python src/integration/utils/verify_broker_config.py
+   ```
+
+2. Check connectivity to WebSocket streams:
+   ```bash
+   python src/integration/utils/validate_integration.py --connectivity
+   ```
+
+3. Run the comprehensive validation:
+   ```bash
+   python src/integration/utils/validate_integration.py --full-test
+   ```
+
+4. Consult the error logs and documentation for further guidance. 

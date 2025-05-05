@@ -1,55 +1,31 @@
 <message>
 <sender>PM</sender>
 <recipient>INT</recipient>
-<type>TASK_ASSIGNMENT</type>
-<subject>Integrate Risk Management with Paper Trading Adapter (Issues #13, #15)</subject>
-<reference>#13, #15</reference>
+<type>PR_REVIEW_UPDATE</type>
+<subject>PR #46 Needs Attention: Failing Tests Must Be Fixed</subject>
+<reference>PR #46, #13, #15</reference>
 
-Dear Integration Agent,
+Dear Integration Team,
 
-You are assigned to integrate the Risk Management System (Issue #15) with the Paper Trading Adapter (Issue #13). This integration will allow us to test and demonstrate risk management features in a simulated environment.
+I've reviewed PR #46 (Risk Management Integration with Paper Trading Adapter) and noticed that there are failing tests that need to be addressed before we can merge this PR.
 
-Requirements:
-1. Enhance Paper Trading Adapter:
-   - Modify the adapter to support stop-loss/take-profit orders
-   - Implement price simulation that can trigger SL/TP orders
-   - Add support for bracket orders (main order + SL + TP)
-   - Create order status tracking for risk management validation
+## PR Status
+- 1/2 checks failing
+- Comment from reviewer: "The code looks good, but please fix the failing backend tests before we merge."
 
-2. Implement Risk Management Integration:
-   - Connect the paper trading adapter to the risk management service
-   - Create simulated portfolio for testing drawdown limits
-   - Implement position tracking for max position limits
-   - Add support for cleanup service to detect orphaned paper orders
+## Required Actions
+1. Please review the failing tests and fix the issues
+2. Push your changes to the same branch
+3. Notify me when the tests are passing
 
-3. Develop Testing Utilities:
-   - Create price movement simulation tools for triggering risk events
-   - Build market condition scenarios (volatile, trending, etc.)
-   - Implement simulation speed controls (normal, accelerated)
-   - Add manual override capabilities for testing extreme cases
+## Timeline Impact
+Given our May 10 release deadline and the current environment issues, we need to prioritize getting this PR ready for merge as soon as possible after we resolve the environment issues.
 
-4. Create Documentation:
-   - Document integration points between paper trading and risk management
-   - Create example usage scenarios in `/docs/integration/paper-trading-risk-examples.md`
-   - Provide troubleshooting guidelines for testing with paper trading
+While the current top priority is fixing the environment issues for testing (per the emergency response plan), please plan to address these test failures immediately after the environment is operational again.
 
-Implementation Guidelines:
-- Extend the AlpacaAdapter patterns for consistent interface
-- Focus on realistic simulation that can verify risk management behaviors
-- Add comprehensive logging for debugging integration issues
-- Create specific test scenarios that QA can use in their test suite
-- Coordinate with BE team on risk management service integration
+As a reminder, the Risk Management UI has been deprioritized for this release (per decision DEC-2025-05-08-01), but we still need the backend and integration components of Risk Management to be fully functional and tested.
 
-Dependencies:
-- AlpacaAdapter (already implemented in PR #9)
-- Paper Trading Adapter (in progress, Issue #13)
-- Backend risk management (being implemented by BE team concurrently)
+Please provide an update on when you expect to have these test failures resolved.
 
-Estimated Effort: 2-3 PUs
-
-Please provide a brief plan and approach before starting implementation. Continue working in your feature branch INT/feature/13-paper-trading-adapter and ensure it includes risk management integration capabilities.
-
-Let me know if you have any questions or need clarification.
-
-Best regards,
-PM 
+Thank you,
+Project Manager 

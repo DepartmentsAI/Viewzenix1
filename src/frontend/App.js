@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+
+// Theme
+import { lightTheme, darkTheme } from './styles/theme';
 
 // Layout
 import Layout from './components/Layout';
@@ -13,35 +16,43 @@ import Configurations from './pages/Configurations';
 import Logs from './pages/Logs';
 import NotFound from './pages/NotFound';
 
-// Create theme
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#2196f3',
-    },
-    secondary: {
-      main: '#f50057',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
-
+/**
+ * Main application component
+ * Provides theme provider, routing, and layout wrapper
+ */
 function App() {
+  // Theme state
+  const [darkMode, setDarkMode] = useState(true);
+  
+  // Memoize theme to prevent unnecessary re-renders
+  const theme = useMemo(
+    () => darkMode ? darkTheme : lightTheme,
+    [darkMode]
+  );
+
+  // Function to toggle between light and dark themes
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+    // Save preference to localStorage for persistence
+    localStorage.setItem('darkMode', !darkMode);
+  };
+
+  // Check localStorage for theme preference on initial load
+  React.useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(savedDarkMode === 'true');
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout toggleTheme={toggleTheme} darkMode={darkMode} />}>
           <Route index element={<Dashboard />} />
-          <Route path="risk-management" element={<RiskManagement />} />
-          <Route path="configurations" element={<Configurations />} />
+          <Route path="risk" element={<RiskManagement />} />
+          <Route path="config" element={<Configurations />} />
           <Route path="logs" element={<Logs />} />
           <Route path="*" element={<NotFound />} />
         </Route>

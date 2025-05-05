@@ -9,6 +9,7 @@ from flask import Blueprint, request, jsonify, current_app
 from jsonschema import validate, ValidationError
 
 from src.backend.services.risk_manager import RiskManager
+from src.backend.models.risk_models import RiskParameters
 
 # Create blueprint
 risk_bp = Blueprint('risk', __name__)
@@ -16,44 +17,83 @@ risk_bp = Blueprint('risk', __name__)
 # Logger for this module
 logger = logging.getLogger(__name__)
 
-# Create an instance of the RiskManager
-risk_manager = RiskManager()
+# Initialize risk manager (will be properly initialized when app starts)
+risk_manager = None
+_risk_manager_initialized = False
 
 # Risk parameters JSON schema
 RISK_PARAMETERS_SCHEMA = {
     "type": "object",
     "properties": {
-        "stop_loss_percent": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+        "sl_tp": {
+            "type": "object",
+            "properties": {
+                "enabled": {"type": "boolean"},
+                "stop_loss_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "take_profit_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "use_fixed_price": {"type": "boolean"},
+                "fixed_stop_loss_price": {"type": ["number", "null"]},
+                "fixed_take_profit_price": {"type": ["number", "null"]},
+                "use_fill_price_for_sl_tp": {"type": "boolean"}
+            }
         },
-        "take_profit_percent": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
+        "portfolio": {
+            "type": "object",
+            "properties": {
+                "enabled": {"type": "boolean"},
+                "max_position_size_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "max_daily_drawdown_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "max_open_positions": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
         },
-        "max_position_size_percent": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-        },
-        "max_daily_drawdown_percent": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1
-        },
-        "max_open_positions": {
-            "type": "integer",
-            "minimum": 1
-        },
-        "orphaned_order_age_hours": {
-            "type": "integer",
-            "minimum": 1
+        "cleanup": {
+            "type": "object",
+            "properties": {
+                "enabled": {"type": "boolean"},
+                "orphaned_order_age_hours": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
         }
-    },
-    "additionalProperties": False
+    }
 }
+
+@risk_bp.before_app_request
+def initialize_risk_manager():
+    """Initialize the RiskManager before requests."""
+    global risk_manager, _risk_manager_initialized
+    
+    if not _risk_manager_initialized:
+        try:
+            risk_manager = RiskManager()
+            _risk_manager_initialized = True
+            logger.info("RiskManager initialized in API blueprint")
+        except Exception as e:
+            logger.error(f"Failed to initialize RiskManager: {e}")
+            # Still mark as initialized to avoid repeated errors
+            _risk_manager_initialized = True
+    
+    return None
 
 @risk_bp.route('/risk/parameters', methods=['GET'])
 def get_risk_parameters():
@@ -97,15 +137,24 @@ def update_risk_parameters():
         logger.error(f"Error parsing JSON: {str(e)}")
         return jsonify({"error": "Invalid JSON format"}), 400
     
-    # Validate against schema
+    # Validate against schema - try both our validation methods
     try:
+        # Try basic schema validation first
         validate(instance=payload, schema=RISK_PARAMETERS_SCHEMA)
+        
+        # Additionally, try constructing a RiskParameters object for deeper validation
+        RiskParameters.from_dict(payload)
     except ValidationError as e:
         logger.warning(f"Schema validation error: {str(e)}")
         return jsonify({
             "status": "error",
             "message": "Invalid payload schema",
             "details": str(e)
+        }), 400
+    except Exception as validation_error:
+        return jsonify({
+            "status": "error",
+            "message": f"Invalid parameter schema: {str(validation_error)}"
         }), 400
     
     try:
