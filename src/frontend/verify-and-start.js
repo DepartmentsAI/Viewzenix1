@@ -252,6 +252,14 @@ REACT_APP_ENABLE_MOCK_API=false
 function checkPortAvailability() {
   return new Promise((resolve) => {
     console.log(`${colors.cyan}Checking port availability...${colors.reset}`);
+    
+    // Skip port check if running in CI environment
+    if (process.env.CI === 'true' || process.env.CI === true) {
+      console.log(`${colors.yellow}⚠ Skipping port availability check in CI environment${colors.reset}`);
+      warnings.push('Port availability check skipped in CI environment');
+      return resolve();
+    }
+    
     // Get PORT from .env or use default 3000
     let port = 3000;
     try {
@@ -352,6 +360,14 @@ function checkPortAvailability() {
 function checkBackendApiReachability() {
   return new Promise((resolve) => {
     console.log(`${colors.cyan}Checking backend API reachability...${colors.reset}`);
+    
+    // Skip backend check if running in CI environment
+    if (process.env.CI === 'true' || process.env.CI === true) {
+      console.log(`${colors.yellow}⚠ Skipping backend API check in CI environment${colors.reset}`);
+      warnings.push('Backend API check skipped in CI environment');
+      return resolve();
+    }
+    
     // Get API URL from .env or use default
     let apiUrl = 'http://localhost:5000/api';
     try {
@@ -525,6 +541,11 @@ function startFrontendApp() {
 async function runVerificationAndStart() {
   try {
     console.log(`${colors.cyan}Running verification checks...${colors.reset}\n`);
+    
+    // Check if running in CI environment
+    if (process.env.CI === 'true' || process.env.CI === true) {
+      console.log(`${colors.yellow}⚠ Running in CI environment - some checks may be skipped${colors.reset}`);
+    }
     
     await checkNodeVersion();
     await checkPackageJson();

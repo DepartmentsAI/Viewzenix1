@@ -62,6 +62,15 @@ If you encounter issues:
 3. **Port Conflicts**: If all ports are in use, manually stop processes using port 3000 (or other specified port)
 4. **Backend Connectivity**: If backend issues persist, check if the backend server is running and network configuration is correct
 
+## CI Environment
+
+When running in a Continuous Integration (CI) environment:
+
+1. The verification tool automatically detects CI environments
+2. Network-dependent checks (backend API connectivity, port availability) are skipped
+3. This ensures tests can run successfully without network dependencies
+4. Warning messages are still logged for skipped checks
+
 ## For QA Testing
 
 QA testers should:
