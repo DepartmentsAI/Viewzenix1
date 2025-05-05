@@ -44,21 +44,57 @@ class IntegrationLogger:
             console_handler.setFormatter(formatter)
             self.logger.addHandler(console_handler)
     
-    def log_info(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
-        """Log informational message.
+    def log_info(self, event_type_or_message: str, message_or_details: Optional[str or Dict[str, Any]] = None, 
+                details: Optional[Dict[str, Any]] = None) -> None:
+        """Log informational message with flexible parameter handling.
+        
+        This overloaded method supports both:
+        - log_info(message, details) - where first param is the message
+        - log_info(event_type, message, details) - where first param is event type
         
         Args:
-            message: Informational message
+            event_type_or_message: Either the event type or the message
+            message_or_details: Either the message or the details dictionary
             details: Optional additional details
         """
+        # Determine parameter types based on what was passed
+        if isinstance(message_or_details, str):
+            # Called as log_info(event_type, message, details)
+            event_type = event_type_or_message
+            message = message_or_details
+            # details already assigned from third parameter
+        else:
+            # Called as log_info(message, details)
+            event_type = "info"
+            message = event_type_or_message
+            details = message_or_details  # might be None
+        
         self._log_json_event(
-            event_type="info",
+            event_type=event_type,
             data={
                 "message": message,
                 "details": details or {}
             }
         )
         self.logger.info(message)
+    
+    def log_warning(self, warning_type: str, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+        """Log warning message.
+        
+        Args:
+            warning_type: Type of warning
+            message: Warning message
+            details: Optional additional details
+        """
+        self._log_json_event(
+            event_type="warning",
+            data={
+                "warning_type": warning_type,
+                "message": message,
+                "details": details or {}
+            }
+        )
+        self.logger.warning(f"Warning - {warning_type}: {message}")
     
     def log_webhook(self, payload: Dict[str, Any], status_code: int, response: Dict[str, Any]) -> None:
         """Log incoming webhook request and response.

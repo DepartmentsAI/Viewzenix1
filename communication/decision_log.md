@@ -22,6 +22,71 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-12-01: Removal of PR Tracker File
+
+**Date:** 2025-05-12
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, INT, QA
+**Context:** 
+The team has been using a PR tracker file (`communication/pr_tracker.md`) to maintain a record of pull requests and their status. However, this has led to synchronization issues and merge conflicts as multiple PRs attempt to update this file simultaneously.
+
+**Decision:** 
+1. Remove the PR tracker file from the repository
+2. Use GitHub CLI commands exclusively for tracking and managing PRs
+3. Update all workflows and documentation to reflect this change
+4. Provide guidance to all agents on the updated workflow
+
+**Rationale:**
+1. The PR tracker file was causing unnecessary merge conflicts
+2. GitHub CLI provides more reliable and up-to-date information about PRs
+3. This change simplifies the workflow and reduces the risk of conflicts
+4. Command-line tools like `gh pr list` and `gh pr view` provide all the necessary tracking functionality
+
+**Implications:**
+- All agents must use GitHub CLI for PR tracking
+- Any scripts or workflows that rely on the PR tracker file need to be updated
+- Documentation should be updated to reflect the new workflow
+- This change will reduce merge conflicts and streamline the PR process
+
+**Status:** Implemented
+**Related PRs:** #136, #131, #134
+
+---
+
+## DEC-2025-05-10-01: Environment Restoration and May 10 Testing Window Approval
+
+**Date:** 2025-05-10
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, INT, QA
+**Context:** 
+Following the activation of our contingency plan (DEC-2025-05-09-02), multiple critical PRs were identified to restore the development and testing environment. Several of these PRs had merge conflicts or failing tests, requiring immediate attention to enable the May 10-13 testing window.
+
+**Decision:** 
+1. Approve and merge the following critical PRs to restore the environment:
+   - PR #118 (BE: IntegrationLogger fixes and health API documentation)
+   - PR #119 (BE: Backend startup guide)
+   - PR #122 (FE: Frontend environment and startup fixes)
+2. Proceed with the May 10-13 testing window as outlined in our contingency plan
+3. Create comprehensive environment restoration documentation to prevent future issues
+4. Prioritize PR #46 (Risk Management Integration) to be updated with the latest fixes and merged
+
+**Rationale:**
+1. The critical environment fixes in these PRs address the issues identified in PR #100 (QA Final Verification Report)
+2. The frontend environment fix (PR #122) was the most critical blocking issue for testing
+3. The integration logger fixes (PR #118) were essential for the risk management integration work
+4. The backend startup guide (PR #119) provides essential documentation for environment setup
+
+**Implications:**
+- Testing can now proceed as planned for the May 10-13 window
+- All teams can immediately verify their components' functionality in the restored environment
+- Integration team can proceed with updating PR #46 using the latest logger fixes
+- The release target of May 13 is now achievable, pending successful testing
+
+**Status:** Implemented
+**Related PRs:** #118, #119, #122, #46, #100
+
+---
+
 ## DEC-2025-05-09-04: Alpaca API Integration Enhancement with WebSocket Support
 
 **Date:** 2025-05-09
