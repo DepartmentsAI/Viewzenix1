@@ -53,4 +53,7 @@ ehthumbs.db
 Thumbs.db
 
 # Communication archive
-communication/inbox/*/archive/ 
+communication/inbox/*/archive/
+
+# Communication messages
+communication/inbox/*/*.md 
