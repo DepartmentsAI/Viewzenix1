@@ -22,6 +22,37 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-12-01: Removal of PR Tracker File
+
+**Date:** 2025-05-12
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, INT, QA
+**Context:** 
+The team has been using a PR tracker file (`communication/pr_tracker.md`) to maintain a record of pull requests and their status. However, this has led to synchronization issues and merge conflicts as multiple PRs attempt to update this file simultaneously.
+
+**Decision:** 
+1. Remove the PR tracker file from the repository
+2. Use GitHub CLI commands exclusively for tracking and managing PRs
+3. Update all workflows and documentation to reflect this change
+4. Provide guidance to all agents on the updated workflow
+
+**Rationale:**
+1. The PR tracker file was causing unnecessary merge conflicts
+2. GitHub CLI provides more reliable and up-to-date information about PRs
+3. This change simplifies the workflow and reduces the risk of conflicts
+4. Command-line tools like `gh pr list` and `gh pr view` provide all the necessary tracking functionality
+
+**Implications:**
+- All agents must use GitHub CLI for PR tracking
+- Any scripts or workflows that rely on the PR tracker file need to be updated
+- Documentation should be updated to reflect the new workflow
+- This change will reduce merge conflicts and streamline the PR process
+
+**Status:** Implemented
+**Related PRs:** #136, #131, #134
+
+---
+
 ## DEC-2025-05-10-01: Environment Restoration and May 10 Testing Window Approval
 
 **Date:** 2025-05-10
