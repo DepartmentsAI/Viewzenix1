@@ -1177,18 +1177,32 @@ class PaperTradingAdapter(BrokerAdapter):
         return f"paper-{uuid.uuid4().hex}"
 
     def _get_market_price(self, symbol):
-        """Get the current market price for a symbol."""
-        # If we already have a price, return it
-        if symbol in self.market_prices:
-            return self.market_prices[symbol]
+        """Get the market price for a symbol, creating a random one if needed"""
+        symbol = self._format_symbol(symbol)
+        if symbol not in self.market_prices:
+            # Generate a random realistic price
+            self.market_prices[symbol] = Decimal(str(random.uniform(50.0, 200.0)))
+        return self.market_prices[symbol]
+    
+    def _set_market_price(self, symbol: str, price: float) -> None:
+        """Manually set a market price for a symbol (for testing and verification).
         
-        # Otherwise, generate a random price (for demo purposes)
-        price = Decimal(str(random.uniform(50.0, 200.0)))
-        self.market_prices[symbol] = price
-        return price
+        Args:
+            symbol: The trading symbol
+            price: The price to set
+            
+        Returns:
+            None
+        """
+        symbol = self._format_symbol(symbol)
+        self.market_prices[symbol] = Decimal(str(price))
+        self.logger.log_info(
+            "market_price_set", 
+            f"Manually set {symbol} price to {price:.2f} for testing"
+        )
         
     def _format_symbol(self, symbol):
-        """Format the symbol into a standardized format."""
+        """Format symbol consistently (uppercase)"""
         # Strip whitespace and convert to uppercase
         symbol = symbol.strip().upper()
         
