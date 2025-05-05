@@ -22,6 +22,68 @@ Each decision entry follows this format:
 
 ---
 
+## DEC-2025-05-09-04: Alpaca API Integration Enhancement with WebSocket Support
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM
+**Context:** 
+As part of our May 13 release improvements, we need to enhance our Alpaca API integration to support real-time streaming data, which will be critical for timely order execution and market data updates.
+
+**Decision:** 
+1. Implement the AlpacaStreamAdapter with WebSocket support
+2. Add documentation for the integration improvements
+3. Provide example implementation for development reference
+4. Add comprehensive testing for the WebSocket functionality
+
+**Rationale:**
+1. WebSocket integration provides real-time data streaming and reduces API request volume
+2. Real-time market data access is essential for accurate trade execution
+3. This enhancement aligns with our requirements document priorities
+4. The streaming capability will significantly improve user experience with immediate order status updates
+
+**Implications:**
+- Integration team needs to integrate this into the main adapter
+- Frontend team should consider adding real-time updates to the dashboard UI
+- Backend team must review for architectural implications
+- QA team needs to develop test cases for WebSocket functionality
+
+**Status:** Implemented
+**Related Files:** `src/integration/adapters/alpaca_stream_adapter.py`, `src/integration/examples/websocket_example.py`, `docs/integration/ALPACA_INTEGRATION_IMPROVEMENTS.md`
+
+---
+
+## DEC-2025-05-09-01: Testing Coordination and Documentation Updates
+
+**Date:** 2025-05-09
+**Decision Maker:** Project Manager
+**Participants:** PM, BE, FE, QA
+**Context:** 
+With the May 10 release approaching, several PRs related to communication, documentation, and testing coordination were pending. These PRs needed to be reviewed and merged to ensure that all teams have clear guidance for the final testing phase and documentation is up-to-date.
+
+**Decision:** 
+1. Merge PR #92 (Testing coordination documentation) to improve team collaboration
+2. Merge PR #84 (FE response to user stories and environment fix) to address frontend environment issues
+3. Prioritize review of remaining open PRs based on release criticality
+4. Maintain focus on testing and stabilization for the upcoming release
+
+**Rationale:**
+1. Clear testing coordination documentation is essential for the final testing phase
+2. The frontend environment fixes are critical for proper UI testing
+3. User story responses ensure alignment with project requirements
+4. Addressing these PRs enables more efficient collaboration between teams
+
+**Implications:**
+- Testing teams now have clearer documentation for the final phase
+- Frontend environment issues have been resolved
+- The PR tracker has been updated to reflect the current project status
+- Teams can proceed with testing with improved coordination
+
+**Status:** Implemented
+**Related PRs:** #92, #84 
+
+---
+
 ## DEC-2025-05-09-02: Activating Contingency Plan for May 10 Release
 
 **Date:** 2025-05-09
@@ -272,37 +334,6 @@ We need to establish the initial project structure and technology stack for the 
 - PR #36 (Dashboard Order Status Tracking)
 - `/workspace/Viewzenix1/docs/requirements/RELEASE_NOTES.md`
 - `/workspace/Viewzenix1/docs/requirements/DEPLOYMENT_CHECKLIST.md`
-
----
-
-## DEC-2025-05-09-01: Testing Coordination and Documentation Updates
-
-**Date:** 2025-05-09
-**Decision Maker:** Project Manager
-**Participants:** PM, BE, FE, QA
-**Context:** 
-With the May 10 release approaching, several PRs related to communication, documentation, and testing coordination were pending. These PRs needed to be reviewed and merged to ensure that all teams have clear guidance for the final testing phase and documentation is up-to-date.
-
-**Decision:** 
-1. Merge PR #92 (Testing coordination documentation) to improve team collaboration
-2. Merge PR #84 (FE response to user stories and environment fix) to address frontend environment issues
-3. Prioritize review of remaining open PRs based on release criticality
-4. Maintain focus on testing and stabilization for the upcoming release
-
-**Rationale:**
-1. Clear testing coordination documentation is essential for the final testing phase
-2. The frontend environment fixes are critical for proper UI testing
-3. User story responses ensure alignment with project requirements
-4. Addressing these PRs enables more efficient collaboration between teams
-
-**Implications:**
-- Testing teams now have clearer documentation for the final phase
-- Frontend environment issues have been resolved
-- The PR tracker has been updated to reflect the current project status
-- Teams can proceed with testing with improved coordination
-
-**Status:** Implemented
-**Related PRs:** #92, #84 
 
 ---
 

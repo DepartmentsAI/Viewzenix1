@@ -23,7 +23,7 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 40  | BE/feature/15-risk-management-system | #15 | Merged | BE | PM, QA | 2025-05-07 |
 | 44  | FE/communication/release-readiness-confirmation | N/A | Merged | FE | PM | 2025-05-07 |
 | 45  | QA/test/final-testing-prep | #14 | Merged | QA | PM | 2025-05-07 |
-| 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | In Progress | INT | PM | 2025-05-08 |
+| 46  | INT/feature/15-paper-trading-risk-integration | #13, #15 | Open | INT | PM, BE | 2025-05-07 |
 | 55  | FE/docs/ui-documentation | N/A | Closed | FE | - | 2025-05-08 |
 | 56  | FE/docs/ui-documentation-and-messages | N/A | Merged | FE | PM | 2025-05-08 |
 | 58  | PM/task/may8-cleanup | N/A | Merged | PM | ALL | 2025-05-08 |
@@ -58,9 +58,10 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 92  | BE/communication/testing-coordination | N/A | Merged | BE | PM | 2025-05-09 |
 | 93  | FE/chore/update-pr-tracker | N/A | Merged | FE | PM | 2025-05-08 |
 | 94  | PM/task/pr-updates-may9 | N/A | Merged | PM | - | 2025-05-09 |
-| 97  | BE/fix/integration-logger | #46 | Open | BE | PM, INT | 2025-05-09 |
+| 95  | PM/task/update-docs-and-tasks | None | Merged | PM | None | 2025-05-08 |
+| 97  | BE/fix/integration-logger | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
 | 98  | FE/feature/risk-management-integration | N/A | Open | FE | PM | 2025-05-09 |
-| 99  | BE/feature/health-api-docs-and-utils | N/A | Open | BE | PM | 2025-05-09 |
+| 99  | BE/feature/health-api-docs-and-logger-fix | #46 | Open | BE | PM, INT | 2025-05-09 |
 | 100 | QA/task/final-verification-report | #14 | Merged | QA | PM, BE, FE, INT | 2025-05-09 |
 | 103 | BE/fix/integration-logger-missing-method | #46, #91 | Merged | BE | PM | 2025-05-09 |
 | 104 | QA/test/14-contingency-testing | #14 | Merged | QA | PM | 2025-05-09 |
@@ -71,4 +72,16 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 109 | PM/config/alpaca-api-credentials | DEC-2025-05-09-03 | Merged | PM | ALL | 2025-05-09 |
 | 110 | PM/fix/remove-duplicate-api-info | N/A | Merged | PM | ALL | 2025-05-09 |
 | 111 | PM/task/env-cleanup | N/A | Merged | PM | ALL | 2025-05-09 |
-| 115 | BE/fix/backend-api-startup-issues | QA_May9_Verification | Open | BE | PM, QA | 2025-05-09 |
+| 112 | QA/task/update-pr-tracker-may9 | N/A | Open | QA | PM | 2025-05-09 |
+| 113 | QA/task/add-missing-test-fixtures | #14 | Open | QA | PM | 2025-05-09 |
+| 114 | QA/test/15-environment-verification | #14, #15 | Open | QA | PM, BE, FE, INT | 2025-05-09 |
+| 115 | BE/fix/backend-api-startup-issues | #QA_May9_Verification | Open | BE | PM, QA | 2025-05-09 |
+| 116 | FE/fix/frontend-environment-unavailable | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-09 |
+| 117 | QA/test/16-contingency-plan | #14 | Merged | QA | PM | 2025-05-09 |
+| 118 | BE/fix/integration-logger-and-health-docs | #46, #91 | Open | BE | PM, INT | 2025-05-09 |
+| 119 | BE/docs/backend-startup-guide | #49 | Open | BE | PM, QA | 2025-05-09 |
+| 120 | INT/fix/46-add-websocket-client-dependency | #46 | Open | INT | PM, BE | 2025-05-09 |
+| 121 | QA/chore/migrate-external-files | N/A | Open | QA | PM | 2025-05-09 |
+| 122 | FE/fix/frontend-environment-startup | #QA_May9_Verification | Open | FE | PM, QA | 2025-05-09 |
+| 123 | QA/chore/update-pr-tracker-may10 | N/A | Open | QA | PM | 2025-05-09 |
+| 124 | PM/task/update-decision-log-may9 | DEC-2025-05-09-04 | Merged | PM | ALL | 2025-05-09 |
