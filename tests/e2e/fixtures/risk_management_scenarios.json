@@ -1,0 +1,88 @@
+{
+  "risk_scenarios": [
+    {
+      "id": "risk_scenario_1",
+      "name": "Position Size Limit",
+      "description": "Tests the maximum allowed position size limits",
+      "test_data": {
+        "symbol": "AAPL",
+        "action": "BUY",
+        "quantity": 500,
+        "account_value": 100000,
+        "max_position_percent": 20,
+        "expected_result": {
+          "allowed": false,
+          "reason": "Position size exceeds 20% of account value"
+        }
+      }
+    },
+    {
+      "id": "risk_scenario_2",
+      "name": "Daily Loss Limit",
+      "description": "Tests the daily loss limit protection",
+      "test_data": {
+        "account_starting_value": 100000,
+        "current_account_value": 95000,
+        "daily_loss_limit_percent": 5,
+        "action": "SELL",
+        "symbol": "MSFT",
+        "quantity": 100,
+        "expected_result": {
+          "allowed": false,
+          "reason": "Daily loss limit of 5% has been reached"
+        }
+      }
+    },
+    {
+      "id": "risk_scenario_3",
+      "name": "Volatility Limit",
+      "description": "Tests trading restrictions during high volatility",
+      "test_data": {
+        "symbol": "TSLA",
+        "action": "BUY",
+        "quantity": 10,
+        "current_volatility": 45,
+        "max_volatility_threshold": 40,
+        "expected_result": {
+          "allowed": false,
+          "reason": "Symbol volatility exceeds maximum threshold"
+        }
+      }
+    },
+    {
+      "id": "risk_scenario_4",
+      "name": "Order Frequency Limit",
+      "description": "Tests the maximum order frequency allowed",
+      "test_data": {
+        "symbol": "AMZN",
+        "orders_last_hour": 12,
+        "max_orders_per_hour": 10,
+        "action": "BUY",
+        "quantity": 5,
+        "expected_result": {
+          "allowed": false,
+          "reason": "Maximum order frequency exceeded"
+        }
+      }
+    },
+    {
+      "id": "risk_scenario_5",
+      "name": "Valid Order Within Limits",
+      "description": "Tests a valid order within all risk parameters",
+      "test_data": {
+        "symbol": "GOOGL",
+        "action": "BUY",
+        "quantity": 2,
+        "account_value": 100000,
+        "position_value": 5000,
+        "daily_loss_percent": 1,
+        "orders_last_hour": 5,
+        "current_volatility": 25,
+        "expected_result": {
+          "allowed": true,
+          "reason": "Order within all risk parameters"
+        }
+      }
+    }
+  ]
+} 

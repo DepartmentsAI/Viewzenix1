@@ -88,3 +88,24 @@ This document tracks all pull requests in the Viewzenix1 project.
 | 125 | PM/task/update-integration-docs-may10 | DEC-2025-05-09-04 | Open | PM | ALL | 2025-05-10 |
 | 126 | PM/docs/consolidate-environment-guides | DEC-2025-05-09-02 | Open | PM | ALL | 2025-05-10 |
 | 127 | PM/task/update-decision-log | DEC-2025-05-10-01 | Open | PM | ALL | 2025-05-10 |
+| 121 | QA/test/121-migrate-external-files | #14 | Open | QA | PM, BE | 2025-05-10 |
+| 123 | QA/test/123-environment-verification-may10 | #14 | Open | QA | PM, BE, FE, INT | 2025-05-10 |
+
+## PR Details
+
+### PR #121: Migration of External Files to Repository
+- **Description**: Migrates test files that were incorrectly created outside the repository.
+- **Files Changed**: Test scripts, verification reports, contingency plans
+- **Related Issue**: #14 (May 10-13 Contingency Testing)
+- **Notes**: Ensures all testing artifacts are properly tracked in version control
+
+### PR #123: Environment Verification Tools for May 10 Testing
+- **Description**: Adds test scripts and fixtures for environment verification before feature testing
+- **Files Changed**:
+  - `tests/e2e/environment_verification.py`: Main verification script
+  - `tests/e2e/run_environment_verification.sh`: Unix shell wrapper
+  - `tests/e2e/run_environment_verification.ps1`: Windows PowerShell wrapper
+  - `tests/e2e/fixtures/`: Test data and configuration files
+  - `docs/testing/ENVIRONMENT_VERIFICATION_TEST_PLAN.md`: Test plan document
+- **Related Issue**: #14 (May 10-13 Contingency Testing)
+- **Notes**: Required for May 10 testing window (9:00 AM - 12:00 PM) before proceeding to critical path testing

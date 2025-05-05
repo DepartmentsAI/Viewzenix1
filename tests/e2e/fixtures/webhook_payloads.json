@@ -1,0 +1,83 @@
+{
+  "webhook_samples": [
+    {
+      "id": "sample_order_buy",
+      "name": "Sample Buy Order",
+      "payload": {
+        "action": "BUY",
+        "symbol": "AAPL",
+        "quantity": 10,
+        "order_type": "MARKET",
+        "time_in_force": "DAY",
+        "client_order_id": "test-order-12345",
+        "risk_check": true,
+        "source": "tradingview",
+        "webhook_id": "tv-alert-12345",
+        "timestamp": "2025-05-10T10:30:00Z"
+      }
+    },
+    {
+      "id": "sample_order_sell",
+      "name": "Sample Sell Order",
+      "payload": {
+        "action": "SELL",
+        "symbol": "MSFT",
+        "quantity": 5,
+        "order_type": "LIMIT",
+        "limit_price": 350.00,
+        "time_in_force": "GTC",
+        "client_order_id": "test-order-67890",
+        "risk_check": true,
+        "source": "tradingview",
+        "webhook_id": "tv-alert-67890",
+        "timestamp": "2025-05-10T10:35:00Z"
+      }
+    },
+    {
+      "id": "sample_order_buy_stop",
+      "name": "Sample Buy Stop Order",
+      "payload": {
+        "action": "BUY",
+        "symbol": "GOOGL",
+        "quantity": 2,
+        "order_type": "STOP",
+        "stop_price": 2500.00,
+        "time_in_force": "GTC",
+        "client_order_id": "test-order-abcde",
+        "risk_check": true,
+        "source": "tradingview",
+        "webhook_id": "tv-alert-abcde",
+        "timestamp": "2025-05-10T10:40:00Z"
+      }
+    },
+    {
+      "id": "sample_order_invalid",
+      "name": "Invalid Order (Missing Required Fields)",
+      "payload": {
+        "action": "BUY",
+        "symbol": "TSLA",
+        "order_type": "MARKET",
+        "source": "tradingview",
+        "webhook_id": "tv-alert-invalid"
+      },
+      "expected_error": "Missing required field: quantity"
+    },
+    {
+      "id": "sample_risk_violation",
+      "name": "Order Exceeding Risk Limits",
+      "payload": {
+        "action": "BUY",
+        "symbol": "AMZN",
+        "quantity": 1000,
+        "order_type": "MARKET",
+        "time_in_force": "DAY",
+        "client_order_id": "test-order-risk",
+        "risk_check": true,
+        "source": "tradingview",
+        "webhook_id": "tv-alert-risk",
+        "timestamp": "2025-05-10T10:45:00Z"
+      },
+      "expected_error": "Order exceeds position risk limits"
+    }
+  ]
+} 

@@ -1,0 +1,93 @@
+{
+  "order_templates": [
+    {
+      "id": "standard_market_buy",
+      "name": "Standard Market Buy",
+      "description": "Standard market buy order template",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "buy",
+        "type": "market",
+        "time_in_force": "day"
+      }
+    },
+    {
+      "id": "standard_market_sell",
+      "name": "Standard Market Sell",
+      "description": "Standard market sell order template",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "sell",
+        "type": "market",
+        "time_in_force": "day"
+      }
+    },
+    {
+      "id": "limit_buy",
+      "name": "Limit Buy",
+      "description": "Limit buy order with price parameter",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "buy",
+        "type": "limit",
+        "limit_price": "{price}",
+        "time_in_force": "gtc"
+      }
+    },
+    {
+      "id": "limit_sell",
+      "name": "Limit Sell",
+      "description": "Limit sell order with price parameter",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "sell",
+        "type": "limit",
+        "limit_price": "{price}",
+        "time_in_force": "gtc"
+      }
+    },
+    {
+      "id": "stop_buy",
+      "name": "Stop Buy",
+      "description": "Stop buy order with stop price",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "buy",
+        "type": "stop",
+        "stop_price": "{stop_price}",
+        "time_in_force": "gtc"
+      }
+    },
+    {
+      "id": "stop_sell",
+      "name": "Stop Sell",
+      "description": "Stop sell order with stop price",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "sell",
+        "type": "stop",
+        "stop_price": "{stop_price}",
+        "time_in_force": "gtc"
+      }
+    },
+    {
+      "id": "trailing_stop_sell",
+      "name": "Trailing Stop Sell",
+      "description": "Trailing stop sell order with percentage",
+      "template": {
+        "symbol": "{symbol}",
+        "qty": "{quantity}",
+        "side": "sell",
+        "type": "trailing_stop",
+        "trail_percent": "{trail_percent}",
+        "time_in_force": "gtc"
+      }
+    }
+  ]
+} 

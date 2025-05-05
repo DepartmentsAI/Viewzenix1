@@ -1,0 +1,51 @@
+{
+  "test_users": [
+    {
+      "id": "test_admin",
+      "username": "admin",
+      "email": "admin@viewzenix.example.com",
+      "password": "Admin123!",
+      "role": "admin",
+      "permissions": ["read", "write", "execute", "manage_users"],
+      "active": true
+    },
+    {
+      "id": "test_user",
+      "username": "testuser",
+      "email": "user@viewzenix.example.com",
+      "password": "User123!",
+      "role": "user",
+      "permissions": ["read", "write"],
+      "active": true
+    },
+    {
+      "id": "test_viewer",
+      "username": "viewer",
+      "email": "viewer@viewzenix.example.com",
+      "password": "Viewer123!",
+      "role": "viewer",
+      "permissions": ["read"],
+      "active": true
+    },
+    {
+      "id": "test_inactive",
+      "username": "inactive",
+      "email": "inactive@viewzenix.example.com",
+      "password": "Inactive123!",
+      "role": "user",
+      "permissions": ["read"],
+      "active": false
+    }
+  ],
+  "auth_tokens": {
+    "test_admin": "ADMIN_TEST_TOKEN_12345",
+    "test_user": "USER_TEST_TOKEN_67890",
+    "test_viewer": "VIEWER_TEST_TOKEN_ABCDE"
+  },
+  "login_info": {
+    "url": "/api/auth/login",
+    "method": "POST",
+    "content_type": "application/json"
+  },
+  "test_notes": "These credentials are for testing purposes only and should never be used in production"
+} 

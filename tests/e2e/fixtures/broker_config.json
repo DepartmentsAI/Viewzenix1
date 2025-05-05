@@ -1,0 +1,15 @@
+{
+  "api_key": "PK_YOUR_API_KEY",
+  "api_secret": "YOUR_API_SECRET",
+  "paper_trading": true,
+  "base_url": "https://paper-api.alpaca.markets",
+  "websocket_url": "wss://stream.data.alpaca.markets/v2/iex",
+  "api_version": "v2",
+  "rate_limit_retry": true,
+  "rate_limit_retry_max": 3,
+  "rate_limit_retry_wait": 30,
+  "timeout": 60,
+  "symbols": ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
+  "retry_on_failure": true,
+  "debug_mode": false
+} 
