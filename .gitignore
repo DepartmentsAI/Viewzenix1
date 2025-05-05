@@ -75,7 +75,12 @@ communication/inbox/*/archive/
 # communication/inbox/*/*.md  <- Removing this, messages should be tracked if explicitly added
 
 # Runtime configuration files
-# config/ <- Removing this if runtime config needs tracking
+config/
 
 # Temporary backups
-temp_backup/ 
+temp_backup/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3 
