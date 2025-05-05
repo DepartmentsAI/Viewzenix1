@@ -23,7 +23,10 @@
     "eject": "react-scripts eject",
     "health-check": "node health-check.js",
     "start:win": "powershell -ExecutionPolicy Bypass -File .\\start.ps1",
-    "start:unix": "chmod +x ./start.sh && ./start.sh"
+    "start:unix": "chmod +x ./start.sh && ./start.sh",
+    "verify": "node verify-environment.js",
+    "verify:ci": "node verify-environment.js --ci --silent",
+    "test:env": "jest tests/environment.test.js"
   },
   "eslintConfig": {
     "extends": [
