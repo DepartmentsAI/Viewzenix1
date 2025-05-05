@@ -20,7 +20,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "health-check": "node health-check.js",
+    "start:win": "powershell -ExecutionPolicy Bypass -File .\\start.ps1",
+    "start:unix": "chmod +x ./start.sh && ./start.sh"
   },
   "eslintConfig": {
     "extends": [
