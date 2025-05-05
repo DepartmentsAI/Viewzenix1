@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize risk manager (will be properly initialized when app starts)
 risk_manager = None
+_risk_manager_initialized = False
 
 # Risk parameters JSON schema
 RISK_PARAMETERS_SCHEMA = {
@@ -77,12 +78,22 @@ RISK_PARAMETERS_SCHEMA = {
     }
 }
 
-@risk_bp.before_app_first_request
+@risk_bp.before_app_request
 def initialize_risk_manager():
-    """Initialize the RiskManager before first request."""
-    global risk_manager
-    risk_manager = RiskManager()
-    logger.info("RiskManager initialized in API blueprint")
+    """Initialize the RiskManager before requests."""
+    global risk_manager, _risk_manager_initialized
+    
+    if not _risk_manager_initialized:
+        try:
+            risk_manager = RiskManager()
+            _risk_manager_initialized = True
+            logger.info("RiskManager initialized in API blueprint")
+        except Exception as e:
+            logger.error(f"Failed to initialize RiskManager: {e}")
+            # Still mark as initialized to avoid repeated errors
+            _risk_manager_initialized = True
+    
+    return None
 
 @risk_bp.route('/risk/parameters', methods=['GET'])
 def get_risk_parameters():

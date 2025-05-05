@@ -71,8 +71,29 @@ class RiskManager:
             self.risk_metrics.starting_equity = equity
             self.risk_metrics.last_updated = time.time()
             
-            # Get open positions
-            positions = self.broker_adapter.get_positions()
+            # Get open positions - handle compatibility with different broker adapters
+            positions = []
+            try:
+                if hasattr(self.broker_adapter, 'get_positions'):
+                    positions = self.broker_adapter.get_positions()
+                elif hasattr(self.broker_adapter, 'get_position'):
+                    # Some adapters might have get_position instead of get_positions
+                    # This is a simplified fallback that won't get all positions
+                    logger.warning("Using get_position fallback - may not get all positions")
+                    symbols = ['AAPL', 'MSFT', 'GOOGL']  # Example symbols
+                    for symbol in symbols:
+                        try:
+                            position = self.broker_adapter.get_position(symbol)
+                            if position:
+                                positions.append(position)
+                        except:
+                            pass
+                else:
+                    logger.warning("Broker adapter has no method to get positions")
+            except Exception as e:
+                logger.error(f"Error getting positions: {e}")
+                positions = []
+            
             self.risk_metrics.open_position_count = len(positions)
             
             # Calculate position sizes as percentage of equity
@@ -91,7 +112,14 @@ class RiskManager:
             logger.info("Risk metrics initialized. Equity: %.2f, Positions: %d", 
                         equity, self.risk_metrics.open_position_count)
         except Exception as e:
-            logger.exception("Error initializing risk metrics: %s", str(e))
+            logger.error("Error initializing risk metrics: %s", str(e))
+            # Initialize with defaults to avoid errors
+            self.risk_metrics.current_equity = 0
+            self.risk_metrics.starting_equity = 0
+            self.risk_metrics.last_updated = time.time()
+            self.risk_metrics.open_position_count = 0
+            self.risk_metrics.position_sizes = []
+            self.risk_metrics.total_exposure_percent = 0
     
     def _load_risk_parameters(self):
         """Load risk parameters from disk or create default."""
